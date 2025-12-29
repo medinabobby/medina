@@ -207,3 +207,56 @@ export interface FolderItem {
   statusColor?: string;
   children?: FolderItem[];
 }
+
+// ============================================
+// Detail View Types
+// ============================================
+
+export interface PlanDetails extends Plan {
+  programs: Program[];
+  workoutCount: number;
+  goal?: string;
+  emphasizedMuscleGroups?: string[];
+  trainingLocation?: string;
+  splitType?: string;
+  daysPerWeek?: number;
+}
+
+export interface ProgramDetails extends Program {
+  workouts: Workout[];
+  parentPlan?: Plan;
+  progressionType?: string;
+  intensity?: string;
+  focus?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export interface WorkoutDetails extends Workout {
+  exercises: ExerciseInstanceDetails[];
+  parentProgram?: Program;
+  parentPlan?: Plan;
+}
+
+export interface ExerciseInstanceDetails extends ExerciseInstance {
+  name: string;
+  equipment?: string;
+  prescription?: string;
+  status?: 'pending' | 'in_progress' | 'completed';
+  sets?: ExerciseSet[];
+}
+
+export interface ExerciseDetails extends Exercise {
+  primaryMuscles?: string[];
+  secondaryMuscles?: string[];
+  difficulty?: string;
+  instructions?: string;
+  userStats?: {
+    current1RM?: number;
+    lastCalibrated?: Date;
+  };
+  estimated1RM?: {
+    value: number;
+    sourceExercise: string;
+  };
+}

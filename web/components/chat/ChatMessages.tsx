@@ -3,6 +3,7 @@
 import { useRef, useEffect } from 'react';
 import type { ChatMessage, WorkoutCardData, PlanCardData } from '@/lib/types';
 import { colors } from '@/lib/colors';
+import { useDetailModal } from '@/components/detail-views';
 
 interface ChatMessagesProps {
   messages: ChatMessage[];
@@ -58,6 +59,7 @@ interface MessageBubbleProps {
 
 function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
+  const { openWorkout, openPlan } = useDetailModal();
 
   if (isUser) {
     // User message: right-aligned, blue bubble
@@ -94,12 +96,20 @@ function MessageBubble({ message }: MessageBubbleProps) {
 
             {/* Workout Cards */}
             {message.workoutCards?.map((card) => (
-              <WorkoutCard key={card.workoutId} card={card} />
+              <WorkoutCard
+                key={card.workoutId}
+                card={card}
+                onClick={() => openWorkout(card.workoutId, card.workoutName)}
+              />
             ))}
 
             {/* Plan Cards */}
             {message.planCards?.map((card) => (
-              <PlanCard key={card.planId} card={card} />
+              <PlanCard
+                key={card.planId}
+                card={card}
+                onClick={() => openPlan(card.planId, card.planName)}
+              />
             ))}
           </div>
         </div>
@@ -109,10 +119,11 @@ function MessageBubble({ message }: MessageBubbleProps) {
 }
 
 // Workout Card Component
-function WorkoutCard({ card }: { card: WorkoutCardData }) {
+function WorkoutCard({ card, onClick }: { card: WorkoutCardData; onClick: () => void }) {
   return (
-    <div
-      className="border rounded-xl p-4 bg-gradient-to-br from-blue-50 to-white shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+    <button
+      onClick={onClick}
+      className="w-full border rounded-xl p-4 bg-gradient-to-br from-blue-50 to-white shadow-sm hover:shadow-md transition-shadow cursor-pointer text-left"
       style={{ borderColor: colors.accentBlue + '40' }}
     >
       <div className="flex items-center gap-3">
@@ -132,15 +143,16 @@ function WorkoutCard({ card }: { card: WorkoutCardData }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
       </div>
-    </div>
+    </button>
   );
 }
 
 // Plan Card Component
-function PlanCard({ card }: { card: PlanCardData }) {
+function PlanCard({ card, onClick }: { card: PlanCardData; onClick: () => void }) {
   return (
-    <div
-      className="border rounded-xl p-4 bg-gradient-to-br from-emerald-50 to-white shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+    <button
+      onClick={onClick}
+      className="w-full border rounded-xl p-4 bg-gradient-to-br from-emerald-50 to-white shadow-sm hover:shadow-md transition-shadow cursor-pointer text-left"
       style={{ borderColor: colors.success + '40' }}
     >
       <div className="flex items-center gap-3">
@@ -162,6 +174,6 @@ function PlanCard({ card }: { card: PlanCardData }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
       </div>
-    </div>
+    </button>
   );
 }

@@ -8,7 +8,7 @@
 
 | Platform | Version | Status |
 |----------|---------|--------|
-| iOS | v212 | TestFlight (passthrough client) |
+| iOS | v213 | TestFlight (passthrough client) |
 | Web | v212 | Production |
 | Backend | v212 | **22/22 handlers complete** |
 
@@ -53,6 +53,7 @@ All tool handlers now run on Firebase Functions. iOS is a pure passthrough clien
 
 ### iOS
 - Pure passthrough client (all logic on server)
+- Claude-style login (Google, Apple, magic link email)
 - Full workout execution with voice mode
 - Apple Health integration
 - Workout history and analytics
@@ -84,11 +85,10 @@ All tool handlers now run on Firebase Functions. iOS is a pure passthrough clien
 
 ## Next Priorities
 
-1. **iOS Login Redesign** - Claude-style UI, magic links, remove beta password code
-   - See [LOGIN_REDESIGN_PROPOSAL.md](LOGIN_REDESIGN_PROPOSAL.md)
-2. **Web workout execution UI** - Start workout from card, log sets
-3. **Apple Sign-in for web** - Firebase Console configuration needed
-4. **Analytics charts** - Add visualization to analyze_training_data
+1. **Web workout execution UI** - Start workout from card, log sets
+2. **Apple Sign-in for web** - Firebase Console configuration needed
+3. **Analytics charts** - Add visualization to analyze_training_data
+4. **Delete AuthenticationService.swift** - Legacy beta code cleanup (unused)
 
 ---
 
@@ -117,6 +117,7 @@ All tool handlers now run on Firebase Functions. iOS is a pure passthrough clien
 
 | Feature | Date | Notes |
 |---------|------|-------|
+| iOS Login Redesign | Dec 29 | Claude-style UI, magic links, social auth at top |
 | Web detail pages | Dec 29 | Right-side panel with Plan/Program/Workout/Exercise views |
 | Handler migration | Dec 29 | All 22 handlers now on server (100%) |
 | iOS parity fixes | Dec 29 | Chevrons, status colors, sidebar structure |
@@ -165,4 +166,4 @@ firebase deploy --only functions
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) - System design, data flow
 - [TESTING.md](TESTING.md) - Test strategy
-- [LOGIN_REDESIGN_PROPOSAL.md](LOGIN_REDESIGN_PROPOSAL.md) - Login UI redesign plan
+- [docs/archive/](docs/archive/) - Completed proposals

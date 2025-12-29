@@ -2,10 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/components/AuthProvider';
-import { getPlans, getWorkouts } from '@/lib/firestore';
-import type { Plan, Workout } from '@/lib/types';
+import { getPlans } from '@/lib/firestore';
+import type { Plan } from '@/lib/types';
 import PlansFolder from './folders/PlansFolder';
-import WorkoutsFolder from './folders/WorkoutsFolder';
 import TrainingPreferencesModal from '@/components/TrainingPreferencesModal';
 
 interface SidebarProps {
@@ -14,10 +13,23 @@ interface SidebarProps {
   isMobile: boolean;
 }
 
+// Get user initials - "Bobby Tulsiani" -> "BT", "bobby@email.com" -> "B"
+function getInitials(nameOrEmail: string): string {
+  // If it's an email, use just the first letter
+  if (nameOrEmail.includes('@')) {
+    return nameOrEmail.charAt(0).toUpperCase();
+  }
+  // For names, get first letter of each word (up to 2)
+  const parts = nameOrEmail.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+  }
+  return nameOrEmail.slice(0, 2).toUpperCase();
+}
+
 export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
   const { user, signOut } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
@@ -45,14 +57,9 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
       console.log('[Sidebar] Loading data for user:', user.uid, user.email);
       setLoading(true);
       try {
-        const [plansData, workoutsData] = await Promise.all([
-          getPlans(user.uid),
-          getWorkouts(user.uid),
-        ]);
+        const plansData = await getPlans(user.uid);
         console.log('[Sidebar] Plans loaded:', plansData.length, plansData);
-        console.log('[Sidebar] Workouts loaded:', workoutsData.length);
         setPlans(plansData);
-        setWorkouts(workoutsData);
       } catch (error) {
         console.error('[Sidebar] Error loading data:', error);
       } finally {
@@ -144,14 +151,11 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
               {/* Plans Folder */}
               <PlansFolder plans={plans} />
 
-              {/* Workouts Folder */}
-              <WorkoutsFolder workouts={workouts} />
-
-              {/* Library Folder */}
+              {/* Library Folder - Bar chart icon like iOS */}
               <FolderSection
                 icon={
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 }
                 title="Library"
@@ -166,10 +170,18 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                 </div>
               </FolderSection>
 
-              {/* Classes Section */}
+              {/* Classes Section - Calendar grid icon like iOS */}
               <div className="flex items-center gap-2 px-3 py-2 text-gray-700">
+                <svg
+                  className={`w-4 h-4 text-gray-400 transition-transform`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
                 <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
                 </svg>
                 <span className="text-sm font-medium">Classes</span>
                 <span className="text-xs text-gray-400 ml-auto">Coming Soon</span>
@@ -209,7 +221,7 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                 style={{ backgroundColor: 'var(--color-accent-blue)' }}
               >
                 <span className="text-white text-lg font-bold">
-                  {(user?.displayName || user?.email || '?').slice(0, 2).toUpperCase()}
+                  {getInitials(user?.displayName || user?.email || '?')}
                 </span>
               </div>
             )}
@@ -295,11 +307,7 @@ function FolderSection({ icon, title, count, children, defaultOpen = false }: Fo
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
       >
-        <span className="text-gray-500">{icon}</span>
-        <span className="flex-1 text-left text-sm font-medium">{title}</span>
-        {count !== undefined && count > 0 && (
-          <span className="text-xs text-gray-400">{count}</span>
-        )}
+        {/* Chevron on LEFT like iOS */}
         <svg
           className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-90' : ''}`}
           fill="none"
@@ -308,6 +316,11 @@ function FolderSection({ icon, title, count, children, defaultOpen = false }: Fo
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
+        <span className="text-gray-500">{icon}</span>
+        <span className="flex-1 text-left text-sm font-medium">{title}</span>
+        {count !== undefined && count > 0 && (
+          <span className="text-xs text-gray-400">{count}</span>
+        )}
       </button>
       {isOpen && <div className="mt-1">{children}</div>}
     </div>

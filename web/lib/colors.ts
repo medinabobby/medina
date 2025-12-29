@@ -38,15 +38,16 @@ export const colors = {
   avatarText: 'rgb(255, 255, 255)',
 };
 
-// Status dot colors for plans/workouts
+// Status dot colors for plans/workouts (matches iOS)
 export const statusColors = {
-  active: colors.accentBlue,
-  completed: colors.success,
-  inProgress: colors.accentBlue,
-  scheduled: colors.warning,
-  skipped: colors.tertiaryText,
-  abandoned: colors.tertiaryText,
-  draft: colors.tertiaryText,
+  active: colors.success,       // Green - active plans/programs
+  completed: colors.success,    // Green - completed
+  inProgress: colors.accentBlue, // Blue - in progress
+  scheduled: colors.tertiaryText, // Gray - scheduled (future)
+  skipped: colors.warning,      // Orange - skipped
+  abandoned: colors.tertiaryText, // Gray - abandoned
+  draft: colors.accentBlue,     // Blue - draft plans
+  pending: colors.tertiaryText, // Gray - pending
 };
 
 // Tailwind-compatible CSS custom properties

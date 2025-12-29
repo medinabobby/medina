@@ -2,6 +2,7 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import Sidebar from './Sidebar';
+import { DetailModalProvider, DetailModalContainer, useDetailModal, DetailPanel } from '@/components/detail-views';
 
 interface ChatLayoutContextType {
   sidebarOpen: boolean;
@@ -23,9 +24,11 @@ interface ChatLayoutProps {
   children: ReactNode;
 }
 
-export default function ChatLayout({ children }: ChatLayoutProps) {
+// Inner component that can access DetailModalContext
+function ChatLayoutInner({ children }: ChatLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const { isOpen: isPanelOpen, close: closePanel } = useDetailModal();
 
   // Handle responsive behavior
   useEffect(() => {
@@ -79,7 +82,20 @@ export default function ChatLayout({ children }: ChatLayoutProps) {
         <main className="flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out">
           {children}
         </main>
+
+        {/* Right-side detail panel */}
+        <DetailPanel isOpen={isPanelOpen} onClose={closePanel}>
+          <DetailModalContainer />
+        </DetailPanel>
       </div>
     </ChatLayoutContext.Provider>
+  );
+}
+
+export default function ChatLayout({ children }: ChatLayoutProps) {
+  return (
+    <DetailModalProvider>
+      <ChatLayoutInner>{children}</ChatLayoutInner>
+    </DetailModalProvider>
   );
 }
