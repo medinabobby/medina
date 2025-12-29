@@ -31,10 +31,6 @@ class ResponsesManager: ObservableObject {
     /// Client handles: SSE parsing, tool execution (passthrough mode)
     static var useFirebaseBackend: Bool = true
 
-    /// v213: When true, returns mock responses instead of calling APIs
-    /// Used for simulator testing with dev login (no Firebase auth)
-    static var useMockMode: Bool = false
-
     // MARK: - Properties
 
     private var currentUser: UnifiedUser?
@@ -91,20 +87,12 @@ class ResponsesManager: ObservableObject {
     /// Send a message with streaming response
     /// v80.1: Uses previous_response_id for context - only sends new message
     /// v197: Supports Firebase backend (useFirebaseBackend flag)
-    /// v213: Supports mock mode for dev login testing
     func sendMessageStreaming(_ text: String) -> AsyncThrowingStream<ResponseStreamProcessor.ResponseEvent, Error> {
         return AsyncThrowingStream { continuation in
             Task { @MainActor in
                 guard let user = self.currentUser else {
                     Logger.log(.error, component: Self.component, message: "Not initialized - no current user")
                     continuation.finish(throwing: ResponsesError.notInitialized)
-                    return
-                }
-
-                // v213: Mock mode for dev login testing
-                if Self.useMockMode {
-                    Logger.log(.info, component: Self.component, message: "🔧 Mock mode - returning canned response")
-                    await self.sendMockResponse(for: text, continuation: continuation)
                     return
                 }
 
@@ -498,54 +486,6 @@ class ResponsesManager: ObservableObject {
         }
 
         return instructions
-    }
-
-    /// v213: Send mock response for dev login testing
-    /// Simulates AI response without calling any APIs
-    private func sendMockResponse(
-        for text: String,
-        continuation: AsyncThrowingStream<ResponseStreamProcessor.ResponseEvent, Error>.Continuation
-    ) async {
-        // Generate a mock response ID
-        let mockResponseId = "mock_\(UUID().uuidString.prefix(8))"
-        self.lastResponseId = mockResponseId
-
-        // Yield response created
-        continuation.yield(.responseCreated(responseId: mockResponseId))
-
-        // Simulate typing delay
-        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-
-        // Generate contextual mock response
-        let response = generateMockResponse(for: text)
-
-        // Yield text deltas (simulate streaming)
-        for word in response.split(separator: " ") {
-            continuation.yield(.textDelta(String(word) + " "))
-            try? await Task.sleep(nanoseconds: 50_000_000) // 50ms per word
-        }
-
-        // Yield completion events
-        continuation.yield(.textDone)
-        continuation.yield(.responseCompleted(responseId: mockResponseId))
-        continuation.finish()
-
-        Logger.log(.info, component: Self.component, message: "🔧 Mock response completed")
-    }
-
-    /// v213: Generate contextual mock response based on user message
-    private func generateMockResponse(for text: String) -> String {
-        let lowercased = text.lowercased()
-
-        if lowercased.contains("workout") && lowercased.contains("create") {
-            return "I'd love to create a workout for you! In dev mode, I can't actually create one, but try signing in with Google or Apple to use the full AI features. For now, you can explore the app UI and see how everything works."
-        } else if lowercased.contains("schedule") || lowercased.contains("plan") {
-            return "In dev mode, I can't access your schedule or plans. Sign in with Google or Apple to see your real data and let me help you plan your training!"
-        } else if lowercased.contains("hello") || lowercased.contains("hi") || lowercased.contains("hey") {
-            return "Hey there! Welcome to District. I'm running in dev mode right now, which means I can't call the AI backend. But you can explore the app UI! Sign in with Google or Apple for the full experience."
-        } else {
-            return "I'm running in dev/mock mode, so I can't process that request right now. This mode is for testing the app UI without backend calls. Sign in with Google or Apple to use the full AI-powered features!"
-        }
     }
 
     /// Process streaming events and yield to continuation

@@ -5,7 +5,6 @@
 // v213: Complete redesign - Claude-style login
 // - Social buttons (Google/Apple) prominent at top
 // - Magic link email auth (passwordless)
-// - Dev bypass for simulator testing
 // - Removed insecure beta email/password
 //
 
@@ -164,22 +163,6 @@ struct LoginView: View {
                         }
                     }
                     .padding(.bottom, 16)
-
-                    // Dev login (DEBUG only)
-                    #if DEBUG
-                    Button {
-                        devLogin()
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "hammer.fill")
-                                .font(.caption)
-                            Text("Dev Login")
-                                .font(.caption)
-                        }
-                        .foregroundColor(Color("SecondaryText").opacity(0.5))
-                    }
-                    .padding(.bottom, 16)
-                    #endif
                 }
             }
             .fullScreenCover(isPresented: $showChat) {
@@ -303,75 +286,4 @@ struct LoginView: View {
         Logger.log(.info, component: "LoginView", message: "Login complete: \(user.name)")
         showChat = true
     }
-
-    /// Dev login - bypasses Firebase Auth for simulator testing
-    #if DEBUG
-    private func devLogin() {
-        Logger.log(.info, component: "LoginView", message: "🔧 Dev login activated")
-
-        // v213: Enable mock mode so chat works without Firebase
-        ResponsesManager.useMockMode = true
-        Logger.log(.info, component: "LoginView", message: "🔧 Mock mode enabled")
-
-        // Create or get dev test user
-        let devUserId = "dev_test_user"
-
-        if TestDataManager.shared.users[devUserId] == nil {
-            let devUser = UnifiedUser(
-                id: devUserId,
-                firebaseUID: devUserId,
-                authProvider: .email,
-                email: "dev@district.fitness",
-                phoneNumber: nil,
-                name: "Dev Tester",
-                photoURL: nil,
-                providerUID: nil,
-                emailVerified: true,
-                birthdate: nil,
-                gender: .preferNotToSay,
-                roles: [.member],
-                gymId: "district_brooklyn",
-                passwordHash: nil,
-                memberProfile: MemberProfile(
-                    height: 72,
-                    currentWeight: 180,
-                    goalWeight: 175,
-                    goalDate: nil,
-                    startingWeight: 185,
-                    fitnessGoal: .strength,
-                    experienceLevel: .intermediate,
-                    preferredWorkoutDays: [.monday, .wednesday, .friday],
-                    preferredSessionDuration: 60,
-                    emphasizedMuscleGroups: nil,
-                    excludedMuscleGroups: nil,
-                    trainingLocation: .gym,
-                    availableEquipment: nil,
-                    maxTargetExercises: nil,
-                    voiceSettings: nil,
-                    trainerId: nil,
-                    membershipStatus: .active,
-                    memberSince: Date()
-                ),
-                trainerProfile: nil
-            )
-            TestDataManager.shared.users[devUserId] = devUser
-        }
-
-        TestDataManager.shared.currentUserId = devUserId
-
-        // Load reference data (exercises, protocols)
-        Task {
-            do {
-                try LocalDataLoader.loadAll()
-                Logger.log(.info, component: "LoginView", message: "🔧 Dev data loaded")
-            } catch {
-                Logger.log(.warning, component: "LoginView", message: "🔧 Dev data load failed: \(error)")
-            }
-
-            await MainActor.run {
-                showChat = true
-            }
-        }
-    }
-    #endif
 }
