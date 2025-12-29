@@ -170,37 +170,6 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                 </div>
               </FolderSection>
 
-              {/* Classes Section - Calendar grid icon like iOS */}
-              <div className="flex items-center gap-2 px-3 py-2 text-gray-700">
-                <svg
-                  className={`w-4 h-4 text-gray-400 transition-transform`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
-                </svg>
-                <span className="text-sm font-medium">Classes</span>
-                <span className="text-xs text-gray-400 ml-auto">Coming Soon</span>
-              </div>
-
-              {/* District Section */}
-              <div className="mt-4 px-3">
-                <div className="flex items-center gap-2 mb-3">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">District</span>
-                </div>
-                <div className="flex gap-2">
-                  <GymCard name="Main Gym" locked />
-                  <GymCard name="Studio" locked />
-                </div>
-                <p className="text-xs text-gray-400 mt-2">Powered by Kisi</p>
-              </div>
             </div>
           )}
         </div>
@@ -327,24 +296,3 @@ function FolderSection({ icon, title, count, children, defaultOpen = false }: Fo
   );
 }
 
-// Gym card component for District section
-interface GymCardProps {
-  name: string;
-  locked?: boolean;
-}
-
-function GymCard({ name, locked = false }: GymCardProps) {
-  return (
-    <div className="flex-1 bg-gray-50 rounded-xl p-3 text-center">
-      <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-blue-100 flex items-center justify-center">
-        <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-        </svg>
-      </div>
-      <p className="text-xs font-medium text-blue-500 uppercase">
-        {locked ? 'Locked' : 'Unlocked'}
-      </p>
-      <p className="text-xs text-gray-600 mt-1">{name}</p>
-    </div>
-  );
-}

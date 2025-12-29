@@ -8,7 +8,7 @@
 
 | Platform | Version | Status |
 |----------|---------|--------|
-| iOS | v213 | TestFlight (passthrough client) |
+| iOS | v214 | TestFlight (passthrough client) |
 | Web | v212 | Production |
 | Backend | v212 | **22/22 handlers complete** |
 
@@ -112,10 +112,57 @@ All tool handlers now run on Firebase Functions. iOS is a pure passthrough clien
 | Payment tiers | Stripe integration, subscription management |
 | Phone/SMS OTP auth | Alternative auth method (~$0.01-0.05/SMS cost) |
 
+---
+
+## White-Label / B2B (Future)
+
+Infrastructure exists for gym white-labeling. UI removed for B2C launch, retrievable from git history.
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Gym white-labeling | Planned | Fork codebase per gym contract |
+| Classes booking | Deferred | UI removed (v214), backend infrastructure exists |
+| Kisi door access | Deferred | UI removed (v214), no backend implemented |
+| Trainer-member pairing | Ready | Backend exists, UI via chat |
+| Gym data model | Ready | `seed.ts` has Gym interface, Firestore collection |
+| Trainer context | Ready | `trainerContext.ts` builds trainer-specific prompts |
+
+**Data model preserved:** `gymId`, `trainerId`, `membershipTiers`, `classTypes` fields remain in types for future B2B2C support.
+
+---
+
+## Technical Debt
+
+Issues identified in documentation audit (Dec 29, 2025).
+
+### Critical (Pre-Production)
+
+| Issue | Location | Notes |
+|-------|----------|-------|
+| Firestore security rules | `web/firestore.rules` | Still has TODO comment, allows any auth user to read/write anything |
+| Orphaned tool definition | `definitions.ts` | `createCustomWorkout` defined but no handler exists |
+
+### Documentation Fixes
+
+| Issue | Location | Notes |
+|-------|----------|-------|
+| Broken doc links | ARCHITECTURE.md lines 568-570 | References deleted `/docs/` folder |
+| Web parity table | ROADMAP.md | "Start/end workout: Yes" misleading - web has no execution UI |
+| Test docs outdated | TESTING.md | Backend now has 5,600+ lines of tests |
+
+### Code Cleanup
+
+| Issue | Location | Notes |
+|-------|----------|-------|
+| Duplicate file | `web/lib/firestore 2.ts` | File with space in name, untracked |
+
+---
+
 ## Recently Completed
 
 | Feature | Date | Notes |
 |---------|------|-------|
+| District → Medina rebrand | Dec 29 | Removed B2B demo UI (Classes, Kisi), updated branding |
 | Apple Sign-in for web | Dec 29 | Firebase Auth with Apple provider |
 | iOS Login Redesign | Dec 29 | Claude-style UI, magic links, social auth at top |
 | Web detail pages | Dec 29 | Right-side panel with Plan/Program/Workout/Exercise views |

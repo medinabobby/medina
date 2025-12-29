@@ -423,7 +423,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Medina/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = District;
+				INFOPLIST_KEY_CFBundleDisplayName = Medina;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Medina needs microphone access to transcribe your voice into text for chat input.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Medina uses speech recognition to convert your voice to text for easier chat input.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -458,7 +458,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Medina/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = District;
+				INFOPLIST_KEY_CFBundleDisplayName = Medina;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Medina needs microphone access to transcribe your voice into text for chat input.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Medina uses speech recognition to convert your voice to text for easier chat input.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

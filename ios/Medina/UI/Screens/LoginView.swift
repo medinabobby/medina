@@ -40,7 +40,7 @@ struct LoginView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 18))
                             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
 
-                        Text("District")
+                        Text("Medina")
                             .font(.system(size: 36, weight: .bold, design: .default))
                             .foregroundColor(Color("PrimaryText"))
 

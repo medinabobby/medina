@@ -14,6 +14,7 @@
 // v118: Reordered sections - Messages at TOP (universal), Classes at BOTTOM (not all use)
 // v140: Listen for workoutStatusDidChange notification to refresh after skip
 // v194: Added ClassesComingSoonSection + GymAccessSection for District demo
+// v214: Removed District demo sections (Classes, GymAccess) for B2C launch
 // Extracted components:
 //   - SidebarFolderView.swift (reusable folder + item components)
 //   - SidebarSearchView.swift (search bar + header + profile section)
@@ -69,7 +70,7 @@ struct SidebarView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            SidebarHeaderView(title: "District", onDismiss: onDismiss)
+            SidebarHeaderView(title: "Medina", onDismiss: onDismiss)
 
             SidebarSearchView(
                 searchText: $viewModel.searchText,
@@ -253,18 +254,6 @@ struct SidebarView: View {
             onShowAll: onShowAll,
             onDismiss: onDismiss
         )
-
-        // v194: Classes coming soon section (District demo)
-        Divider()
-            .padding(.vertical, 8)
-
-        ClassesComingSoonSection(isExpanded: $viewModel.showClasses)
-
-        // v194: Gym Access / Kisi door unlock preview (District demo)
-        Divider()
-            .padding(.vertical, 8)
-
-        GymAccessSection()
     }
 
     // v117: Removed filteredWorkouts - no longer needed since Workouts folder removed

@@ -146,6 +146,6 @@ struct SidebarProfileSection: View {
 }
 
 #Preview("Header") {
-    SidebarHeaderView(title: "District", onDismiss: {})
+    SidebarHeaderView(title: "Medina", onDismiss: {})
         .frame(width: 280)
 }

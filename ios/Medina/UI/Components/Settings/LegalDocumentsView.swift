@@ -53,13 +53,13 @@ struct TermsOfServiceView: View {
 
                 section("6. Intellectual Property") {
                     """
-                    All content, features, and functionality of the App are owned by District Gym and are protected by copyright, trademark, and other intellectual property laws.
+                    All content, features, and functionality of the App are owned by Medina and are protected by copyright, trademark, and other intellectual property laws.
                     """
                 }
 
                 section("7. Limitation of Liability") {
                     """
-                    To the maximum extent permitted by law, District Gym shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the App, including but not limited to physical injury, property damage, or data loss.
+                    To the maximum extent permitted by law, Medina shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the App, including but not limited to physical injury, property damage, or data loss.
                     """
                 }
 
