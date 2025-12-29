@@ -112,7 +112,14 @@ All tool handlers now run on Firebase Functions. iOS is a pure passthrough clien
 | .edu student free tier | Auto-detect .edu emails, apply free tier on sign-up |
 | Payment tiers | Stripe integration, subscription management |
 | Phone/SMS OTP auth | Alternative auth method (~$0.01-0.05/SMS cost) |
-| Web detail pages | Workout/Plan/Exercise detail views |
+
+## Recently Completed
+
+| Feature | Date | Notes |
+|---------|------|-------|
+| Web detail pages | Dec 29 | Right-side panel with Plan/Program/Workout/Exercise views |
+| Handler migration | Dec 29 | All 22 handlers now on server (100%) |
+| iOS parity fixes | Dec 29 | Chevrons, status colors, sidebar structure |
 
 ---
 
