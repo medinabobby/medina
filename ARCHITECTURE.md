@@ -167,12 +167,11 @@ Client ← SSE Stream ←←←←←←←←←←←←←←←←←←←�
 | `get_summary` | Server | Live |
 | `send_message` | Server | Live |
 | `reschedule_plan` | Server | Live |
-| `modify_workout` | iOS | Passthrough |
-| `change_protocol` | iOS | Passthrough |
-| `analyze_training_data` | iOS | Passthrough |
-| `create_custom_workout` | iOS | Passthrough |
+| `modify_workout` | Server | Live |
+| `change_protocol` | Server | Live |
+| `analyze_training_data` | Server | Live |
 
-**Status:** 19 of 23 handlers on server (83%)
+**Status:** 22 of 22 handlers on server (100%)
 
 ### Handler Migration Checklist
 
