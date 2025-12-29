@@ -130,24 +130,31 @@ export type StreamEvent =
 
 /**
  * User profile loaded from Firestore
- * Subset of fields needed for chat context
+ * v2: Extended to include all fields needed for comprehensive AI context
  */
 export interface UserProfile {
   uid: string;
   email?: string;
   displayName?: string;
+  birthdate?: string;
   profile?: {
     birthdate?: string;
     heightInches?: number;
     currentWeight?: number;
+    goalWeight?: number;
     fitnessGoal?: string;
     experienceLevel?: string;
     preferredDays?: string[];
     sessionDuration?: number;
     gender?: string;
     personalMotivation?: string;
+    trainingLocation?: string;
+    homeEquipment?: string[];
+    emphasizedMuscles?: string[];
+    excludedMuscles?: string[];
   };
   role?: 'member' | 'trainer' | 'admin';
+  roles?: string[];
   gymId?: string;
   trainerId?: string;
 }

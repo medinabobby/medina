@@ -1,44 +1,118 @@
 /**
  * System Prompt Builder for OpenAI Responses API
  *
- * Ported from iOS SystemPrompts.swift and BaseSystemPrompt.swift
- * Phase 5: Simplified version with core identity and MVP tool instructions
+ * v2: Complete rewrite - migrated from iOS with full feature parity
+ *
+ * Modules:
+ * - coreRules.ts - Behavioral rules (confirmation, profile-aware, experience)
+ * - toolInstructions.ts - All 22 tool instructions
+ * - contextBuilders/* - User, training data, trainer context
  */
 
 import { UserProfile } from '../types/chat';
+import { buildCoreRules, buildExamples, buildWarnings } from './coreRules';
+import { buildToolInstructions } from './toolInstructions';
+import {
+  buildFullUserContext,
+  WorkoutContext,
+  PlanContext,
+} from './contextBuilders/userContext';
+import { buildTrainingDataContext, StrengthTarget, ExerciseAffinity } from './contextBuilders/trainingDataContext';
+import { buildTrainerContext, isTrainer, MemberInfo, SelectedMember } from './contextBuilders/trainerContext';
+
+// ============================================================================
+// Main Entry Point
+// ============================================================================
+
+export interface SystemPromptOptions {
+  user: UserProfile;
+  workoutContext?: WorkoutContext;
+  planContext?: PlanContext;
+  strengthTargets?: StrengthTarget[];
+  exerciseAffinity?: ExerciseAffinity;
+  trainerMembers?: MemberInfo[];
+  selectedMember?: SelectedMember;
+}
 
 /**
- * Build system prompt for the AI assistant
+ * Build complete system prompt for the AI assistant
  *
- * @param user - User profile from Firestore
+ * @param options - User profile and optional context data
  * @returns Complete system prompt string
  */
-export function buildSystemPrompt(user: UserProfile): string {
+export function buildSystemPrompt(options: SystemPromptOptions | UserProfile): string {
+  // Handle both old signature (UserProfile) and new signature (options)
+  const opts: SystemPromptOptions = 'user' in options ? options : { user: options };
+  const { user, workoutContext, planContext, strengthTargets, exerciseAffinity, trainerMembers, selectedMember } = opts;
+
   const currentDate = new Date().toISOString().slice(0, 10);
-  const userContext = buildUserContext(user);
+
+  // Build sections
+  const sections: string[] = [];
+
+  // 1. Base identity (always)
+  sections.push(BASE_IDENTITY);
+
+  // 2. User context
+  sections.push(buildFullUserContext(user, workoutContext, planContext));
+
+  // 3. Training data (if available)
+  const trainingData = buildTrainingDataContext(strengthTargets, exerciseAffinity);
+  if (trainingData) {
+    sections.push(trainingData);
+  }
+
+  // 4. Trainer context (if trainer)
+  if (isTrainer(user.roles)) {
+    sections.push(buildTrainerContext(trainerMembers || [], selectedMember));
+  }
+
+  // 5. Core behavioral rules
+  sections.push(buildCoreRules());
+
+  // 6. Tool instructions
+  sections.push(buildToolInstructions());
+
+  // 7. Action examples
+  sections.push(buildExamples());
+
+  // 8. Fitness warnings
+  sections.push(buildWarnings());
+
+  // 9. Current date
+  sections.push(`## Current Date
+Today is ${currentDate}`);
+
+  return sections.filter(s => s && s.length > 0).join('\n\n');
+}
+
+/**
+ * Build lightweight system prompt for simple queries
+ * Uses less tokens for basic operations (schedule views, profile updates)
+ */
+export function buildLightweightPrompt(user: UserProfile): string {
+  const currentDate = new Date().toISOString().slice(0, 10);
 
   return `${BASE_IDENTITY}
 
-${userContext}
+## About the User
+Name: ${user.displayName || user.email?.split('@')[0] || 'User'}
+${user.profile?.experienceLevel ? `Experience: ${capitalize(user.profile.experienceLevel)}` : ''}
+${user.profile?.fitnessGoal ? `Goal: ${formatGoal(user.profile.fitnessGoal)}` : ''}
 
-${TOOL_INSTRUCTIONS}
-
-${RESPONSE_GUIDELINES}
+## Quick Reference
+- Use show_schedule for schedule/calendar requests
+- Use update_profile when user shares personal info
+- Use suggest_options to present action choices (not numbered lists)
 
 ## Current Date
-Today is ${currentDate}
-
-${CURRENT_LIMITATIONS}`;
+Today is ${currentDate}`;
 }
 
 // ============================================================================
-// Prompt Components
+// Base Identity
 // ============================================================================
 
-/**
- * Base identity and role description
- * Ported from BaseSystemPrompt.swift
- */
 const BASE_IDENTITY = `You are Medina, a personal fitness coach and training companion.
 
 ## Your Role
@@ -53,116 +127,18 @@ You help members with:
 - Use clear, simple language - avoid excessive jargon
 - Keep responses concise (2-3 paragraphs max for explanations)
 - When creating workouts, be specific about exercises, sets, reps, and rest periods
-- Always prioritize safety and proper form`;
+- Always prioritize safety and proper form
 
-/**
- * Tool usage instructions
- */
-const TOOL_INSTRUCTIONS = `## Tool Usage
-
-### show_schedule
-Use when user asks to see their schedule, workouts, or calendar.
-- "Show my schedule" → show_schedule(period: "week")
-- "What workouts do I have this month?" → show_schedule(period: "month")
-
-### suggest_options
-Present quick-action chips at decision points.
-- Offer 2-4 tappable options instead of asking open-ended questions
-- Keep labels short (2-4 words)
-- Use specific commands that map to actions
-
-### update_profile
-**CRITICAL: You MUST call update_profile tool when user shares ANY of these:**
-- Age or birthdate ("I'm 47", "born in 1978")
-- Height ("I'm 6'2", "5 foot 10")
-- Weight ("I weigh 150lbs", "180 pounds")
-- Fitness goals ("I want to build muscle", "lose weight")
-- Training schedule ("I can work out Mon/Wed/Fri")
-- Experience level ("I'm a beginner", "been lifting 5 years")
-
-**DO NOT just acknowledge the info conversationally - CALL THE TOOL FIRST.**
-Example: User says "I'm 47 and weigh 150lbs"
-→ Call update_profile(birthdate: "1978-01-01", currentWeight: 150)
-→ THEN respond conversationally`;
-
-/**
- * Response guidelines
- */
-const RESPONSE_GUIDELINES = `## Response Guidelines
-
-### Be Action-Oriented
-- End responses with clear next steps or actionable suggestions
-- Use suggest_options to present choices at decision points
-- Don't leave users wondering "what next?"
-
-### Handle Off-Topic Gracefully
-- You're a fitness coach - redirect non-fitness questions politely
-- "I'm here to help with your fitness journey! What training questions do you have?"
-
-### Confirmation Behavior
-- NEVER automatically activate plans or start workouts
-- ASK before taking significant actions
-- After creating something, ask if user wants to proceed`;
-
-/**
- * Current limitations
- */
-const CURRENT_LIMITATIONS = `## Current Limitations (Phase 5)
-- You can show schedules and update profiles
-- Workout creation, starting workouts, and plan management are handled by the app
-- Some tools may forward to the mobile app for execution`;
+## Important Guidelines
+1. **Safety First**: Never recommend dangerous exercises without proper supervision
+2. **Progressive Overload**: Respect the user's experience level
+3. **Personalization**: Consider their goals, schedule, and preferences
+4. **Practical**: Focus on actionable advice they can use immediately`;
 
 // ============================================================================
-// Context Builders
+// Helpers
 // ============================================================================
 
-/**
- * Build user-specific context section
- */
-function buildUserContext(user: UserProfile): string {
-  const sections: string[] = [];
-
-  // Basic info
-  const name = user.displayName || user.email?.split('@')[0] || 'User';
-  sections.push(`## About the User
-Name: ${name}`);
-
-  // Profile info
-  if (user.profile) {
-    const profileLines: string[] = [];
-
-    if (user.profile.fitnessGoal) {
-      profileLines.push(`Goal: ${formatGoal(user.profile.fitnessGoal)}`);
-    }
-
-    if (user.profile.experienceLevel) {
-      profileLines.push(`Experience: ${capitalize(user.profile.experienceLevel)}`);
-    }
-
-    if (user.profile.sessionDuration) {
-      profileLines.push(`Preferred Session: ${user.profile.sessionDuration} minutes`);
-    }
-
-    if (user.profile.preferredDays?.length) {
-      profileLines.push(`Training Days: ${user.profile.preferredDays.map(capitalize).join(', ')}`);
-    }
-
-    if (profileLines.length > 0) {
-      sections.push(profileLines.join('\n'));
-    }
-  }
-
-  // Role info
-  if (user.role && user.role !== 'member') {
-    sections.push(`\nRole: ${capitalize(user.role)}`);
-  }
-
-  return sections.join('\n');
-}
-
-/**
- * Format fitness goal for display
- */
 function formatGoal(goal: string): string {
   const goalMap: Record<string, string> = {
     strength: 'Build Strength',
@@ -175,9 +151,14 @@ function formatGoal(goal: string): string {
   return goalMap[goal] || goal;
 }
 
-/**
- * Capitalize first letter of string
- */
 function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+// ============================================================================
+// Re-exports for convenience
+// ============================================================================
+
+export { WorkoutContext, PlanContext } from './contextBuilders/userContext';
+export { StrengthTarget, ExerciseAffinity } from './contextBuilders/trainingDataContext';
+export { MemberInfo, SelectedMember, isTrainer } from './contextBuilders/trainerContext';
