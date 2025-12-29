@@ -83,13 +83,6 @@ class ToolCallContext {
     /// v126: The last user message text (for server-side intent detection when AI misses parameters)
     let lastUserMessage: String?
 
-    /// Legacy: The assistant manager (deprecated, kept for transition)
-    @available(*, deprecated, message: "Use responsesManager instead")
-    var assistantManager: AssistantManager {
-        // This will crash if called - forcing migration to responsesManager
-        fatalError("assistantManager is deprecated. Use responsesManager instead.")
-    }
-
     /// Add a new message to the chat
     let addMessage: (Message) -> Void
 
