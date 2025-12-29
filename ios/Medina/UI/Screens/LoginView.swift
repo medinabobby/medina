@@ -309,6 +309,10 @@ struct LoginView: View {
     private func devLogin() {
         Logger.log(.info, component: "LoginView", message: "🔧 Dev login activated")
 
+        // v213: Enable mock mode so chat works without Firebase
+        ResponsesManager.useMockMode = true
+        Logger.log(.info, component: "LoginView", message: "🔧 Mock mode enabled")
+
         // Create or get dev test user
         let devUserId = "dev_test_user"
 
