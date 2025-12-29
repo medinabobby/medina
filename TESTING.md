@@ -1,6 +1,6 @@
 # Medina Testing Strategy
 
-**Last updated:** December 28, 2025
+**Last updated:** December 29, 2025
 
 Cross-platform testing strategy for iOS, Web, and Backend.
 
@@ -103,12 +103,9 @@ Cross-platform testing strategy for iOS, Web, and Backend.
 
 | Handler | Current | Target | Priority |
 |---------|---------|--------|----------|
-| `show_schedule` | E2E mock | + Firestore emulator | High |
-| `update_profile` | E2E mock | + Firestore emulator | High |
-| `skip_workout` | E2E mock | + Firestore emulator | High |
-| `suggest_options` | E2E mock | Valid as-is | Low |
-| `create_workout` | None | + Full unit tests | High |
-| `create_plan` | Not migrated | When migrated | Future |
+| All 22 handlers | E2E mock | + Firestore emulator | High |
+
+**All handlers migrated to server (Dec 2025).** See ROADMAP.md for complete list.
 
 **Test Types:**
 1. **Unit tests** - Handler logic in isolation
@@ -205,15 +202,10 @@ xcodebuild test -project Medina.xcodeproj -scheme Medina -destination 'platform=
 |----------|----------------------|-----|
 | User authentication | Backend | Same for iOS/Web |
 | Chat with AI | Backend | Server handles |
-| Show schedule | Backend | Server handler |
-| Update profile | Backend | Server handler |
-| Skip workout | Backend | Server handler |
-| Create workout | Backend (after migration) | Moving to server |
-| Create plan | iOS (until migrated) | Still on iOS |
+| All tool handlers | Backend | All 22 migrated to server |
 | Execute workout | iOS | iOS-only feature |
 | Voice mode | iOS | iOS-only feature |
 | Workout cards | iOS (UI) + Backend (data) | Split |
-| Plan activation | Backend (after migration) | Moving to server |
 
 ---
 
@@ -313,10 +305,10 @@ These test patterns that no longer match the architecture:
 
 ## Next Steps
 
-1. **Immediate:** Add Firestore Emulator tests for 4 deployed handlers
-2. **Short-term:** Add `create_workout` handler tests before deployment
-3. **Medium-term:** Deprecate stale iOS tests as handlers migrate
-4. **Long-term:** Add React component tests when web is priority
+1. **Immediate:** Add Firestore Emulator tests for all 22 handlers
+2. **Short-term:** Deprecate stale iOS handler tests (all handlers now on server)
+3. **Medium-term:** Add React component tests when web is priority
+4. **Long-term:** GitHub Actions CI for automated test runs
 
 ---
 

@@ -1,6 +1,6 @@
 # iOS Test Status & Deprecation Plan
 
-**Version:** December 28, 2025
+**Version:** December 29, 2025
 
 > **See also:** [TESTING.md](../../../TESTING.md) for cross-platform testing strategy
 
@@ -32,31 +32,16 @@ These tests cover iOS-only features or patterns that remain relevant:
 | `ChipResolutionTests.swift` | ~12 | iOS-specific chip rendering |
 | **PromptValidationTests.swift** | ~20 | Validates prompt content |
 
-### ⚠️ KEEP FOR NOW - Deprecate After Handler Migration
+### ⚠️ READY TO DEPRECATE - All Handlers Now on Server
 
-These tests cover tool handlers that are still in iOS passthrough mode. Deprecate each as its handler moves to server:
+**All 22 handlers migrated to server (Dec 2025).** These iOS handler tests should be deprecated and moved to `Deprecated/` folder:
 
-| File | Tests | Migrate When |
-|------|-------|--------------|
-| **ToolHandlerTests/** | | |
-| `CreateWorkoutHandlerTests.swift` | ~25 | After server handler deployed |
-| `PlanCreationTests.swift` | ~20 | After create_plan migrated |
-| `StartWorkoutHandlerTests.swift` | ~33 | After start_workout migrated |
-| `EndWorkoutHandlerTests.swift` | ~10 | After end_workout migrated |
-| `ResetWorkoutHandlerTests.swift` | ~8 | After reset_workout migrated |
-| `AbandonPlanHandlerTests.swift` | ~10 | After abandon_plan migrated |
-| `DeletePlanHandlerTests.swift` | ~8 | After delete_plan migrated |
-| `GetSubstitutionHandlerTests.swift` | ~12 | After substitution migrated |
-| `ExerciseLibraryHandlerTests.swift` | ~15 | After library handlers migrated |
-| `SendMessageHandlerTests.swift` | ~8 | After messaging migrated |
-| `AnalyzeTrainingDataTests.swift` | ~10 | After analysis migrated |
-| `CardioWorkoutTests.swift` | ~8 | After cardio support migrated |
-| `SupersetTests.swift` | ~15 | Part of create_workout |
-| `ProtocolChangeTests.swift` | ~10 | Part of modify_workout |
-| `MovementPatternTests.swift` | ~8 | Part of exercise selection |
-| `LibraryParityTests.swift` | ~10 | Library sync logic |
-| `WorkoutScenarioTests.swift` | ~29 | Integration scenarios |
-| `SidebarTests.swift` | ~8 | UI scenarios |
+| File | Tests | Status |
+|------|-------|--------|
+| **ToolHandlerTests/** | ~237 | Ready to deprecate |
+| All handler test files | | Server tests exist |
+
+**Action:** Move all `ToolHandlerTests/` files to `Deprecated/` folder. Backend tests now cover this functionality.
 
 ### ⚠️ DEPRECATE NOW - Already Migrated to Server
 
@@ -116,10 +101,9 @@ When a handler moves from iOS to server:
 | Category | Files | Tests | Status |
 |----------|-------|-------|--------|
 | Keep (iOS-only) | 7 | ~157 | ✅ Valid |
-| Keep for now (passthrough) | 18 | ~237 | ⚠️ Deprecate incrementally |
-| Deprecate (migrated) | 1 | ~19 | ⚠️ Mark deprecated |
+| Ready to deprecate (all handlers on server) | 19 | ~256 | ⚠️ Move to Deprecated/ |
 | Deprecate (wrong pattern) | 6 | ~54 | ❌ Remove/archive |
-| **Total** | **35** | **~467** | |
+| **Total** | **32** | **~467** | |
 
 ---
 

@@ -1,6 +1,6 @@
 # Backend Test Strategy
 
-**Version:** v202 (December 28, 2025)
+**Version:** v212 (December 29, 2025)
 
 > **See also:** [TESTING.md](../../../TESTING.md) for cross-platform testing strategy
 
@@ -48,14 +48,14 @@ Unit tests verify handlers work **when called**. Manual tests verify **AI decide
 
 ## Handler Coverage
 
-| Handler | Unit Tests | Integration | Status |
-|---------|------------|-------------|--------|
-| `show_schedule` | ✅ E2E mock | ⬜ TODO | Deployed |
-| `update_profile` | ✅ E2E mock | ⬜ TODO | Deployed |
-| `skip_workout` | ✅ E2E mock | ⬜ TODO | Deployed |
-| `suggest_options` | ✅ E2E mock | N/A | Deployed |
-| `create_workout` | ⬜ TODO | ⬜ TODO | Ready to deploy |
-| `create_plan` | N/A | N/A | Not migrated |
+**All 22 handlers are now deployed to server (Dec 2025).**
+
+See ROADMAP.md for complete handler list. All handlers have basic E2E mock tests.
+
+| Priority | Action |
+|----------|--------|
+| High | Add Firestore Emulator integration tests |
+| Medium | Add coverage thresholds (80%) |
 
 ---
 
