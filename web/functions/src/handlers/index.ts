@@ -107,6 +107,10 @@ const HANDLED_TOOLS = new Set([
   "get_summary",
   "send_message",
   "reschedule_plan",
+  // Phase 3: Final migration (v212)
+  "modify_workout",
+  "change_protocol",
+  "analyze_training_data",
 ]);
 
 /**
@@ -148,6 +152,10 @@ async function loadHandler(toolName: string): Promise<ToolHandler | null> {
     "get_summary": "./getSummary",
     "send_message": "./sendMessage",
     "reschedule_plan": "./reschedulePlan",
+    // Phase 3: Final migration (v212)
+    "modify_workout": "./modifyWorkout",
+    "change_protocol": "./changeProtocol",
+    "analyze_training_data": "./analyzeTrainingData",
   };
 
   const modulePath = moduleMap[toolName];

@@ -8,17 +8,19 @@
 
 | Platform | Version | Status |
 |----------|---------|--------|
-| iOS | v212 | TestFlight |
+| iOS | v212 | TestFlight (passthrough client) |
 | Web | v212 | Production |
-| Backend | v212 | 19/23 handlers |
+| Backend | v212 | **22/22 handlers complete** |
 
 ---
 
 ## Handler Migration Progress
 
-**19 of 23 handlers complete (83%)**
+**22 of 22 handlers complete (100%)**
 
-### Complete
+All tool handlers now run on Firebase Functions. iOS is a pure passthrough client.
+
+### Complete (All Phases)
 
 | Phase | Handler | Description |
 |-------|---------|-------------|
@@ -41,21 +43,16 @@
 | 2 | `get_summary` | Workout/plan summary |
 | 2 | `send_message` | Create message with threading |
 | 2 | `reschedule_plan` | Update plan schedule |
-
-### Remaining (4 handlers)
-
-| Handler | Complexity | Notes |
-|---------|------------|-------|
-| `modify_workout` | High | Edit workout in progress - complex state mutations |
-| `change_protocol` | Medium | Swap exercise protocols |
-| `analyze_training_data` | High | Charts, analytics, many edge cases |
-| `create_custom_workout` | Medium | Free-form workout builder |
+| 3 | `modify_workout` | Edit workout parameters |
+| 3 | `change_protocol` | Swap exercise protocols |
+| 3 | `analyze_training_data` | Training analytics (text MVP) |
 
 ---
 
 ## Platform Features
 
 ### iOS
+- Pure passthrough client (all logic on server)
 - Full workout execution with voice mode
 - Apple Health integration
 - Workout history and analytics
@@ -74,6 +71,9 @@
 | Create workout | Yes | Yes |
 | Create plan | Yes | Yes |
 | Start/end workout | Yes | Yes |
+| Modify workout | Yes | Yes |
+| Change protocol | Yes | Yes |
+| Training analytics | Yes | Yes (text) |
 | Workout execution UI | Yes | No |
 | Voice mode | Yes | No |
 | Apple Health | Yes | N/A |
@@ -84,9 +84,9 @@
 
 ## Next Priorities
 
-1. **Remaining handlers** - `modify_workout`, `change_protocol`, `analyze_training_data`, `create_custom_workout`
+1. **Web workout execution UI** - Start workout from card, log sets
 2. **Apple Sign-in for web** - Firebase Console configuration needed
-3. **Web workout execution UI** - Start workout from card, log sets
+3. **Analytics charts** - Add visualization to analyze_training_data
 
 ---
 
@@ -111,6 +111,8 @@ iOS App ───┐
 Web App ───┘         │
                      └── Firestore (shared data)
 ```
+
+Both clients are now "dumb" - all business logic runs on Firebase Functions.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for technical details.
 
@@ -143,4 +145,3 @@ firebase deploy --only functions
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) - System design, data flow
 - [TESTING.md](TESTING.md) - Test strategy
-- [docs/](docs/) - API reference, data models

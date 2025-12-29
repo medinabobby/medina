@@ -3,38 +3,28 @@
 // Medina
 //
 // v63.2: Central router for tool handlers
-// v69.4: Added ReschedulePlanHandler
-// v72.1: Added UpdateExerciseTargetHandler
-// v72.2: Added executeOnly for unified batch execution (removes duplicate switch)
-// v209: Removed Phase 0+1 handlers (migrated to server - show_schedule, update_profile,
-//       skip_workout, suggest_options, create_workout, create_plan, start_workout,
-//       end_workout, reset_workout, activate_plan, abandon_plan, delete_plan)
-// Dispatches tool calls to appropriate handlers based on tool name
+// v212: ALL HANDLERS MIGRATED TO SERVER
+// iOS is now a pure passthrough - all tool execution happens on Firebase Functions
+// This file retained for backwards compatibility but router is empty
 //
 
 import Foundation
 
 /// Routes tool calls to their appropriate handlers
-/// NOTE: Phase 0+1 handlers removed - now run on Firebase Functions server
+/// NOTE: v212 - ALL handlers migrated to server. iOS is 100% passthrough.
+/// This router is now empty - all tool execution happens on Firebase Functions.
 @MainActor
 enum ToolHandlerRouter {
 
-    /// Registry of all tool handlers (Phase 2-4 only - server handles Phase 0+1)
-    /// Key: tool name (e.g., "modify_workout")
-    /// Value: handler type conforming to ToolHandler protocol
-    private static let handlers: [String: ToolHandler.Type] = [
-        // Phase 2-4: Still on iOS (pending server migration)
-        ModifyWorkoutHandler.toolName: ModifyWorkoutHandler.self,
-        ChangeProtocolHandler.toolName: ChangeProtocolHandler.self,
-        GetSubstitutionHandler.toolName: GetSubstitutionHandler.self,
-        GetSummaryHandler.toolName: GetSummaryHandler.self,
-        UpdateExerciseTargetHandler.toolName: UpdateExerciseTargetHandler.self,
-        ReschedulePlanHandler.toolName: ReschedulePlanHandler.self,
-        SendMessageHandler.toolName: SendMessageHandler.self,
-        AnalyzeTrainingDataHandler.toolName: AnalyzeTrainingDataHandler.self,
-        AddToLibraryHandler.toolName: AddToLibraryHandler.self,
-        RemoveFromLibraryHandler.toolName: RemoveFromLibraryHandler.self,
-    ]
+    /// Registry of all tool handlers
+    /// v212: EMPTY - all handlers now run on Firebase Functions server
+    /// iOS receives tool results via SSE stream, no local execution needed
+    // v212: All 22 handlers now on server:
+    // Phase 0: show_schedule, update_profile, suggest_options, skip_workout, delete_plan
+    // Phase 1: reset_workout, activate_plan, abandon_plan, start_workout, end_workout, create_workout, create_plan
+    // Phase 2: add_to_library, remove_from_library, update_exercise_target, get_substitution_options, get_summary, send_message, reschedule_plan
+    // Phase 3: modify_workout, change_protocol, analyze_training_data
+    private static let handlers: [String: ToolHandler.Type] = [:]
 
     /// Main entry point for handling tool calls (streams response)
     /// - Parameters:
