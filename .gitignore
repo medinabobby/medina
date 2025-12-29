@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Build outputs
+web/out/
+web/.next/
+web/functions/lib/
+*.js.map
+
+# Environment
+.env
+.env.local
+.env.*.local
+web/.env.local
+
+# IDE
+.idea/
+*.xcuserstate
+*.xcuserdatad/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Testing
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Misc
+*.swp
+*.swo
+*~
+
+# iOS specific
+ios/build/
+ios/DerivedData/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcworkspace/xcuserdata/
+ios/Pods/
+
+# Secrets (never commit)
+**/credentials.json
+**/serviceAccountKey.json
+**/*.p8

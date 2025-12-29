@@ -1,0 +1,3330 @@
+{
+  "bobby_20251110_ex0": {
+    "id": "bobby_20251110_ex0",
+    "exerciseId": "barbell_back_squat",
+    "workoutId": "bobby_20251110",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251110_ex0_s1",
+      "bobby_20251110_ex0_s2",
+      "bobby_20251110_ex0_s3",
+      "bobby_20251110_ex0_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "1a"
+  },
+  "bobby_20251110_ex1": {
+    "id": "bobby_20251110_ex1",
+    "exerciseId": "pull_up",
+    "workoutId": "bobby_20251110",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251110_ex1_s1",
+      "bobby_20251110_ex1_s2",
+      "bobby_20251110_ex1_s3",
+      "bobby_20251110_ex1_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "1b"
+  },
+  "bobby_20251110_ex2": {
+    "id": "bobby_20251110_ex2",
+    "exerciseId": "front_foot_elevated_dumbbell_split_squat",
+    "workoutId": "bobby_20251110",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251110_ex2_s1",
+      "bobby_20251110_ex2_s2",
+      "bobby_20251110_ex2_s3",
+      "bobby_20251110_ex2_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "2a"
+  },
+  "bobby_20251110_ex3": {
+    "id": "bobby_20251110_ex3",
+    "exerciseId": "lat_pulldown",
+    "workoutId": "bobby_20251110",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251110_ex3_s1",
+      "bobby_20251110_ex3_s2",
+      "bobby_20251110_ex3_s3",
+      "bobby_20251110_ex3_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "2b"
+  },
+  "bobby_20251110_ex4": {
+    "id": "bobby_20251110_ex4",
+    "exerciseId": "dumbbell_heel_elevated_sissy_squat",
+    "workoutId": "bobby_20251110",
+    "protocolVariantId": "gbc_relative_accessory",
+    "setIds": [
+      "bobby_20251110_ex4_s1",
+      "bobby_20251110_ex4_s2",
+      "bobby_20251110_ex4_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "3a"
+  },
+  "bobby_20251110_ex5": {
+    "id": "bobby_20251110_ex5",
+    "exerciseId": "crossover_reverse_fly",
+    "workoutId": "bobby_20251110",
+    "protocolVariantId": "gbc_relative_accessory",
+    "setIds": [
+      "bobby_20251110_ex5_s1",
+      "bobby_20251110_ex5_s2",
+      "bobby_20251110_ex5_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "3b"
+  },
+  "bobby_20251112_ex0": {
+    "id": "bobby_20251112_ex0",
+    "exerciseId": "barbell_bench_press",
+    "workoutId": "bobby_20251112",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251112_ex0_s1",
+      "bobby_20251112_ex0_s2",
+      "bobby_20251112_ex0_s3",
+      "bobby_20251112_ex0_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "1a"
+  },
+  "bobby_20251112_ex1": {
+    "id": "bobby_20251112_ex1",
+    "exerciseId": "pendlay_row",
+    "workoutId": "bobby_20251112",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251112_ex1_s1",
+      "bobby_20251112_ex1_s2",
+      "bobby_20251112_ex1_s3",
+      "bobby_20251112_ex1_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "1b"
+  },
+  "bobby_20251112_ex2": {
+    "id": "bobby_20251112_ex2",
+    "exerciseId": "incline_dumbbell_bench_press",
+    "workoutId": "bobby_20251112",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251112_ex2_s1",
+      "bobby_20251112_ex2_s2",
+      "bobby_20251112_ex2_s3",
+      "bobby_20251112_ex2_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "2a"
+  },
+  "bobby_20251112_ex3": {
+    "id": "bobby_20251112_ex3",
+    "exerciseId": "seated_row",
+    "workoutId": "bobby_20251112",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251112_ex3_s1",
+      "bobby_20251112_ex3_s2",
+      "bobby_20251112_ex3_s3",
+      "bobby_20251112_ex3_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "2b"
+  },
+  "bobby_20251112_ex4": {
+    "id": "bobby_20251112_ex4",
+    "exerciseId": "dip",
+    "workoutId": "bobby_20251112",
+    "protocolVariantId": "gbc_relative_accessory",
+    "setIds": [
+      "bobby_20251112_ex4_s1",
+      "bobby_20251112_ex4_s2",
+      "bobby_20251112_ex4_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "3a"
+  },
+  "bobby_20251112_ex5": {
+    "id": "bobby_20251112_ex5",
+    "exerciseId": "incline_dumbbell_bicep_curl",
+    "workoutId": "bobby_20251112",
+    "protocolVariantId": "gbc_relative_accessory",
+    "setIds": [
+      "bobby_20251112_ex5_s1",
+      "bobby_20251112_ex5_s2",
+      "bobby_20251112_ex5_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "3b"
+  },
+  "bobby_20251114_ex0": {
+    "id": "bobby_20251114_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "bobby_20251114",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251114_ex0_s1",
+      "bobby_20251114_ex0_s2",
+      "bobby_20251114_ex0_s3",
+      "bobby_20251114_ex0_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "1a"
+  },
+  "bobby_20251114_ex1": {
+    "id": "bobby_20251114_ex1",
+    "exerciseId": "overhead_press",
+    "workoutId": "bobby_20251114",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251114_ex1_s1",
+      "bobby_20251114_ex1_s2",
+      "bobby_20251114_ex1_s3",
+      "bobby_20251114_ex1_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "1b"
+  },
+  "bobby_20251114_ex2": {
+    "id": "bobby_20251114_ex2",
+    "exerciseId": "nordic_curl",
+    "workoutId": "bobby_20251114",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251114_ex2_s1",
+      "bobby_20251114_ex2_s2",
+      "bobby_20251114_ex2_s3",
+      "bobby_20251114_ex2_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "2a"
+  },
+  "bobby_20251114_ex3": {
+    "id": "bobby_20251114_ex3",
+    "exerciseId": "half_kneeling_arnold_press",
+    "workoutId": "bobby_20251114",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251114_ex3_s1",
+      "bobby_20251114_ex3_s2",
+      "bobby_20251114_ex3_s3",
+      "bobby_20251114_ex3_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "2b"
+  },
+  "bobby_20251114_ex4": {
+    "id": "bobby_20251114_ex4",
+    "exerciseId": "glute_bridge",
+    "workoutId": "bobby_20251114",
+    "protocolVariantId": "gbc_relative_accessory",
+    "setIds": [
+      "bobby_20251114_ex4_s1",
+      "bobby_20251114_ex4_s2",
+      "bobby_20251114_ex4_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "3a"
+  },
+  "bobby_20251114_ex5": {
+    "id": "bobby_20251114_ex5",
+    "exerciseId": "cuban_press",
+    "workoutId": "bobby_20251114",
+    "protocolVariantId": "gbc_relative_accessory",
+    "setIds": [
+      "bobby_20251114_ex5_s1",
+      "bobby_20251114_ex5_s2",
+      "bobby_20251114_ex5_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "3b"
+  },
+  "bobby_20251124_ex0": {
+    "id": "bobby_20251124_ex0",
+    "exerciseId": "barbell_back_squat",
+    "workoutId": "bobby_20251124",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251124_ex0_s1",
+      "bobby_20251124_ex0_s2",
+      "bobby_20251124_ex0_s3",
+      "bobby_20251124_ex0_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "1a"
+  },
+  "bobby_20251124_ex1": {
+    "id": "bobby_20251124_ex1",
+    "exerciseId": "pull_up",
+    "workoutId": "bobby_20251124",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251124_ex1_s1",
+      "bobby_20251124_ex1_s2",
+      "bobby_20251124_ex1_s3",
+      "bobby_20251124_ex1_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "1b"
+  },
+  "bobby_20251124_ex2": {
+    "id": "bobby_20251124_ex2",
+    "exerciseId": "dual_dumbbell_rear_foot_elevated_split_squat",
+    "workoutId": "bobby_20251124",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251124_ex2_s1",
+      "bobby_20251124_ex2_s2",
+      "bobby_20251124_ex2_s3",
+      "bobby_20251124_ex2_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "2a"
+  },
+  "bobby_20251124_ex3": {
+    "id": "bobby_20251124_ex3",
+    "exerciseId": "lat_pulldown",
+    "workoutId": "bobby_20251124",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251124_ex3_s1",
+      "bobby_20251124_ex3_s2",
+      "bobby_20251124_ex3_s3",
+      "bobby_20251124_ex3_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "2b"
+  },
+  "bobby_20251124_ex4": {
+    "id": "bobby_20251124_ex4",
+    "exerciseId": "kneeling_sissy_squat",
+    "workoutId": "bobby_20251124",
+    "protocolVariantId": "gbc_relative_accessory",
+    "setIds": [
+      "bobby_20251124_ex4_s1",
+      "bobby_20251124_ex4_s2",
+      "bobby_20251124_ex4_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "3a"
+  },
+  "bobby_20251124_ex5": {
+    "id": "bobby_20251124_ex5",
+    "exerciseId": "crossover_reverse_fly",
+    "workoutId": "bobby_20251124",
+    "protocolVariantId": "gbc_relative_accessory",
+    "setIds": [
+      "bobby_20251124_ex5_s1",
+      "bobby_20251124_ex5_s2",
+      "bobby_20251124_ex5_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "3b"
+  },
+  "bobby_20251126_ex0": {
+    "id": "bobby_20251126_ex0",
+    "exerciseId": "barbell_bench_press",
+    "workoutId": "bobby_20251126",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251126_ex0_s1",
+      "bobby_20251126_ex0_s2",
+      "bobby_20251126_ex0_s3",
+      "bobby_20251126_ex0_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "1a"
+  },
+  "bobby_20251126_ex1": {
+    "id": "bobby_20251126_ex1",
+    "exerciseId": "pendlay_row",
+    "workoutId": "bobby_20251126",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251126_ex1_s1",
+      "bobby_20251126_ex1_s2",
+      "bobby_20251126_ex1_s3",
+      "bobby_20251126_ex1_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "1b"
+  },
+  "bobby_20251126_ex2": {
+    "id": "bobby_20251126_ex2",
+    "exerciseId": "incline_dumbbell_bench_press",
+    "workoutId": "bobby_20251126",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251126_ex2_s1",
+      "bobby_20251126_ex2_s2",
+      "bobby_20251126_ex2_s3",
+      "bobby_20251126_ex2_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "2a"
+  },
+  "bobby_20251126_ex3": {
+    "id": "bobby_20251126_ex3",
+    "exerciseId": "seated_row",
+    "workoutId": "bobby_20251126",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251126_ex3_s1",
+      "bobby_20251126_ex3_s2",
+      "bobby_20251126_ex3_s3",
+      "bobby_20251126_ex3_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "2b"
+  },
+  "bobby_20251126_ex4": {
+    "id": "bobby_20251126_ex4",
+    "exerciseId": "dip",
+    "workoutId": "bobby_20251126",
+    "protocolVariantId": "gbc_relative_accessory",
+    "setIds": [
+      "bobby_20251126_ex4_s1",
+      "bobby_20251126_ex4_s2",
+      "bobby_20251126_ex4_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "3a"
+  },
+  "bobby_20251126_ex5": {
+    "id": "bobby_20251126_ex5",
+    "exerciseId": "incline_dumbbell_bicep_curl",
+    "workoutId": "bobby_20251126",
+    "protocolVariantId": "gbc_relative_accessory",
+    "setIds": [
+      "bobby_20251126_ex5_s1",
+      "bobby_20251126_ex5_s2",
+      "bobby_20251126_ex5_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "3b"
+  },
+  "bobby_20251128_ex0": {
+    "id": "bobby_20251128_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "bobby_20251128",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251128_ex0_s1",
+      "bobby_20251128_ex0_s2",
+      "bobby_20251128_ex0_s3",
+      "bobby_20251128_ex0_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "1a"
+  },
+  "bobby_20251128_ex1": {
+    "id": "bobby_20251128_ex1",
+    "exerciseId": "overhead_press",
+    "workoutId": "bobby_20251128",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251128_ex1_s1",
+      "bobby_20251128_ex1_s2",
+      "bobby_20251128_ex1_s3",
+      "bobby_20251128_ex1_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "1b"
+  },
+  "bobby_20251128_ex2": {
+    "id": "bobby_20251128_ex2",
+    "exerciseId": "swiss_ball_hamstring_curl",
+    "workoutId": "bobby_20251128",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251128_ex2_s1",
+      "bobby_20251128_ex2_s2",
+      "bobby_20251128_ex2_s3",
+      "bobby_20251128_ex2_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "2a"
+  },
+  "bobby_20251128_ex3": {
+    "id": "bobby_20251128_ex3",
+    "exerciseId": "dual_dumbbell_upright_row",
+    "workoutId": "bobby_20251128",
+    "protocolVariantId": "gbc_relative_compound",
+    "setIds": [
+      "bobby_20251128_ex3_s1",
+      "bobby_20251128_ex3_s2",
+      "bobby_20251128_ex3_s3",
+      "bobby_20251128_ex3_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "2b"
+  },
+  "bobby_20251128_ex4": {
+    "id": "bobby_20251128_ex4",
+    "exerciseId": "glute_bridge",
+    "workoutId": "bobby_20251128",
+    "protocolVariantId": "gbc_relative_accessory",
+    "setIds": [
+      "bobby_20251128_ex4_s1",
+      "bobby_20251128_ex4_s2",
+      "bobby_20251128_ex4_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "3a"
+  },
+  "bobby_20251128_ex5": {
+    "id": "bobby_20251128_ex5",
+    "exerciseId": "dumbbell_lateral_raise",
+    "workoutId": "bobby_20251128",
+    "protocolVariantId": "gbc_relative_accessory",
+    "setIds": [
+      "bobby_20251128_ex5_s1",
+      "bobby_20251128_ex5_s2",
+      "bobby_20251128_ex5_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": "3b"
+  },
+  "mihir_20251126_ex0": {
+    "id": "mihir_20251126_ex0",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20251126",
+    "protocolVariantId": "linear_6x4_variant_strength",
+    "setIds": [
+      "mihir_20251126_ex0_s1",
+      "mihir_20251126_ex0_s2",
+      "mihir_20251126_ex0_s3",
+      "mihir_20251126_ex0_s4",
+      "mihir_20251126_ex0_s5",
+      "mihir_20251126_ex0_s6"
+    ],
+    "status": "scheduled",
+    "supersetLabel": null
+  },
+  "mihir_20251126_ex1": {
+    "id": "mihir_20251126_ex1",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251126",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251126_ex1_s1",
+      "mihir_20251126_ex1_s2",
+      "mihir_20251126_ex1_s3",
+      "mihir_20251126_ex1_s4",
+      "mihir_20251126_ex1_s5"
+    ],
+    "status": "scheduled",
+    "supersetLabel": null
+  },
+  "mihir_20251126_ex2": {
+    "id": "mihir_20251126_ex2",
+    "exerciseId": "lat_pulldown",
+    "workoutId": "mihir_20251126",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251126_ex2_s1",
+      "mihir_20251126_ex2_s2",
+      "mihir_20251126_ex2_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": null
+  },
+  "mihir_20251126_ex3": {
+    "id": "mihir_20251126_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251126",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251126_ex3_s1",
+      "mihir_20251126_ex3_s2",
+      "mihir_20251126_ex3_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": null
+  },
+  "mihir_20251128_ex0": {
+    "id": "mihir_20251128_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20251128",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251128_ex0_s1",
+      "mihir_20251128_ex0_s2",
+      "mihir_20251128_ex0_s3",
+      "mihir_20251128_ex0_s4",
+      "mihir_20251128_ex0_s5"
+    ],
+    "status": "scheduled",
+    "supersetLabel": null
+  },
+  "mihir_20251128_ex1": {
+    "id": "mihir_20251128_ex1",
+    "exerciseId": "overhead_press",
+    "workoutId": "mihir_20251128",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251128_ex1_s1",
+      "mihir_20251128_ex1_s2",
+      "mihir_20251128_ex1_s3",
+      "mihir_20251128_ex1_s4"
+    ],
+    "status": "scheduled",
+    "supersetLabel": null
+  },
+  "mihir_20251128_ex2": {
+    "id": "mihir_20251128_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20251128",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251128_ex2_s1",
+      "mihir_20251128_ex2_s2",
+      "mihir_20251128_ex2_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": null
+  },
+  "mihir_20251128_ex3": {
+    "id": "mihir_20251128_ex3",
+    "exerciseId": "glute_ham_raise",
+    "workoutId": "mihir_20251128",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251128_ex3_s1",
+      "mihir_20251128_ex3_s2",
+      "mihir_20251128_ex3_s3"
+    ],
+    "status": "scheduled",
+    "supersetLabel": null
+  },
+  "mihir_20250820_ex0": {
+    "id": "mihir_20250820_ex0",
+    "exerciseId": "goblet_squat",
+    "workoutId": "mihir_20250820",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20250820_ex0_s1",
+      "mihir_20250820_ex0_s2",
+      "mihir_20250820_ex0_s3",
+      "mihir_20250820_ex0_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250820_ex1": {
+    "id": "mihir_20250820_ex1",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20250820",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250820_ex1_s1",
+      "mihir_20250820_ex1_s2",
+      "mihir_20250820_ex1_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250820_ex2": {
+    "id": "mihir_20250820_ex2",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20250820",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20250820_ex2_s1",
+      "mihir_20250820_ex2_s2",
+      "mihir_20250820_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250820_ex3": {
+    "id": "mihir_20250820_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20250820",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250820_ex3_s1",
+      "mihir_20250820_ex3_s2"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250820_ex4": {
+    "id": "mihir_20250820_ex4",
+    "exerciseId": "pendlay_row",
+    "workoutId": "mihir_20250820",
+    "protocolVariantId": "pyramid_12_10_8_ascending",
+    "setIds": [
+      "mihir_20250820_ex4_s1",
+      "mihir_20250820_ex4_s2",
+      "mihir_20250820_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250823_ex0": {
+    "id": "mihir_20250823_ex0",
+    "exerciseId": "goblet_squat",
+    "workoutId": "mihir_20250823",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20250823_ex0_s1",
+      "mihir_20250823_ex0_s2",
+      "mihir_20250823_ex0_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250823_ex1": {
+    "id": "mihir_20250823_ex1",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20250823",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250823_ex1_s1",
+      "mihir_20250823_ex1_s2",
+      "mihir_20250823_ex1_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250823_ex2": {
+    "id": "mihir_20250823_ex2",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20250823",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20250823_ex2_s1",
+      "mihir_20250823_ex2_s2",
+      "mihir_20250823_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250823_ex3": {
+    "id": "mihir_20250823_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20250823",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250823_ex3_s1",
+      "mihir_20250823_ex3_s2",
+      "mihir_20250823_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250823_ex4": {
+    "id": "mihir_20250823_ex4",
+    "exerciseId": "pendlay_row",
+    "workoutId": "mihir_20250823",
+    "protocolVariantId": "pyramid_12_10_8_ascending",
+    "setIds": [
+      "mihir_20250823_ex4_s1",
+      "mihir_20250823_ex4_s2",
+      "mihir_20250823_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250825_ex0": {
+    "id": "mihir_20250825_ex0",
+    "exerciseId": "goblet_squat",
+    "workoutId": "mihir_20250825",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20250825_ex0_s1",
+      "mihir_20250825_ex0_s2",
+      "mihir_20250825_ex0_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250825_ex1": {
+    "id": "mihir_20250825_ex1",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20250825",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250825_ex1_s1",
+      "mihir_20250825_ex1_s2",
+      "mihir_20250825_ex1_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250825_ex2": {
+    "id": "mihir_20250825_ex2",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20250825",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20250825_ex2_s1",
+      "mihir_20250825_ex2_s2",
+      "mihir_20250825_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250825_ex3": {
+    "id": "mihir_20250825_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20250825",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250825_ex3_s1",
+      "mihir_20250825_ex3_s2",
+      "mihir_20250825_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250825_ex4": {
+    "id": "mihir_20250825_ex4",
+    "exerciseId": "pendlay_row",
+    "workoutId": "mihir_20250825",
+    "protocolVariantId": "pyramid_12_10_8_ascending",
+    "setIds": [
+      "mihir_20250825_ex4_s1",
+      "mihir_20250825_ex4_s2",
+      "mihir_20250825_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250825_ex5": {
+    "id": "mihir_20250825_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20250825",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250825_ex5_s1",
+      "mihir_20250825_ex5_s2",
+      "mihir_20250825_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250828_ex0": {
+    "id": "mihir_20250828_ex0",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20250828",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250828_ex0_s1",
+      "mihir_20250828_ex0_s2",
+      "mihir_20250828_ex0_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250828_ex1": {
+    "id": "mihir_20250828_ex1",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20250828",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250828_ex1_s1",
+      "mihir_20250828_ex1_s2",
+      "mihir_20250828_ex1_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250828_ex2": {
+    "id": "mihir_20250828_ex2",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20250828",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20250828_ex2_s1",
+      "mihir_20250828_ex2_s2",
+      "mihir_20250828_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250828_ex3": {
+    "id": "mihir_20250828_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20250828",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250828_ex3_s1",
+      "mihir_20250828_ex3_s2",
+      "mihir_20250828_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250828_ex4": {
+    "id": "mihir_20250828_ex4",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20250828",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20250828_ex4_s1",
+      "mihir_20250828_ex4_s2",
+      "mihir_20250828_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250828_ex5": {
+    "id": "mihir_20250828_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20250828",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250828_ex5_s1",
+      "mihir_20250828_ex5_s2",
+      "mihir_20250828_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250902_ex0": {
+    "id": "mihir_20250902_ex0",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20250902",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250902_ex0_s1",
+      "mihir_20250902_ex0_s2",
+      "mihir_20250902_ex0_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250902_ex1": {
+    "id": "mihir_20250902_ex1",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20250902",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250902_ex1_s1",
+      "mihir_20250902_ex1_s2",
+      "mihir_20250902_ex1_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250902_ex2": {
+    "id": "mihir_20250902_ex2",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20250902",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20250902_ex2_s1",
+      "mihir_20250902_ex2_s2",
+      "mihir_20250902_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250902_ex3": {
+    "id": "mihir_20250902_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20250902",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250902_ex3_s1",
+      "mihir_20250902_ex3_s2",
+      "mihir_20250902_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250902_ex4": {
+    "id": "mihir_20250902_ex4",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20250902",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20250902_ex4_s1",
+      "mihir_20250902_ex4_s2",
+      "mihir_20250902_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250902_ex5": {
+    "id": "mihir_20250902_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20250902",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250902_ex5_s1",
+      "mihir_20250902_ex5_s2",
+      "mihir_20250902_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250904_ex0": {
+    "id": "mihir_20250904_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20250904",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250904_ex0_s1",
+      "mihir_20250904_ex0_s2",
+      "mihir_20250904_ex0_s3",
+      "mihir_20250904_ex0_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250904_ex1": {
+    "id": "mihir_20250904_ex1",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20250904",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20250904_ex1_s1",
+      "mihir_20250904_ex1_s2",
+      "mihir_20250904_ex1_s3",
+      "mihir_20250904_ex1_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250904_ex2": {
+    "id": "mihir_20250904_ex2",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20250904",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250904_ex2_s1",
+      "mihir_20250904_ex2_s2",
+      "mihir_20250904_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250904_ex3": {
+    "id": "mihir_20250904_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20250904",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250904_ex3_s1",
+      "mihir_20250904_ex3_s2",
+      "mihir_20250904_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250904_ex4": {
+    "id": "mihir_20250904_ex4",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20250904",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20250904_ex4_s1",
+      "mihir_20250904_ex4_s2",
+      "mihir_20250904_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250904_ex5": {
+    "id": "mihir_20250904_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20250904",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250904_ex5_s1"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250908_ex0": {
+    "id": "mihir_20250908_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20250908",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250908_ex0_s1",
+      "mihir_20250908_ex0_s2",
+      "mihir_20250908_ex0_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250908_ex1": {
+    "id": "mihir_20250908_ex1",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20250908",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20250908_ex1_s1",
+      "mihir_20250908_ex1_s2",
+      "mihir_20250908_ex1_s3",
+      "mihir_20250908_ex1_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250908_ex2": {
+    "id": "mihir_20250908_ex2",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20250908",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250908_ex2_s1",
+      "mihir_20250908_ex2_s2",
+      "mihir_20250908_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250908_ex3": {
+    "id": "mihir_20250908_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20250908",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250908_ex3_s1",
+      "mihir_20250908_ex3_s2",
+      "mihir_20250908_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250908_ex4": {
+    "id": "mihir_20250908_ex4",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20250908",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20250908_ex4_s1",
+      "mihir_20250908_ex4_s2",
+      "mihir_20250908_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250908_ex5": {
+    "id": "mihir_20250908_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20250908",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250908_ex5_s1",
+      "mihir_20250908_ex5_s2",
+      "mihir_20250908_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250908_ex6": {
+    "id": "mihir_20250908_ex6",
+    "exerciseId": "medicine_ball_toss",
+    "workoutId": "mihir_20250908",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250908_ex6_s1",
+      "mihir_20250908_ex6_s2",
+      "mihir_20250908_ex6_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250911_ex0": {
+    "id": "mihir_20250911_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20250911",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250911_ex0_s1",
+      "mihir_20250911_ex0_s2",
+      "mihir_20250911_ex0_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250911_ex1": {
+    "id": "mihir_20250911_ex1",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20250911",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20250911_ex1_s1",
+      "mihir_20250911_ex1_s2",
+      "mihir_20250911_ex1_s3",
+      "mihir_20250911_ex1_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250911_ex2": {
+    "id": "mihir_20250911_ex2",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20250911",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250911_ex2_s1",
+      "mihir_20250911_ex2_s2",
+      "mihir_20250911_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250911_ex3": {
+    "id": "mihir_20250911_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20250911",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250911_ex3_s1",
+      "mihir_20250911_ex3_s2",
+      "mihir_20250911_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250911_ex4": {
+    "id": "mihir_20250911_ex4",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20250911",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20250911_ex4_s1",
+      "mihir_20250911_ex4_s2",
+      "mihir_20250911_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250911_ex5": {
+    "id": "mihir_20250911_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20250911",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250911_ex5_s1",
+      "mihir_20250911_ex5_s2",
+      "mihir_20250911_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250911_ex6": {
+    "id": "mihir_20250911_ex6",
+    "exerciseId": "medicine_ball_toss",
+    "workoutId": "mihir_20250911",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250911_ex6_s1",
+      "mihir_20250911_ex6_s2",
+      "mihir_20250911_ex6_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250913_ex0": {
+    "id": "mihir_20250913_ex0",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20250913",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20250913_ex0_s1",
+      "mihir_20250913_ex0_s2",
+      "mihir_20250913_ex0_s3",
+      "mihir_20250913_ex0_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250913_ex1": {
+    "id": "mihir_20250913_ex1",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20250913",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250913_ex1_s1",
+      "mihir_20250913_ex1_s2",
+      "mihir_20250913_ex1_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250913_ex2": {
+    "id": "mihir_20250913_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20250913",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20250913_ex2_s1",
+      "mihir_20250913_ex2_s2",
+      "mihir_20250913_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250913_ex3": {
+    "id": "mihir_20250913_ex3",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20250913",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250913_ex3_s1",
+      "mihir_20250913_ex3_s2",
+      "mihir_20250913_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250913_ex4": {
+    "id": "mihir_20250913_ex4",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20250913",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250913_ex4_s1",
+      "mihir_20250913_ex4_s2",
+      "mihir_20250913_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250913_ex5": {
+    "id": "mihir_20250913_ex5",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20250913",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250913_ex5_s1",
+      "mihir_20250913_ex5_s2",
+      "mihir_20250913_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250913_ex6": {
+    "id": "mihir_20250913_ex6",
+    "exerciseId": "medicine_ball_toss",
+    "workoutId": "mihir_20250913",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250913_ex6_s1",
+      "mihir_20250913_ex6_s2",
+      "mihir_20250913_ex6_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250920_ex0": {
+    "id": "mihir_20250920_ex0",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20250920",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20250920_ex0_s1",
+      "mihir_20250920_ex0_s2",
+      "mihir_20250920_ex0_s3",
+      "mihir_20250920_ex0_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250920_ex1": {
+    "id": "mihir_20250920_ex1",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20250920",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250920_ex1_s1",
+      "mihir_20250920_ex1_s2",
+      "mihir_20250920_ex1_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250920_ex2": {
+    "id": "mihir_20250920_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20250920",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20250920_ex2_s1",
+      "mihir_20250920_ex2_s2",
+      "mihir_20250920_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250920_ex3": {
+    "id": "mihir_20250920_ex3",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20250920",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250920_ex3_s1",
+      "mihir_20250920_ex3_s2",
+      "mihir_20250920_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250920_ex4": {
+    "id": "mihir_20250920_ex4",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20250920",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250920_ex4_s1",
+      "mihir_20250920_ex4_s2",
+      "mihir_20250920_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250920_ex5": {
+    "id": "mihir_20250920_ex5",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20250920",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250920_ex5_s1",
+      "mihir_20250920_ex5_s2",
+      "mihir_20250920_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250920_ex6": {
+    "id": "mihir_20250920_ex6",
+    "exerciseId": "medicine_ball_toss",
+    "workoutId": "mihir_20250920",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250920_ex6_s1",
+      "mihir_20250920_ex6_s2",
+      "mihir_20250920_ex6_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250923_ex0": {
+    "id": "mihir_20250923_ex0",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20250923",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20250923_ex0_s1",
+      "mihir_20250923_ex0_s2",
+      "mihir_20250923_ex0_s3",
+      "mihir_20250923_ex0_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250923_ex1": {
+    "id": "mihir_20250923_ex1",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20250923",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250923_ex1_s1",
+      "mihir_20250923_ex1_s2",
+      "mihir_20250923_ex1_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250923_ex2": {
+    "id": "mihir_20250923_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20250923",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20250923_ex2_s1",
+      "mihir_20250923_ex2_s2",
+      "mihir_20250923_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250923_ex3": {
+    "id": "mihir_20250923_ex3",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20250923",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250923_ex3_s1",
+      "mihir_20250923_ex3_s2",
+      "mihir_20250923_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250923_ex4": {
+    "id": "mihir_20250923_ex4",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20250923",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250923_ex4_s1",
+      "mihir_20250923_ex4_s2",
+      "mihir_20250923_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250923_ex5": {
+    "id": "mihir_20250923_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20250923",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250923_ex5_s1",
+      "mihir_20250923_ex5_s2",
+      "mihir_20250923_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250925_ex0": {
+    "id": "mihir_20250925_ex0",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20250925",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20250925_ex0_s1",
+      "mihir_20250925_ex0_s2",
+      "mihir_20250925_ex0_s3",
+      "mihir_20250925_ex0_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250925_ex1": {
+    "id": "mihir_20250925_ex1",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20250925",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250925_ex1_s1",
+      "mihir_20250925_ex1_s2",
+      "mihir_20250925_ex1_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250925_ex2": {
+    "id": "mihir_20250925_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20250925",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20250925_ex2_s1",
+      "mihir_20250925_ex2_s2",
+      "mihir_20250925_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250925_ex3": {
+    "id": "mihir_20250925_ex3",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20250925",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250925_ex3_s1",
+      "mihir_20250925_ex3_s2",
+      "mihir_20250925_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250925_ex4": {
+    "id": "mihir_20250925_ex4",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20250925",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250925_ex4_s1",
+      "mihir_20250925_ex4_s2",
+      "mihir_20250925_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250925_ex5": {
+    "id": "mihir_20250925_ex5",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20250925",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250925_ex5_s1",
+      "mihir_20250925_ex5_s2",
+      "mihir_20250925_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250929_ex0": {
+    "id": "mihir_20250929_ex0",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20250929",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20250929_ex0_s1",
+      "mihir_20250929_ex0_s2",
+      "mihir_20250929_ex0_s3",
+      "mihir_20250929_ex0_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250929_ex1": {
+    "id": "mihir_20250929_ex1",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20250929",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250929_ex1_s1",
+      "mihir_20250929_ex1_s2",
+      "mihir_20250929_ex1_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250929_ex2": {
+    "id": "mihir_20250929_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20250929",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20250929_ex2_s1",
+      "mihir_20250929_ex2_s2",
+      "mihir_20250929_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250929_ex3": {
+    "id": "mihir_20250929_ex3",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20250929",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20250929_ex3_s1",
+      "mihir_20250929_ex3_s2",
+      "mihir_20250929_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250929_ex4": {
+    "id": "mihir_20250929_ex4",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20250929",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250929_ex4_s1",
+      "mihir_20250929_ex4_s2",
+      "mihir_20250929_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20250929_ex5": {
+    "id": "mihir_20250929_ex5",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20250929",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20250929_ex5_s1",
+      "mihir_20250929_ex5_s2"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251002_ex0": {
+    "id": "mihir_20251002_ex0",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251002",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251002_ex0_s1",
+      "mihir_20251002_ex0_s2",
+      "mihir_20251002_ex0_s3",
+      "mihir_20251002_ex0_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251002_ex1": {
+    "id": "mihir_20251002_ex1",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20251002",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251002_ex1_s1",
+      "mihir_20251002_ex1_s2",
+      "mihir_20251002_ex1_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251002_ex2": {
+    "id": "mihir_20251002_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20251002",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20251002_ex2_s1",
+      "mihir_20251002_ex2_s2",
+      "mihir_20251002_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251002_ex3": {
+    "id": "mihir_20251002_ex3",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20251002",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251002_ex3_s1",
+      "mihir_20251002_ex3_s2",
+      "mihir_20251002_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251002_ex4": {
+    "id": "mihir_20251002_ex4",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20251002",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251002_ex4_s1",
+      "mihir_20251002_ex4_s2",
+      "mihir_20251002_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251002_ex5": {
+    "id": "mihir_20251002_ex5",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251002",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251002_ex5_s1",
+      "mihir_20251002_ex5_s2",
+      "mihir_20251002_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251006_ex0": {
+    "id": "mihir_20251006_ex0",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20251006",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251006_ex0_s1",
+      "mihir_20251006_ex0_s2",
+      "mihir_20251006_ex0_s3",
+      "mihir_20251006_ex0_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251006_ex1": {
+    "id": "mihir_20251006_ex1",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251006",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251006_ex1_s1",
+      "mihir_20251006_ex1_s2",
+      "mihir_20251006_ex1_s3",
+      "mihir_20251006_ex1_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251006_ex2": {
+    "id": "mihir_20251006_ex2",
+    "exerciseId": "lat_pulldown",
+    "workoutId": "mihir_20251006",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251006_ex2_s1",
+      "mihir_20251006_ex2_s2",
+      "mihir_20251006_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251006_ex3": {
+    "id": "mihir_20251006_ex3",
+    "exerciseId": "seated_leg_curl",
+    "workoutId": "mihir_20251006",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251006_ex3_s1",
+      "mihir_20251006_ex3_s2",
+      "mihir_20251006_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251006_ex4": {
+    "id": "mihir_20251006_ex4",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251006",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251006_ex4_s1",
+      "mihir_20251006_ex4_s2",
+      "mihir_20251006_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251006_ex5": {
+    "id": "mihir_20251006_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20251006",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251006_ex5_s1",
+      "mihir_20251006_ex5_s2",
+      "mihir_20251006_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251009_ex0": {
+    "id": "mihir_20251009_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20251009",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251009_ex0_s1",
+      "mihir_20251009_ex0_s2",
+      "mihir_20251009_ex0_s3",
+      "mihir_20251009_ex0_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251009_ex1": {
+    "id": "mihir_20251009_ex1",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251009",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251009_ex1_s1",
+      "mihir_20251009_ex1_s2",
+      "mihir_20251009_ex1_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251009_ex2": {
+    "id": "mihir_20251009_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20251009",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20251009_ex2_s1",
+      "mihir_20251009_ex2_s2",
+      "mihir_20251009_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251009_ex3": {
+    "id": "mihir_20251009_ex3",
+    "exerciseId": "seated_leg_curl",
+    "workoutId": "mihir_20251009",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251009_ex3_s1",
+      "mihir_20251009_ex3_s2",
+      "mihir_20251009_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251009_ex4": {
+    "id": "mihir_20251009_ex4",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251009",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251009_ex4_s1",
+      "mihir_20251009_ex4_s2",
+      "mihir_20251009_ex4_s3",
+      "mihir_20251009_ex4_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251009_ex5": {
+    "id": "mihir_20251009_ex5",
+    "exerciseId": "cable_tricep_pushdown",
+    "workoutId": "mihir_20251009",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251009_ex5_s1",
+      "mihir_20251009_ex5_s2",
+      "mihir_20251009_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251009_ex6": {
+    "id": "mihir_20251009_ex6",
+    "exerciseId": "cable_twist",
+    "workoutId": "mihir_20251009",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251009_ex6_s1",
+      "mihir_20251009_ex6_s2",
+      "mihir_20251009_ex6_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251014_ex0": {
+    "id": "mihir_20251014_ex0",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20251014",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251014_ex0_s1",
+      "mihir_20251014_ex0_s2",
+      "mihir_20251014_ex0_s3",
+      "mihir_20251014_ex0_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251014_ex1": {
+    "id": "mihir_20251014_ex1",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251014",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251014_ex1_s1",
+      "mihir_20251014_ex1_s2",
+      "mihir_20251014_ex1_s3",
+      "mihir_20251014_ex1_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251014_ex2": {
+    "id": "mihir_20251014_ex2",
+    "exerciseId": "lat_pulldown",
+    "workoutId": "mihir_20251014",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251014_ex2_s1",
+      "mihir_20251014_ex2_s2",
+      "mihir_20251014_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251014_ex3": {
+    "id": "mihir_20251014_ex3",
+    "exerciseId": "seated_leg_curl",
+    "workoutId": "mihir_20251014",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251014_ex3_s1",
+      "mihir_20251014_ex3_s2",
+      "mihir_20251014_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251014_ex4": {
+    "id": "mihir_20251014_ex4",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251014",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251014_ex4_s1",
+      "mihir_20251014_ex4_s2",
+      "mihir_20251014_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251014_ex5": {
+    "id": "mihir_20251014_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20251014",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251014_ex5_s1",
+      "mihir_20251014_ex5_s2",
+      "mihir_20251014_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251014_ex6": {
+    "id": "mihir_20251014_ex6",
+    "exerciseId": "dumbbell_preacher_curl",
+    "workoutId": "mihir_20251014",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251014_ex6_s1",
+      "mihir_20251014_ex6_s2",
+      "mihir_20251014_ex6_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251017_ex0": {
+    "id": "mihir_20251017_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20251017",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251017_ex0_s1",
+      "mihir_20251017_ex0_s2",
+      "mihir_20251017_ex0_s3",
+      "mihir_20251017_ex0_s4",
+      "mihir_20251017_ex0_s5"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251017_ex1": {
+    "id": "mihir_20251017_ex1",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251017",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251017_ex1_s1",
+      "mihir_20251017_ex1_s2",
+      "mihir_20251017_ex1_s3",
+      "mihir_20251017_ex1_s4",
+      "mihir_20251017_ex1_s5"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251017_ex2": {
+    "id": "mihir_20251017_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20251017",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20251017_ex2_s1",
+      "mihir_20251017_ex2_s2",
+      "mihir_20251017_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251017_ex3": {
+    "id": "mihir_20251017_ex3",
+    "exerciseId": "bodyweight_lunge",
+    "workoutId": "mihir_20251017",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251017_ex3_s1",
+      "mihir_20251017_ex3_s2",
+      "mihir_20251017_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251017_ex4": {
+    "id": "mihir_20251017_ex4",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251017",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251017_ex4_s1",
+      "mihir_20251017_ex4_s2",
+      "mihir_20251017_ex4_s3",
+      "mihir_20251017_ex4_s4",
+      "mihir_20251017_ex4_s5"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251017_ex5": {
+    "id": "mihir_20251017_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20251017",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251017_ex5_s1",
+      "mihir_20251017_ex5_s2",
+      "mihir_20251017_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251017_ex6": {
+    "id": "mihir_20251017_ex6",
+    "exerciseId": "cable_tricep_pushdown",
+    "workoutId": "mihir_20251017",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251017_ex6_s1",
+      "mihir_20251017_ex6_s2",
+      "mihir_20251017_ex6_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251017_ex7": {
+    "id": "mihir_20251017_ex7",
+    "exerciseId": "cable_twist",
+    "workoutId": "mihir_20251017",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251017_ex7_s1",
+      "mihir_20251017_ex7_s2",
+      "mihir_20251017_ex7_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251023_ex0": {
+    "id": "mihir_20251023_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20251023",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251023_ex0_s1",
+      "mihir_20251023_ex0_s2",
+      "mihir_20251023_ex0_s3",
+      "mihir_20251023_ex0_s4",
+      "mihir_20251023_ex0_s5",
+      "mihir_20251023_ex0_s6"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251023_ex1": {
+    "id": "mihir_20251023_ex1",
+    "exerciseId": "overhead_press",
+    "workoutId": "mihir_20251023",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251023_ex1_s1",
+      "mihir_20251023_ex1_s2",
+      "mihir_20251023_ex1_s3",
+      "mihir_20251023_ex1_s4",
+      "mihir_20251023_ex1_s5",
+      "mihir_20251023_ex1_s6"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251023_ex2": {
+    "id": "mihir_20251023_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20251023",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20251023_ex2_s1",
+      "mihir_20251023_ex2_s2",
+      "mihir_20251023_ex2_s3",
+      "mihir_20251023_ex2_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251023_ex3": {
+    "id": "mihir_20251023_ex3",
+    "exerciseId": "bodyweight_lunge",
+    "workoutId": "mihir_20251023",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251023_ex3_s1",
+      "mihir_20251023_ex3_s2",
+      "mihir_20251023_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251023_ex4": {
+    "id": "mihir_20251023_ex4",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251023",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251023_ex4_s1",
+      "mihir_20251023_ex4_s2",
+      "mihir_20251023_ex4_s3",
+      "mihir_20251023_ex4_s4",
+      "mihir_20251023_ex4_s5"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251023_ex5": {
+    "id": "mihir_20251023_ex5",
+    "exerciseId": "cable_twist",
+    "workoutId": "mihir_20251023",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251023_ex5_s1",
+      "mihir_20251023_ex5_s2",
+      "mihir_20251023_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251023_ex6": {
+    "id": "mihir_20251023_ex6",
+    "exerciseId": "cable_tricep_pushdown",
+    "workoutId": "mihir_20251023",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251023_ex6_s1",
+      "mihir_20251023_ex6_s2",
+      "mihir_20251023_ex6_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251027_ex0": {
+    "id": "mihir_20251027_ex0",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20251027",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251027_ex0_s1",
+      "mihir_20251027_ex0_s2",
+      "mihir_20251027_ex0_s3",
+      "mihir_20251027_ex0_s4",
+      "mihir_20251027_ex0_s5",
+      "mihir_20251027_ex0_s6"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251027_ex1": {
+    "id": "mihir_20251027_ex1",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251027",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251027_ex1_s1",
+      "mihir_20251027_ex1_s2",
+      "mihir_20251027_ex1_s3",
+      "mihir_20251027_ex1_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251027_ex2": {
+    "id": "mihir_20251027_ex2",
+    "exerciseId": "lat_pulldown",
+    "workoutId": "mihir_20251027",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251027_ex2_s1",
+      "mihir_20251027_ex2_s2",
+      "mihir_20251027_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251027_ex3": {
+    "id": "mihir_20251027_ex3",
+    "exerciseId": "seated_leg_curl",
+    "workoutId": "mihir_20251027",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251027_ex3_s1",
+      "mihir_20251027_ex3_s2",
+      "mihir_20251027_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251027_ex4": {
+    "id": "mihir_20251027_ex4",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251027",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251027_ex4_s1",
+      "mihir_20251027_ex4_s2",
+      "mihir_20251027_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251027_ex5": {
+    "id": "mihir_20251027_ex5",
+    "exerciseId": "bodyweight_lunge",
+    "workoutId": "mihir_20251027",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251027_ex5_s1",
+      "mihir_20251027_ex5_s2",
+      "mihir_20251027_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251027_ex6": {
+    "id": "mihir_20251027_ex6",
+    "exerciseId": "dumbbell_bicep_curl",
+    "workoutId": "mihir_20251027",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251027_ex6_s1",
+      "mihir_20251027_ex6_s2",
+      "mihir_20251027_ex6_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251030_ex0": {
+    "id": "mihir_20251030_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20251030",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251030_ex0_s1",
+      "mihir_20251030_ex0_s2",
+      "mihir_20251030_ex0_s3",
+      "mihir_20251030_ex0_s4",
+      "mihir_20251030_ex0_s5",
+      "mihir_20251030_ex0_s6"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251030_ex1": {
+    "id": "mihir_20251030_ex1",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251030",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251030_ex1_s1",
+      "mihir_20251030_ex1_s2",
+      "mihir_20251030_ex1_s3",
+      "mihir_20251030_ex1_s4",
+      "mihir_20251030_ex1_s5"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251030_ex2": {
+    "id": "mihir_20251030_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20251030",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20251030_ex2_s1",
+      "mihir_20251030_ex2_s2",
+      "mihir_20251030_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251030_ex3": {
+    "id": "mihir_20251030_ex3",
+    "exerciseId": "bodyweight_lunge",
+    "workoutId": "mihir_20251030",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251030_ex3_s1",
+      "mihir_20251030_ex3_s2",
+      "mihir_20251030_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251030_ex4": {
+    "id": "mihir_20251030_ex4",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251030",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251030_ex4_s1",
+      "mihir_20251030_ex4_s2",
+      "mihir_20251030_ex4_s3",
+      "mihir_20251030_ex4_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251030_ex5": {
+    "id": "mihir_20251030_ex5",
+    "exerciseId": "cable_twist",
+    "workoutId": "mihir_20251030",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251030_ex5_s1",
+      "mihir_20251030_ex5_s2",
+      "mihir_20251030_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251030_ex6": {
+    "id": "mihir_20251030_ex6",
+    "exerciseId": "cable_tricep_pushdown",
+    "workoutId": "mihir_20251030",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251030_ex6_s1",
+      "mihir_20251030_ex6_s2",
+      "mihir_20251030_ex6_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251104_ex0": {
+    "id": "mihir_20251104_ex0",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20251104",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251104_ex0_s1",
+      "mihir_20251104_ex0_s2",
+      "mihir_20251104_ex0_s3",
+      "mihir_20251104_ex0_s4",
+      "mihir_20251104_ex0_s5",
+      "mihir_20251104_ex0_s6"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251104_ex1": {
+    "id": "mihir_20251104_ex1",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251104",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251104_ex1_s1",
+      "mihir_20251104_ex1_s2",
+      "mihir_20251104_ex1_s3",
+      "mihir_20251104_ex1_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251104_ex2": {
+    "id": "mihir_20251104_ex2",
+    "exerciseId": "lat_pulldown",
+    "workoutId": "mihir_20251104",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251104_ex2_s1",
+      "mihir_20251104_ex2_s2",
+      "mihir_20251104_ex2_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251104_ex3": {
+    "id": "mihir_20251104_ex3",
+    "exerciseId": "seated_leg_curl",
+    "workoutId": "mihir_20251104",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251104_ex3_s1",
+      "mihir_20251104_ex3_s2",
+      "mihir_20251104_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251104_ex4": {
+    "id": "mihir_20251104_ex4",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251104",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251104_ex4_s1",
+      "mihir_20251104_ex4_s2",
+      "mihir_20251104_ex4_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251104_ex5": {
+    "id": "mihir_20251104_ex5",
+    "exerciseId": "bodyweight_lunge",
+    "workoutId": "mihir_20251104",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251104_ex5_s1",
+      "mihir_20251104_ex5_s2",
+      "mihir_20251104_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251104_ex6": {
+    "id": "mihir_20251104_ex6",
+    "exerciseId": "dumbbell_bicep_curl",
+    "workoutId": "mihir_20251104",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251104_ex6_s1",
+      "mihir_20251104_ex6_s2",
+      "mihir_20251104_ex6_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251106_ex0": {
+    "id": "mihir_20251106_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20251106",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251106_ex0_s1",
+      "mihir_20251106_ex0_s2",
+      "mihir_20251106_ex0_s3",
+      "mihir_20251106_ex0_s4",
+      "mihir_20251106_ex0_s5",
+      "mihir_20251106_ex0_s6"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251106_ex1": {
+    "id": "mihir_20251106_ex1",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251106",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251106_ex1_s1",
+      "mihir_20251106_ex1_s2",
+      "mihir_20251106_ex1_s3",
+      "mihir_20251106_ex1_s4",
+      "mihir_20251106_ex1_s5",
+      "mihir_20251106_ex1_s6"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251106_ex2": {
+    "id": "mihir_20251106_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20251106",
+    "protocolVariantId": "strength_3x8_moderate",
+    "setIds": [
+      "mihir_20251106_ex2_s1",
+      "mihir_20251106_ex2_s2",
+      "mihir_20251106_ex2_s3",
+      "mihir_20251106_ex2_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251106_ex3": {
+    "id": "mihir_20251106_ex3",
+    "exerciseId": "bodyweight_lunge",
+    "workoutId": "mihir_20251106",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251106_ex3_s1",
+      "mihir_20251106_ex3_s2",
+      "mihir_20251106_ex3_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251106_ex4": {
+    "id": "mihir_20251106_ex4",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251106",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251106_ex4_s1",
+      "mihir_20251106_ex4_s2",
+      "mihir_20251106_ex4_s3",
+      "mihir_20251106_ex4_s4"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251106_ex5": {
+    "id": "mihir_20251106_ex5",
+    "exerciseId": "cable_twist",
+    "workoutId": "mihir_20251106",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251106_ex5_s1",
+      "mihir_20251106_ex5_s2",
+      "mihir_20251106_ex5_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251106_ex6": {
+    "id": "mihir_20251106_ex6",
+    "exerciseId": "cable_tricep_pushdown",
+    "workoutId": "mihir_20251106",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251106_ex6_s1",
+      "mihir_20251106_ex6_s2",
+      "mihir_20251106_ex6_s3"
+    ],
+    "status": "completed"
+  },
+  "mihir_20251126_ex4": {
+    "id": "mihir_20251126_ex4",
+    "exerciseId": "bodyweight_lunge",
+    "workoutId": "mihir_20251126",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251126_ex4_s1",
+      "mihir_20251126_ex4_s2",
+      "mihir_20251126_ex4_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251126_ex5": {
+    "id": "mihir_20251126_ex5",
+    "exerciseId": "dumbbell_preacher_curl",
+    "workoutId": "mihir_20251126",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251126_ex5_s1",
+      "mihir_20251126_ex5_s2",
+      "mihir_20251126_ex5_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251128_ex4": {
+    "id": "mihir_20251128_ex4",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251128",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251128_ex4_s1",
+      "mihir_20251128_ex4_s2",
+      "mihir_20251128_ex4_s3",
+      "mihir_20251128_ex4_s4"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251128_ex5": {
+    "id": "mihir_20251128_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20251128",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251128_ex5_s1",
+      "mihir_20251128_ex5_s2",
+      "mihir_20251128_ex5_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251128_ex6": {
+    "id": "mihir_20251128_ex6",
+    "exerciseId": "cable_tricep_pushdown",
+    "workoutId": "mihir_20251128",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251128_ex6_s1",
+      "mihir_20251128_ex6_s2",
+      "mihir_20251128_ex6_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251203_ex0": {
+    "id": "mihir_20251203_ex0",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20251203",
+    "protocolVariantId": "linear_6x4_variant_strength",
+    "setIds": [
+      "mihir_20251203_ex0_s1",
+      "mihir_20251203_ex0_s2",
+      "mihir_20251203_ex0_s3",
+      "mihir_20251203_ex0_s4",
+      "mihir_20251203_ex0_s5",
+      "mihir_20251203_ex0_s6"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251203_ex1": {
+    "id": "mihir_20251203_ex1",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251203",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251203_ex1_s1",
+      "mihir_20251203_ex1_s2",
+      "mihir_20251203_ex1_s3",
+      "mihir_20251203_ex1_s4",
+      "mihir_20251203_ex1_s5"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251203_ex2": {
+    "id": "mihir_20251203_ex2",
+    "exerciseId": "lat_pulldown",
+    "workoutId": "mihir_20251203",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251203_ex2_s1",
+      "mihir_20251203_ex2_s2",
+      "mihir_20251203_ex2_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251203_ex3": {
+    "id": "mihir_20251203_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251203",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251203_ex3_s1",
+      "mihir_20251203_ex3_s2",
+      "mihir_20251203_ex3_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251203_ex4": {
+    "id": "mihir_20251203_ex4",
+    "exerciseId": "bodyweight_lunge",
+    "workoutId": "mihir_20251203",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251203_ex4_s1",
+      "mihir_20251203_ex4_s2",
+      "mihir_20251203_ex4_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251203_ex5": {
+    "id": "mihir_20251203_ex5",
+    "exerciseId": "dumbbell_preacher_curl",
+    "workoutId": "mihir_20251203",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251203_ex5_s1",
+      "mihir_20251203_ex5_s2",
+      "mihir_20251203_ex5_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251205_ex0": {
+    "id": "mihir_20251205_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20251205",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251205_ex0_s1",
+      "mihir_20251205_ex0_s2",
+      "mihir_20251205_ex0_s3",
+      "mihir_20251205_ex0_s4",
+      "mihir_20251205_ex0_s5"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251205_ex1": {
+    "id": "mihir_20251205_ex1",
+    "exerciseId": "overhead_press",
+    "workoutId": "mihir_20251205",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251205_ex1_s1",
+      "mihir_20251205_ex1_s2",
+      "mihir_20251205_ex1_s3",
+      "mihir_20251205_ex1_s4"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251205_ex2": {
+    "id": "mihir_20251205_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20251205",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251205_ex2_s1",
+      "mihir_20251205_ex2_s2",
+      "mihir_20251205_ex2_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251205_ex3": {
+    "id": "mihir_20251205_ex3",
+    "exerciseId": "glute_ham_raise",
+    "workoutId": "mihir_20251205",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251205_ex3_s1",
+      "mihir_20251205_ex3_s2",
+      "mihir_20251205_ex3_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251205_ex4": {
+    "id": "mihir_20251205_ex4",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251205",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251205_ex4_s1",
+      "mihir_20251205_ex4_s2",
+      "mihir_20251205_ex4_s3",
+      "mihir_20251205_ex4_s4"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251205_ex5": {
+    "id": "mihir_20251205_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20251205",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251205_ex5_s1",
+      "mihir_20251205_ex5_s2",
+      "mihir_20251205_ex5_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251205_ex6": {
+    "id": "mihir_20251205_ex6",
+    "exerciseId": "cable_tricep_pushdown",
+    "workoutId": "mihir_20251205",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251205_ex6_s1",
+      "mihir_20251205_ex6_s2",
+      "mihir_20251205_ex6_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251210_ex0": {
+    "id": "mihir_20251210_ex0",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20251210",
+    "protocolVariantId": "linear_6x4_variant_strength",
+    "setIds": [
+      "mihir_20251210_ex0_s1",
+      "mihir_20251210_ex0_s2",
+      "mihir_20251210_ex0_s3",
+      "mihir_20251210_ex0_s4",
+      "mihir_20251210_ex0_s5",
+      "mihir_20251210_ex0_s6"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251210_ex1": {
+    "id": "mihir_20251210_ex1",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251210",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251210_ex1_s1",
+      "mihir_20251210_ex1_s2",
+      "mihir_20251210_ex1_s3",
+      "mihir_20251210_ex1_s4",
+      "mihir_20251210_ex1_s5"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251210_ex2": {
+    "id": "mihir_20251210_ex2",
+    "exerciseId": "lat_pulldown",
+    "workoutId": "mihir_20251210",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251210_ex2_s1",
+      "mihir_20251210_ex2_s2",
+      "mihir_20251210_ex2_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251210_ex3": {
+    "id": "mihir_20251210_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251210",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251210_ex3_s1",
+      "mihir_20251210_ex3_s2",
+      "mihir_20251210_ex3_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251210_ex4": {
+    "id": "mihir_20251210_ex4",
+    "exerciseId": "bodyweight_lunge",
+    "workoutId": "mihir_20251210",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251210_ex4_s1",
+      "mihir_20251210_ex4_s2",
+      "mihir_20251210_ex4_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251210_ex5": {
+    "id": "mihir_20251210_ex5",
+    "exerciseId": "dumbbell_preacher_curl",
+    "workoutId": "mihir_20251210",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251210_ex5_s1",
+      "mihir_20251210_ex5_s2",
+      "mihir_20251210_ex5_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251212_ex0": {
+    "id": "mihir_20251212_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20251212",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251212_ex0_s1",
+      "mihir_20251212_ex0_s2",
+      "mihir_20251212_ex0_s3",
+      "mihir_20251212_ex0_s4",
+      "mihir_20251212_ex0_s5"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251212_ex1": {
+    "id": "mihir_20251212_ex1",
+    "exerciseId": "overhead_press",
+    "workoutId": "mihir_20251212",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251212_ex1_s1",
+      "mihir_20251212_ex1_s2",
+      "mihir_20251212_ex1_s3",
+      "mihir_20251212_ex1_s4"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251212_ex2": {
+    "id": "mihir_20251212_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20251212",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251212_ex2_s1",
+      "mihir_20251212_ex2_s2",
+      "mihir_20251212_ex2_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251212_ex3": {
+    "id": "mihir_20251212_ex3",
+    "exerciseId": "glute_ham_raise",
+    "workoutId": "mihir_20251212",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251212_ex3_s1",
+      "mihir_20251212_ex3_s2",
+      "mihir_20251212_ex3_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251212_ex4": {
+    "id": "mihir_20251212_ex4",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251212",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251212_ex4_s1",
+      "mihir_20251212_ex4_s2",
+      "mihir_20251212_ex4_s3",
+      "mihir_20251212_ex4_s4"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251212_ex5": {
+    "id": "mihir_20251212_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20251212",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251212_ex5_s1",
+      "mihir_20251212_ex5_s2",
+      "mihir_20251212_ex5_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251212_ex6": {
+    "id": "mihir_20251212_ex6",
+    "exerciseId": "cable_tricep_pushdown",
+    "workoutId": "mihir_20251212",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251212_ex6_s1",
+      "mihir_20251212_ex6_s2",
+      "mihir_20251212_ex6_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251217_ex0": {
+    "id": "mihir_20251217_ex0",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20251217",
+    "protocolVariantId": "linear_6x4_variant_strength",
+    "setIds": [
+      "mihir_20251217_ex0_s1",
+      "mihir_20251217_ex0_s2",
+      "mihir_20251217_ex0_s3",
+      "mihir_20251217_ex0_s4",
+      "mihir_20251217_ex0_s5",
+      "mihir_20251217_ex0_s6"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251217_ex1": {
+    "id": "mihir_20251217_ex1",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251217",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251217_ex1_s1",
+      "mihir_20251217_ex1_s2",
+      "mihir_20251217_ex1_s3",
+      "mihir_20251217_ex1_s4",
+      "mihir_20251217_ex1_s5"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251217_ex2": {
+    "id": "mihir_20251217_ex2",
+    "exerciseId": "lat_pulldown",
+    "workoutId": "mihir_20251217",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251217_ex2_s1",
+      "mihir_20251217_ex2_s2",
+      "mihir_20251217_ex2_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251217_ex3": {
+    "id": "mihir_20251217_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251217",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251217_ex3_s1",
+      "mihir_20251217_ex3_s2",
+      "mihir_20251217_ex3_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251217_ex4": {
+    "id": "mihir_20251217_ex4",
+    "exerciseId": "bodyweight_lunge",
+    "workoutId": "mihir_20251217",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251217_ex4_s1",
+      "mihir_20251217_ex4_s2",
+      "mihir_20251217_ex4_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251217_ex5": {
+    "id": "mihir_20251217_ex5",
+    "exerciseId": "dumbbell_preacher_curl",
+    "workoutId": "mihir_20251217",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251217_ex5_s1",
+      "mihir_20251217_ex5_s2",
+      "mihir_20251217_ex5_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251219_ex0": {
+    "id": "mihir_20251219_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20251219",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251219_ex0_s1",
+      "mihir_20251219_ex0_s2",
+      "mihir_20251219_ex0_s3",
+      "mihir_20251219_ex0_s4",
+      "mihir_20251219_ex0_s5"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251219_ex1": {
+    "id": "mihir_20251219_ex1",
+    "exerciseId": "overhead_press",
+    "workoutId": "mihir_20251219",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251219_ex1_s1",
+      "mihir_20251219_ex1_s2",
+      "mihir_20251219_ex1_s3",
+      "mihir_20251219_ex1_s4"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251219_ex2": {
+    "id": "mihir_20251219_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20251219",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251219_ex2_s1",
+      "mihir_20251219_ex2_s2",
+      "mihir_20251219_ex2_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251219_ex3": {
+    "id": "mihir_20251219_ex3",
+    "exerciseId": "glute_ham_raise",
+    "workoutId": "mihir_20251219",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251219_ex3_s1",
+      "mihir_20251219_ex3_s2",
+      "mihir_20251219_ex3_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251219_ex4": {
+    "id": "mihir_20251219_ex4",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251219",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251219_ex4_s1",
+      "mihir_20251219_ex4_s2",
+      "mihir_20251219_ex4_s3",
+      "mihir_20251219_ex4_s4"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251219_ex5": {
+    "id": "mihir_20251219_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20251219",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251219_ex5_s1",
+      "mihir_20251219_ex5_s2",
+      "mihir_20251219_ex5_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251219_ex6": {
+    "id": "mihir_20251219_ex6",
+    "exerciseId": "cable_tricep_pushdown",
+    "workoutId": "mihir_20251219",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251219_ex6_s1",
+      "mihir_20251219_ex6_s2",
+      "mihir_20251219_ex6_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251226_ex0": {
+    "id": "mihir_20251226_ex0",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20251226",
+    "protocolVariantId": "linear_6x4_variant_strength",
+    "setIds": [
+      "mihir_20251226_ex0_s1",
+      "mihir_20251226_ex0_s2",
+      "mihir_20251226_ex0_s3",
+      "mihir_20251226_ex0_s4",
+      "mihir_20251226_ex0_s5",
+      "mihir_20251226_ex0_s6"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251226_ex1": {
+    "id": "mihir_20251226_ex1",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251226",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251226_ex1_s1",
+      "mihir_20251226_ex1_s2",
+      "mihir_20251226_ex1_s3",
+      "mihir_20251226_ex1_s4",
+      "mihir_20251226_ex1_s5"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251226_ex2": {
+    "id": "mihir_20251226_ex2",
+    "exerciseId": "lat_pulldown",
+    "workoutId": "mihir_20251226",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251226_ex2_s1",
+      "mihir_20251226_ex2_s2",
+      "mihir_20251226_ex2_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251226_ex3": {
+    "id": "mihir_20251226_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251226",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251226_ex3_s1",
+      "mihir_20251226_ex3_s2",
+      "mihir_20251226_ex3_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251226_ex4": {
+    "id": "mihir_20251226_ex4",
+    "exerciseId": "bodyweight_lunge",
+    "workoutId": "mihir_20251226",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251226_ex4_s1",
+      "mihir_20251226_ex4_s2",
+      "mihir_20251226_ex4_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251226_ex5": {
+    "id": "mihir_20251226_ex5",
+    "exerciseId": "dumbbell_preacher_curl",
+    "workoutId": "mihir_20251226",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251226_ex5_s1",
+      "mihir_20251226_ex5_s2",
+      "mihir_20251226_ex5_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251231_ex0": {
+    "id": "mihir_20251231_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20251231",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251231_ex0_s1",
+      "mihir_20251231_ex0_s2",
+      "mihir_20251231_ex0_s3",
+      "mihir_20251231_ex0_s4",
+      "mihir_20251231_ex0_s5"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251231_ex1": {
+    "id": "mihir_20251231_ex1",
+    "exerciseId": "overhead_press",
+    "workoutId": "mihir_20251231",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251231_ex1_s1",
+      "mihir_20251231_ex1_s2",
+      "mihir_20251231_ex1_s3",
+      "mihir_20251231_ex1_s4"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251231_ex2": {
+    "id": "mihir_20251231_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20251231",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251231_ex2_s1",
+      "mihir_20251231_ex2_s2",
+      "mihir_20251231_ex2_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251231_ex3": {
+    "id": "mihir_20251231_ex3",
+    "exerciseId": "glute_ham_raise",
+    "workoutId": "mihir_20251231",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251231_ex3_s1",
+      "mihir_20251231_ex3_s2",
+      "mihir_20251231_ex3_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251231_ex4": {
+    "id": "mihir_20251231_ex4",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251231",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251231_ex4_s1",
+      "mihir_20251231_ex4_s2",
+      "mihir_20251231_ex4_s3",
+      "mihir_20251231_ex4_s4"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251231_ex5": {
+    "id": "mihir_20251231_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20251231",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251231_ex5_s1",
+      "mihir_20251231_ex5_s2",
+      "mihir_20251231_ex5_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251231_ex6": {
+    "id": "mihir_20251231_ex6",
+    "exerciseId": "cable_tricep_pushdown",
+    "workoutId": "mihir_20251231",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251231_ex6_s1",
+      "mihir_20251231_ex6_s2",
+      "mihir_20251231_ex6_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251119_ex0": {
+    "id": "mihir_20251119_ex0",
+    "exerciseId": "conventional_deadlift",
+    "workoutId": "mihir_20251119",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251119_ex0_s1",
+      "mihir_20251119_ex0_s2",
+      "mihir_20251119_ex0_s3",
+      "mihir_20251119_ex0_s4",
+      "mihir_20251119_ex0_s5"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251119_ex1": {
+    "id": "mihir_20251119_ex1",
+    "exerciseId": "overhead_press",
+    "workoutId": "mihir_20251119",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251119_ex1_s1",
+      "mihir_20251119_ex1_s2",
+      "mihir_20251119_ex1_s3",
+      "mihir_20251119_ex1_s4"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251119_ex2": {
+    "id": "mihir_20251119_ex2",
+    "exerciseId": "seated_row",
+    "workoutId": "mihir_20251119",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251119_ex2_s1",
+      "mihir_20251119_ex2_s2",
+      "mihir_20251119_ex2_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251119_ex3": {
+    "id": "mihir_20251119_ex3",
+    "exerciseId": "glute_ham_raise",
+    "workoutId": "mihir_20251119",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251119_ex3_s1",
+      "mihir_20251119_ex3_s2",
+      "mihir_20251119_ex3_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251119_ex4": {
+    "id": "mihir_20251119_ex4",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251119",
+    "protocolVariantId": "straight_4x10_variant_volume",
+    "setIds": [
+      "mihir_20251119_ex4_s1",
+      "mihir_20251119_ex4_s2",
+      "mihir_20251119_ex4_s3",
+      "mihir_20251119_ex4_s4"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251119_ex5": {
+    "id": "mihir_20251119_ex5",
+    "exerciseId": "face_pull",
+    "workoutId": "mihir_20251119",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251119_ex5_s1",
+      "mihir_20251119_ex5_s2",
+      "mihir_20251119_ex5_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251119_ex6": {
+    "id": "mihir_20251119_ex6",
+    "exerciseId": "cable_tricep_pushdown",
+    "workoutId": "mihir_20251119",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251119_ex6_s1",
+      "mihir_20251119_ex6_s2",
+      "mihir_20251119_ex6_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251121_ex0": {
+    "id": "mihir_20251121_ex0",
+    "exerciseId": "back_squat",
+    "workoutId": "mihir_20251121",
+    "protocolVariantId": "linear_6x4_variant_strength",
+    "setIds": [
+      "mihir_20251121_ex0_s1",
+      "mihir_20251121_ex0_s2",
+      "mihir_20251121_ex0_s3",
+      "mihir_20251121_ex0_s4",
+      "mihir_20251121_ex0_s5",
+      "mihir_20251121_ex0_s6"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251121_ex1": {
+    "id": "mihir_20251121_ex1",
+    "exerciseId": "dumbbell_bench_press",
+    "workoutId": "mihir_20251121",
+    "protocolVariantId": "linear_5x5_variant_standard",
+    "setIds": [
+      "mihir_20251121_ex1_s1",
+      "mihir_20251121_ex1_s2",
+      "mihir_20251121_ex1_s3",
+      "mihir_20251121_ex1_s4",
+      "mihir_20251121_ex1_s5"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251121_ex2": {
+    "id": "mihir_20251121_ex2",
+    "exerciseId": "lat_pulldown",
+    "workoutId": "mihir_20251121",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251121_ex2_s1",
+      "mihir_20251121_ex2_s2",
+      "mihir_20251121_ex2_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251121_ex3": {
+    "id": "mihir_20251121_ex3",
+    "exerciseId": "dumbbell_overhead_press",
+    "workoutId": "mihir_20251121",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251121_ex3_s1",
+      "mihir_20251121_ex3_s2",
+      "mihir_20251121_ex3_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251121_ex4": {
+    "id": "mihir_20251121_ex4",
+    "exerciseId": "bodyweight_lunge",
+    "workoutId": "mihir_20251121",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251121_ex4_s1",
+      "mihir_20251121_ex4_s2",
+      "mihir_20251121_ex4_s3"
+    ],
+    "status": "scheduled"
+  },
+  "mihir_20251121_ex5": {
+    "id": "mihir_20251121_ex5",
+    "exerciseId": "dumbbell_preacher_curl",
+    "workoutId": "mihir_20251121",
+    "protocolVariantId": "accessory_3x10_rpe8",
+    "setIds": [
+      "mihir_20251121_ex5_s1",
+      "mihir_20251121_ex5_s2",
+      "mihir_20251121_ex5_s3"
+    ],
+    "status": "scheduled"
+  }
+}

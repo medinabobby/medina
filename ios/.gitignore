@@ -1,0 +1,41 @@
+# Xcode
+.DS_Store
+build/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM/
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/*.p8
+*.p8
+
+# Code Injection
+iOSInjectionProject/
+
+# API Keys and Config
+Medina/Services/Assistant/Config.swift
+
+# Build artifacts and logs
+*.log
+test_output.*
+# API Keys - NEVER commit these
+Medina/Services/Assistant/Config.swift

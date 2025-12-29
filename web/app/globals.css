@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /* Medina Design Tokens (matches iOS) */
+  --color-accent-blue: rgb(59, 130, 236);
+  --color-accent-blue-hover: rgb(37, 99, 235);
+  --color-accent-subtle: rgb(239, 246, 255);
+  --color-primary-text: rgb(26, 26, 26);
+  --color-secondary-text: rgb(107, 114, 128);
+  --color-tertiary-text: rgb(156, 163, 175);
+  --color-bg-primary: rgb(255, 255, 255);
+  --color-bg-secondary: rgb(249, 250, 252);
+  --color-bg-tertiary: rgb(243, 244, 246);
+  --color-success: rgb(16, 185, 129);
+  --color-warning: rgb(245, 158, 11);
+  --color-error: rgb(239, 68, 68);
+  --color-border-standard: rgb(209, 213, 219);
+  --color-border-subtle: rgb(243, 244, 246);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Typography scale matching iOS design */
+.text-title-large {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.text-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.text-headline {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.text-body {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.text-caption {
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+.text-section-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-secondary-text);
+}

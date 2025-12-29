@@ -1,0 +1,1479 @@
+{
+  "barbell_back_squat": {
+    "id": "barbell_back_squat",
+    "name": "Barbell Back Squat",
+    "baseExercise": "back_squat",
+    "equipment": "barbell",
+    "type": "compound",
+    "muscleGroups": [
+      "quadriceps",
+      "glutes",
+      "hamstrings"
+    ],
+    "movementPattern": "squat",
+    "description": "Classic barbell back squat for lower body strength development. Bar rests on upper traps/rear delts.",
+    "instructions": "Bar on upper traps, feet shoulder-width apart, descend with control keeping chest up and knees tracking over toes, drive through heels to stand",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "dumbbell_bench_press": {
+    "id": "dumbbell_bench_press",
+    "name": "Dumbbell Bench Press",
+    "baseExercise": "bench_press",
+    "equipment": "dumbbells",
+    "type": "compound",
+    "muscleGroups": [
+      "chest",
+      "triceps",
+      "shoulders"
+    ],
+    "movementPattern": "push",
+    "description": "Horizontal pressing movement for chest development using dumbbells for greater range of motion",
+    "instructions": "Lie flat on bench, dumbbells at chest level, press upward and slightly together at top, lower with control to chest level",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "conventional_deadlift": {
+    "id": "conventional_deadlift",
+    "name": "Conventional Deadlift",
+    "baseExercise": "deadlift",
+    "equipment": "barbell",
+    "type": "compound",
+    "muscleGroups": [
+      "back",
+      "glutes",
+      "hamstrings",
+      "forearms"
+    ],
+    "movementPattern": "hinge",
+    "description": "Hip hinge movement for posterior chain development. King of strength exercises.",
+    "instructions": "Bar over mid-foot, hip-width stance, grip outside knees, chest up, pull bar straight up keeping it close to body, stand tall at top, reverse motion with control",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "bulgarian_split_squat": {
+    "id": "bulgarian_split_squat",
+    "name": "Bulgarian Split Squat",
+    "baseExercise": "split_squat",
+    "equipment": "dumbbells",
+    "type": "compound",
+    "muscleGroups": [
+      "quadriceps",
+      "glutes",
+      "hamstrings"
+    ],
+    "movementPattern": "squat",
+    "description": "Single-leg squat variation with rear foot elevated to build unilateral strength and balance.",
+    "instructions": "Stand in split stance with back foot on bench, descend until front thigh is parallel, keep torso upright, drive through front heel to stand.",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "hamstring_curl": {
+    "id": "hamstring_curl",
+    "name": "Seated Hamstring Curl",
+    "baseExercise": "hamstring_curl",
+    "equipment": "machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "hamstrings"
+    ],
+    "movementPattern": "hinge",
+    "description": "Machine-based knee flexion exercise targeting the hamstrings.",
+    "instructions": "Sit with back against pad, position ankles behind roller, pull heels toward glutes with control, pause, and return slowly.",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "calf_raise_standing": {
+    "id": "calf_raise_standing",
+    "name": "Standing Calf Raise",
+    "baseExercise": "calf_raise",
+    "equipment": "bodyweight",
+    "type": "isolation",
+    "muscleGroups": [
+      "calves"
+    ],
+    "movementPattern": "push",
+    "description": "Calf strengthening movement performed while standing to build lower-leg endurance and strength.",
+    "instructions": "Stand tall with balls of feet on platform, lower heels below platform, press through toes to rise onto balls of feet, pause and repeat.",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "barbell_row": {
+    "id": "barbell_row",
+    "name": "Barbell Row",
+    "baseExercise": "row",
+    "equipment": "barbell",
+    "type": "compound",
+    "muscleGroups": [
+      "back",
+      "lats",
+      "biceps"
+    ],
+    "movementPattern": "pull",
+    "description": "Horizontal pulling movement for back thickness and strength",
+    "instructions": "Hinge at hips with slight knee bend, torso near parallel to ground, pull bar to lower chest/upper abdomen, squeeze shoulder blades together at top",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "overhead_press": {
+    "id": "overhead_press",
+    "name": "Barbell Overhead Press",
+    "baseExercise": "overhead_press",
+    "equipment": "barbell",
+    "type": "compound",
+    "muscleGroups": [
+      "shoulders",
+      "triceps",
+      "core"
+    ],
+    "movementPattern": "push",
+    "description": "Vertical pressing movement for shoulder strength and development. Also called strict press or military press.",
+    "instructions": "Bar at shoulder level, hands just outside shoulders, press bar overhead in straight line, lock out at top, lower with control to shoulders",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "pull_up": {
+    "id": "pull_up",
+    "name": "Pull-Up",
+    "baseExercise": "pull_up",
+    "equipment": "pullup_bar",
+    "type": "compound",
+    "muscleGroups": [
+      "back",
+      "lats",
+      "biceps"
+    ],
+    "movementPattern": "pull",
+    "description": "Vertical pulling bodyweight exercise for back and arm development",
+    "instructions": "Hang from bar with overhand grip, pull body up until chin clears bar, lower with control to full extension",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "dip": {
+    "id": "dip",
+    "name": "Dip",
+    "baseExercise": "dip",
+    "equipment": "dip_station",
+    "type": "compound",
+    "muscleGroups": [
+      "chest",
+      "triceps",
+      "shoulders"
+    ],
+    "movementPattern": "push",
+    "description": "Bodyweight pressing movement emphasizing chest and triceps",
+    "instructions": "Support body on parallel bars with arms extended, lower body by bending elbows until shoulders are at elbow level, press back up to start",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "leg_press": {
+    "id": "leg_press",
+    "name": "Leg Press",
+    "baseExercise": "leg_press",
+    "equipment": "machine",
+    "type": "compound",
+    "muscleGroups": [
+      "quadriceps",
+      "glutes",
+      "hamstrings"
+    ],
+    "movementPattern": "squat",
+    "description": "Machine-based lower body pressing movement for quad and glute development",
+    "instructions": "Sit in machine with back flat against pad, feet shoulder-width on platform, lower platform by bending knees, press through heels to extend legs",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "lat_pulldown": {
+    "id": "lat_pulldown",
+    "name": "Lat Pulldown",
+    "baseExercise": "lat_pulldown",
+    "equipment": "cable_machine",
+    "type": "compound",
+    "muscleGroups": [
+      "back",
+      "lats",
+      "biceps"
+    ],
+    "movementPattern": "pull",
+    "description": "Vertical pulling movement using cable machine for lat development",
+    "instructions": "Sit at machine, grip bar with hands wider than shoulders, pull bar to upper chest while keeping torso upright, squeeze shoulder blades together, control the return",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "barbell_curl": {
+    "id": "barbell_curl",
+    "name": "Barbell Curl",
+    "baseExercise": "bicep_curl",
+    "equipment": "barbell",
+    "type": "isolation",
+    "muscleGroups": [
+      "biceps",
+      "forearms"
+    ],
+    "movementPattern": null,
+    "description": "Isolation exercise for bicep development",
+    "instructions": "Stand with feet shoulder-width apart, hold barbell with underhand grip, curl bar toward shoulders keeping elbows stationary, squeeze biceps at top, lower with control",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "tricep_extension": {
+    "id": "tricep_extension",
+    "name": "Cable Tricep Extension",
+    "baseExercise": "tricep_extension",
+    "equipment": "cable_machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "triceps"
+    ],
+    "movementPattern": null,
+    "description": "Isolation exercise for tricep development using cable machine",
+    "instructions": "Stand facing cable machine with rope attachment at high position, grip rope with hands close together, extend arms down keeping elbows fixed at sides, squeeze triceps at bottom, control return",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "dumbbell_lateral_raise": {
+    "id": "dumbbell_lateral_raise",
+    "name": "Dumbbell Lateral Raise",
+    "baseExercise": "lateral_raise",
+    "equipment": "dumbbells",
+    "type": "isolation",
+    "muscleGroups": [
+      "shoulders"
+    ],
+    "movementPattern": null,
+    "description": "Isolation exercise for side deltoid development",
+    "instructions": "Stand with dumbbells at sides, slight bend in elbows, raise dumbbells out to sides until arms parallel to floor, pause at top, lower with control",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "cable_fly": {
+    "id": "cable_fly",
+    "name": "Cable Fly",
+    "baseExercise": "chest_fly",
+    "equipment": "cable_machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "chest"
+    ],
+    "movementPattern": null,
+    "description": "Isolation exercise for chest development using cables",
+    "instructions": "Stand between cable machines with handles at chest height, step forward slightly, bring hands together in front of chest with slight bend in elbows, squeeze chest at peak contraction, control return",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "face_pull": {
+    "id": "face_pull",
+    "name": "Cable Face Pull",
+    "baseExercise": "face_pull",
+    "equipment": "cable_machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "shoulders",
+      "back"
+    ],
+    "movementPattern": null,
+    "description": "Isolation exercise for rear deltoid and upper back development",
+    "instructions": "Stand facing cable machine with rope attachment at face height, grip rope with palms facing each other, pull rope toward face while separating hands, squeeze shoulder blades together, control return",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "leg_curl": {
+    "id": "leg_curl",
+    "name": "Lying Leg Curl",
+    "baseExercise": "leg_curl",
+    "equipment": "machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "hamstrings"
+    ],
+    "movementPattern": null,
+    "description": "Isolation exercise for hamstring development",
+    "instructions": "Lie face down on leg curl machine, pad behind ankles, curl legs up toward glutes, squeeze hamstrings at top, lower with control",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "leg_extension": {
+    "id": "leg_extension",
+    "name": "Leg Extension",
+    "baseExercise": "leg_extension",
+    "equipment": "machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "quadriceps"
+    ],
+    "movementPattern": null,
+    "description": "Isolation exercise for quadricep development",
+    "instructions": "Sit in leg extension machine with pad over ankles, extend legs until straight, squeeze quads at top, lower with control",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "calf_raise": {
+    "id": "calf_raise",
+    "name": "Standing Calf Raise",
+    "baseExercise": "calf_raise",
+    "equipment": "machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "calves"
+    ],
+    "movementPattern": null,
+    "description": "Isolation exercise for calf development",
+    "instructions": "Stand on calf raise machine with balls of feet on platform, heels off edge, lower heels below platform level, push up onto toes as high as possible, squeeze calves at top",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "romanian_deadlift": {
+    "id": "romanian_deadlift",
+    "name": "Romanian Deadlift",
+    "baseExercise": "romanian_deadlift",
+    "equipment": "barbell",
+    "type": "isolation",
+    "muscleGroups": [
+      "hamstrings",
+      "glutes"
+    ],
+    "movementPattern": "hinge",
+    "description": "Hip hinge isolation exercise emphasizing hamstring and glute development with lighter loads",
+    "instructions": "Hold barbell at hip level with slight knee bend, hinge at hips pushing them back while keeping back straight, lower bar to mid-shin level, drive hips forward to return to start",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "treadmill_run": {
+    "id": "treadmill_run",
+    "name": "Treadmill Run",
+    "baseExercise": "running",
+    "equipment": "treadmill",
+    "type": "cardio",
+    "muscleGroups": [],
+    "movementPattern": null,
+    "description": "Steady-state cardio running on treadmill for cardiovascular conditioning",
+    "instructions": "Set treadmill to desired speed and incline. Maintain conversational pace for steady-state work or increase intensity for intervals. Focus on consistent breathing and stride.",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "bike_steady_state": {
+    "id": "bike_steady_state",
+    "name": "Stationary Bike",
+    "baseExercise": "cycling",
+    "equipment": "bike",
+    "type": "cardio",
+    "muscleGroups": [],
+    "movementPattern": null,
+    "description": "Steady-state cycling on stationary bike for cardiovascular endurance",
+    "instructions": "Set bike resistance to maintain target heart rate. Keep cadence steady at 70-90 RPM. Adjust resistance to control intensity.",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "rower_intervals": {
+    "id": "rower_intervals",
+    "name": "Rowing Machine",
+    "baseExercise": "rowing",
+    "equipment": "rower",
+    "type": "cardio",
+    "muscleGroups": [],
+    "movementPattern": null,
+    "description": "Full-body cardio using rowing machine for endurance and power development",
+    "instructions": "Maintain proper form: legs drive first, then lean back and pull with arms. Return in reverse order. Focus on consistent stroke rate and power output.",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "elliptical_steady": {
+    "id": "elliptical_steady",
+    "name": "Elliptical Trainer",
+    "baseExercise": "elliptical",
+    "equipment": "elliptical",
+    "type": "cardio",
+    "muscleGroups": [],
+    "movementPattern": null,
+    "description": "Low-impact steady-state cardio on elliptical machine",
+    "instructions": "Set resistance level to maintain target heart rate. Maintain smooth, continuous motion. Can pedal forward or reverse for variety.",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "ski_erg": {
+    "id": "ski_erg",
+    "name": "Ski Erg",
+    "baseExercise": "skiing",
+    "equipment": "ski_erg",
+    "type": "cardio",
+    "muscleGroups": [],
+    "movementPattern": null,
+    "description": "Full-body pulling cardio movement mimicking cross-country skiing",
+    "instructions": "Stand with slight knee bend, pull handles down explosively engaging core and lats, return with control. Maintain consistent rhythm and power output.",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "outdoor_run": {
+    "id": "outdoor_run",
+    "name": "Outdoor Run",
+    "baseExercise": "running",
+    "equipment": "none",
+    "type": "cardio",
+    "muscleGroups": [],
+    "movementPattern": null,
+    "description": "Running outdoors for cardiovascular fitness and mental health",
+    "instructions": "Run at conversational pace for easy runs. Monitor perceived exertion and adjust pace based on terrain and conditions.",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "jump_rope": {
+    "id": "jump_rope",
+    "name": "Jump Rope",
+    "baseExercise": "jumping",
+    "equipment": "none",
+    "type": "cardio",
+    "muscleGroups": [],
+    "movementPattern": null,
+    "description": "High-intensity cardio and coordination exercise using jump rope",
+    "instructions": "Maintain upright posture, jump on balls of feet, rotate rope with wrists not arms. Start with single unders, progress to double unders as skill improves.",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "assault_bike": {
+    "id": "assault_bike",
+    "name": "Assault Bike",
+    "baseExercise": "cycling",
+    "equipment": "bike",
+    "type": "cardio",
+    "muscleGroups": [],
+    "movementPattern": null,
+    "description": "High-intensity air bike for full-body cardiovascular conditioning",
+    "instructions": "Push and pull handles while pedaling. Maintain steady breathing. Excellent for intervals and sprint work.",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "barbell_bench_press": {
+    "id": "barbell_bench_press",
+    "name": "Barbell Bench Press",
+    "baseExercise": "bench_press",
+    "equipment": "barbell",
+    "type": "compound",
+    "muscleGroups": [
+      "chest",
+      "triceps",
+      "shoulders"
+    ],
+    "movementPattern": "push",
+    "description": "Classic horizontal barbell pressing movement for chest development and upper body strength",
+    "instructions": "Lie flat on bench, grip barbell slightly wider than shoulders, lower to mid-chest with control, press explosively to lockout",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "ex_squat": {
+    "id": "ex_squat",
+    "name": "Barbell Back Squat",
+    "baseExercise": "back_squat",
+    "equipment": "barbell",
+    "type": "compound",
+    "muscleGroups": [
+      "quadriceps",
+      "glutes",
+      "hamstrings"
+    ],
+    "movementPattern": "squat",
+    "description": "Fundamental lower body compound movement for leg strength and cycling power",
+    "instructions": "Bar on upper traps, feet shoulder-width apart, descend with control keeping chest up, drive through heels to stand",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "ex_deadlift": {
+    "id": "ex_deadlift",
+    "name": "Conventional Deadlift",
+    "baseExercise": "deadlift",
+    "equipment": "barbell",
+    "type": "compound",
+    "muscleGroups": [
+      "back",
+      "glutes",
+      "hamstrings"
+    ],
+    "movementPattern": "hinge",
+    "description": "Full-body compound movement for posterior chain strength and core stability",
+    "instructions": "Feet hip-width apart, grip barbell outside legs, maintain flat back, drive through heels while extending hips and knees",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "ex_leg_press": {
+    "id": "ex_leg_press",
+    "name": "Leg Press",
+    "baseExercise": "leg_press",
+    "equipment": "machine",
+    "type": "compound",
+    "muscleGroups": [
+      "quadriceps",
+      "glutes",
+      "hamstrings"
+    ],
+    "movementPattern": "squat",
+    "description": "Machine-based leg exercise for quad development with reduced spinal loading",
+    "instructions": "Feet shoulder-width on platform, lower weight with control until knees at 90\u00b0, press through heels to extend",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "ex_leg_curl": {
+    "id": "ex_leg_curl",
+    "name": "Lying Leg Curl",
+    "baseExercise": "leg_curl",
+    "equipment": "machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "hamstrings"
+    ],
+    "movementPattern": "pull",
+    "description": "Isolated hamstring exercise for knee flexion strength and injury prevention",
+    "instructions": "Lie face down, pad against lower calves, curl heels toward glutes with control, lower slowly",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "ex_calf_raise": {
+    "id": "ex_calf_raise",
+    "name": "Standing Calf Raise",
+    "baseExercise": "calf_raise",
+    "equipment": "machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "calves"
+    ],
+    "movementPattern": "dynamic",
+    "description": "Calf strengthening exercise for cycling power and ankle stability",
+    "instructions": "Shoulders under pads, balls of feet on platform, raise up onto toes maximally, lower with control",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "ex_core_plank": {
+    "id": "ex_core_plank",
+    "name": "Plank Hold",
+    "baseExercise": "plank",
+    "equipment": "bodyweight",
+    "type": "isolation",
+    "muscleGroups": [
+      "core",
+      "abs"
+    ],
+    "movementPattern": "carry",
+    "description": "Isometric core exercise for trunk stability and endurance",
+    "instructions": "Forearms on ground, body in straight line from head to heels, maintain neutral spine, engage core",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "ex_bike": {
+    "id": "ex_bike",
+    "name": "Stationary Bike",
+    "baseExercise": "cycling",
+    "equipment": "bike",
+    "type": "cardio",
+    "muscleGroups": [
+      "quadriceps",
+      "hamstrings",
+      "glutes",
+      "calves"
+    ],
+    "movementPattern": "dynamic",
+    "description": "Cardiovascular endurance training for 50-mile bike ride preparation",
+    "instructions": "Maintain steady cadence (80-90 RPM), monitor heart rate zone, focus on breathing rhythm",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "glute_bridge": {
+    "id": "glute_bridge",
+    "name": "Glute Bridge",
+    "baseExercise": "hip_thrust",
+    "equipment": "barbell",
+    "type": "isolation",
+    "muscleGroups": [
+      "glutes",
+      "hamstrings"
+    ],
+    "movementPattern": "hinge",
+    "description": "Hip extension isolation exercise for glute strength and development",
+    "instructions": "Lie on back with knees bent and feet flat on floor, hold dumbbell or barbell on hips, drive through heels lifting hips until body forms straight line from shoulders to knees, squeeze glutes at top, lower with control",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "dual_dumbbell_seated_press": {
+    "id": "dual_dumbbell_seated_press",
+    "name": "Dual Dumbbell Seated Press",
+    "baseExercise": "overhead_press",
+    "equipment": "dumbbells",
+    "type": "compound",
+    "muscleGroups": [
+      "shoulders",
+      "triceps",
+      "core"
+    ],
+    "movementPattern": "push",
+    "description": "Vertical pressing movement for shoulder strength using dumbbells in seated position",
+    "instructions": "Sit on bench with back support, dumbbells at shoulder level, press dumbbells overhead until arms fully extended, lower with control to shoulders",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "hip_flexor_stretch": {
+    "id": "hip_flexor_stretch",
+    "name": "Kneeling Hip Flexor Stretch",
+    "baseExercise": "hip_flexor_stretch",
+    "equipment": "bodyweight",
+    "type": "warmup",
+    "muscleGroups": [
+      "core",
+      "quadriceps"
+    ],
+    "movementPattern": "static_stretch",
+    "description": "Static stretch targeting tight hip flexors, common after heavy squatting and deadlifting",
+    "instructions": "Kneel on one knee with other foot forward, push hips forward while keeping torso upright, hold stretch for 30-60 seconds each side",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "pigeon_pose": {
+    "id": "pigeon_pose",
+    "name": "Pigeon Pose",
+    "baseExercise": "pigeon_pose",
+    "equipment": "bodyweight",
+    "type": "warmup",
+    "muscleGroups": [
+      "glutes",
+      "glutes"
+    ],
+    "movementPattern": "static_stretch",
+    "description": "Deep hip opener from yoga, targets external hip rotators and glutes",
+    "instructions": "From tabletop, bring one knee forward toward same-side wrist, extend other leg back, sink hips toward floor, hold 60-90 seconds each side",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "glute_bridge_hold": {
+    "id": "glute_bridge_hold",
+    "name": "Glute Bridge Hold",
+    "baseExercise": "glute_bridge",
+    "equipment": "bodyweight",
+    "type": "warmup",
+    "muscleGroups": [
+      "glutes",
+      "hamstrings"
+    ],
+    "movementPattern": "hinge",
+    "description": "Isometric glute activation and hip extension mobility, addresses tight hip flexors",
+    "instructions": "Lie on back with knees bent and feet flat, lift hips to create straight line from knees to shoulders, squeeze glutes and hold for 30-60 seconds",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "90_90_hip_stretch": {
+    "id": "90_90_hip_stretch",
+    "name": "90/90 Hip Stretch",
+    "baseExercise": "90_90_hip_stretch",
+    "equipment": "bodyweight",
+    "type": "warmup",
+    "muscleGroups": [
+      "glutes",
+      "glutes"
+    ],
+    "movementPattern": "static_stretch",
+    "description": "Seated hip stretch targeting both internal and external rotation, excellent for hip mobility",
+    "instructions": "Sit with both legs at 90 degrees (front leg external rotation, back leg internal rotation), lean forward over front leg, hold 45-60 seconds then switch sides",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "cat_cow_stretch": {
+    "id": "cat_cow_stretch",
+    "name": "Cat-Cow Stretch",
+    "baseExercise": "cat_cow_stretch",
+    "equipment": "bodyweight",
+    "type": "warmup",
+    "muscleGroups": [
+      "back",
+      "core"
+    ],
+    "movementPattern": "rotation",
+    "description": "Dynamic spinal mobility exercise, alternates flexion and extension for vertebral health",
+    "instructions": "Start on hands and knees, alternate between arching back (cow) and rounding spine (cat), perform 10-15 slow repetitions",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "childs_pose": {
+    "id": "childs_pose",
+    "name": "Child's Pose",
+    "baseExercise": "childs_pose",
+    "equipment": "bodyweight",
+    "type": "warmup",
+    "muscleGroups": [
+      "glutes",
+      "back"
+    ],
+    "movementPattern": "static_stretch",
+    "description": "Restorative yoga pose stretching hips, lower back, and shoulders",
+    "instructions": "Kneel and sit back on heels, extend arms forward on floor, relax forehead to ground, breathe deeply and hold 60-90 seconds",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "seated_hamstring_stretch": {
+    "id": "seated_hamstring_stretch",
+    "name": "Seated Hamstring Stretch",
+    "baseExercise": "seated_hamstring_stretch",
+    "equipment": "bodyweight",
+    "type": "warmup",
+    "muscleGroups": [
+      "hamstrings",
+      "back"
+    ],
+    "movementPattern": "static_stretch",
+    "description": "Seated forward fold targeting tight hamstrings from heavy deadlifting",
+    "instructions": "Sit with legs extended, hinge at hips (not spine) to reach toward toes, keep back straight, hold 45-60 seconds",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "hip_circles": {
+    "id": "hip_circles",
+    "name": "Hip Circles",
+    "baseExercise": "hip_circles",
+    "equipment": "bodyweight",
+    "type": "warmup",
+    "muscleGroups": [
+      "glutes",
+      "glutes"
+    ],
+    "movementPattern": "dynamic",
+    "description": "Dynamic hip mobility drill, improves range of motion in all planes",
+    "instructions": "Stand on one leg, lift other knee to hip height, make large circles with knee (10 each direction), switch legs",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "stationary_bike": {
+    "id": "stationary_bike",
+    "name": "Stationary Bike",
+    "baseExercise": "cycling",
+    "equipment": "bike",
+    "type": "cardio",
+    "muscleGroups": [
+      "quadriceps",
+      "hamstrings",
+      "glutes",
+      "calves"
+    ],
+    "movementPattern": "dynamic",
+    "description": "Steady-state cycling session for aerobic conditioning and race prep.",
+    "instructions": "Maintain 80-90 RPM cadence. Adjust resistance to keep effort at conversational pace unless otherwise directed. Focus on smooth pedal stroke.",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "front_foot_elevated_dumbbell_split_squat": {
+    "id": "front_foot_elevated_dumbbell_split_squat",
+    "name": "Front Foot Elevated Dumbbell Split Squat",
+    "baseExercise": "split_squat",
+    "equipment": "dumbbells",
+    "type": "compound",
+    "muscleGroups": [
+      "quadriceps",
+      "glutes",
+      "hamstrings"
+    ],
+    "movementPattern": "squat",
+    "description": "Single-leg squat variation with front foot elevated on plate or step to increase ROM and quad emphasis",
+    "instructions": "Place front foot on 2-3 inch plate, hold dumbbells at sides, descend until back knee nearly touches floor, drive through front heel to stand",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "dumbbell_heel_elevated_sissy_squat": {
+    "id": "dumbbell_heel_elevated_sissy_squat",
+    "name": "Dumbbell Heel Elevated Sissy Squat",
+    "baseExercise": "sissy_squat",
+    "equipment": "dumbbells",
+    "type": "isolation",
+    "muscleGroups": [
+      "quadriceps"
+    ],
+    "movementPattern": "squat",
+    "description": "Advanced quad isolation exercise with heels elevated and body leaning back, holding dumbbell for resistance",
+    "instructions": "Heels on elevated surface, hold dumbbell at chest, lean back while bending knees forward, maintain constant tension on quads throughout movement",
+    "videoLink": null,
+    "experienceLevel": "advanced",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "crossover_reverse_fly": {
+    "id": "crossover_reverse_fly",
+    "name": "Crossover Reverse Fly",
+    "baseExercise": "reverse_fly",
+    "equipment": "cable_machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "shoulders",
+      "back"
+    ],
+    "movementPattern": "pull",
+    "description": "Cable crossover variation targeting rear deltoids and upper back with crossed cable position",
+    "instructions": "Stand centered between cables set at shoulder height, cross arms and grip opposite handles, pull handles back and apart while squeezing shoulder blades together",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "pendlay_row": {
+    "id": "pendlay_row",
+    "name": "Pendlay Row",
+    "baseExercise": "row",
+    "equipment": "barbell",
+    "type": "compound",
+    "muscleGroups": [
+      "back",
+      "lats",
+      "biceps"
+    ],
+    "movementPattern": "pull",
+    "description": "Strict barbell row variation where bar returns to floor between reps, torso parallel to ground",
+    "instructions": "Bend to 90 degrees at hips, grip barbell on floor, explosively pull bar to lower chest, return bar to floor between each rep, maintain flat back throughout",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "incline_dumbbell_bench_press": {
+    "id": "incline_dumbbell_bench_press",
+    "name": "Incline Dumbbell Bench Press",
+    "baseExercise": "bench_press",
+    "equipment": "dumbbells",
+    "type": "compound",
+    "muscleGroups": [
+      "chest",
+      "triceps",
+      "shoulders"
+    ],
+    "movementPattern": "push",
+    "description": "Dumbbell pressing on incline bench targeting upper chest and front deltoids",
+    "instructions": "Set bench to 30-45 degree incline, press dumbbells from chest level to overhead, lower with control",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "seated_row": {
+    "id": "seated_row",
+    "name": "Seated Cable Row",
+    "baseExercise": "row",
+    "equipment": "cable_machine",
+    "type": "compound",
+    "muscleGroups": [
+      "back",
+      "lats",
+      "biceps"
+    ],
+    "movementPattern": "pull",
+    "description": "Horizontal pulling movement using cable machine for mid-back development",
+    "instructions": "Sit at cable row machine, grip handle with arms extended, pull handle to torso squeezing shoulder blades together, control return to start",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "incline_dumbbell_bicep_curl": {
+    "id": "incline_dumbbell_bicep_curl",
+    "name": "Incline Dumbbell Bicep Curl",
+    "baseExercise": "bicep_curl",
+    "equipment": "dumbbells",
+    "type": "isolation",
+    "muscleGroups": [
+      "biceps"
+    ],
+    "movementPattern": "pull",
+    "description": "Bicep isolation on incline bench with increased stretch at bottom position",
+    "instructions": "Lie back on 45-degree incline bench, arms hanging straight down, curl dumbbells up while keeping elbows stationary, squeeze at top",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "nordic_curl": {
+    "id": "nordic_curl",
+    "name": "Nordic Hamstring Curl",
+    "baseExercise": "hamstring_curl",
+    "equipment": "bodyweight",
+    "type": "isolation",
+    "muscleGroups": [
+      "hamstrings"
+    ],
+    "movementPattern": "pull",
+    "description": "Advanced eccentric hamstring exercise with bodyweight, excellent for injury prevention",
+    "instructions": "Kneel with ankles secured, slowly lower torso forward keeping body straight from knees to shoulders, catch yourself with hands and push back to start",
+    "videoLink": null,
+    "experienceLevel": "advanced",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "half_kneeling_arnold_press": {
+    "id": "half_kneeling_arnold_press",
+    "name": "Half Kneeling Arnold Press",
+    "baseExercise": "overhead_press",
+    "equipment": "dumbbells",
+    "type": "compound",
+    "muscleGroups": [
+      "shoulders",
+      "triceps",
+      "core"
+    ],
+    "movementPattern": "push",
+    "description": "Arnold press variation performed in half-kneeling position for added core stability",
+    "instructions": "Half-kneeling position, start with dumbbells at shoulders palms facing you, rotate and press overhead ending with palms forward, reverse the motion",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "cuban_press": {
+    "id": "cuban_press",
+    "name": "Cuban Press",
+    "baseExercise": "overhead_press",
+    "equipment": "dumbbells",
+    "type": "compound",
+    "muscleGroups": [
+      "shoulders",
+      "back"
+    ],
+    "movementPattern": "push",
+    "description": "Multi-phase shoulder exercise combining upright row, external rotation, and overhead press",
+    "instructions": "Row dumbbells to chest height, externally rotate to press position, press overhead, reverse the sequence to return",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "goblet_cossack_squat": {
+    "id": "goblet_cossack_squat",
+    "name": "Goblet Cossack Squat",
+    "baseExercise": "squat",
+    "equipment": "dumbbells",
+    "type": "compound",
+    "muscleGroups": [
+      "quadriceps",
+      "glutes",
+      "hamstrings"
+    ],
+    "movementPattern": "squat",
+    "description": "Lateral squat variation holding weight at chest, excellent for hip and ankle mobility",
+    "instructions": "Hold dumbbell or kettlebell at chest, shift weight to one side squatting on that leg while other leg stays straight, alternate sides",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "standing_double_arm_face_pull": {
+    "id": "standing_double_arm_face_pull",
+    "name": "Standing Double Arm Face Pull",
+    "baseExercise": "face_pull",
+    "equipment": "cable_machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "shoulders",
+      "back"
+    ],
+    "movementPattern": "pull",
+    "description": "Rear deltoid and upper back exercise using both arms simultaneously with rope attachment",
+    "instructions": "Stand facing cable with rope at face height, pull rope toward face while separating ends, externally rotate shoulders, squeeze rear delts",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "incline_barbell_bench_press": {
+    "id": "incline_barbell_bench_press",
+    "name": "Incline Barbell Bench Press",
+    "baseExercise": "bench_press",
+    "equipment": "barbell",
+    "type": "compound",
+    "muscleGroups": [
+      "chest",
+      "triceps",
+      "shoulders"
+    ],
+    "movementPattern": "push",
+    "description": "Barbell pressing on incline bench emphasizing upper chest development",
+    "instructions": "Bench at 30-45 degrees, grip slightly wider than shoulders, lower bar to upper chest, press to lockout",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "dual_dumbbell_pronated_bench_press": {
+    "id": "dual_dumbbell_pronated_bench_press",
+    "name": "Dual Dumbbell Pronated Bench Press",
+    "baseExercise": "bench_press",
+    "equipment": "dumbbells",
+    "type": "compound",
+    "muscleGroups": [
+      "chest",
+      "triceps",
+      "shoulders"
+    ],
+    "movementPattern": "push",
+    "description": "Dumbbell bench press with palms facing feet throughout movement for tricep emphasis",
+    "instructions": "Lie flat on bench, hold dumbbells with palms facing feet (pronated grip), press up maintaining pronated grip, lower with control",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "kroc_row": {
+    "id": "kroc_row",
+    "name": "Kroc Row",
+    "baseExercise": "row",
+    "equipment": "dumbbells",
+    "type": "compound",
+    "muscleGroups": [
+      "back",
+      "lats",
+      "biceps",
+      "forearms"
+    ],
+    "movementPattern": "pull",
+    "description": "High-rep dumbbell row variation with body English allowed, excellent for back thickness and grip strength",
+    "instructions": "One hand and knee on bench, row heavy dumbbell with slight momentum allowed, focus on high reps and back contraction",
+    "videoLink": null,
+    "experienceLevel": "advanced",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "cable_seated_shoulder_press": {
+    "id": "cable_seated_shoulder_press",
+    "name": "Cable Seated Shoulder Press",
+    "baseExercise": "overhead_press",
+    "equipment": "cable_machine",
+    "type": "compound",
+    "muscleGroups": [
+      "shoulders",
+      "triceps",
+      "core"
+    ],
+    "movementPattern": "push",
+    "description": "Seated overhead press using cables for constant tension throughout movement",
+    "instructions": "Sit on bench between low pulleys, grip handles at shoulder level, press overhead until arms extended, control return",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "dumbbell_seated_overhead_tricep_extension": {
+    "id": "dumbbell_seated_overhead_tricep_extension",
+    "name": "Dumbbell Seated Overhead Tricep Extension",
+    "baseExercise": "tricep_extension",
+    "equipment": "dumbbells",
+    "type": "isolation",
+    "muscleGroups": [
+      "triceps"
+    ],
+    "movementPattern": "push",
+    "description": "Tricep isolation exercise with arms overhead for maximum stretch on long head",
+    "instructions": "Sit on bench, hold dumbbell with both hands overhead, lower behind head keeping elbows pointed up, extend back to start",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "dual_dumbbell_rear_foot_elevated_split_squat": {
+    "id": "dual_dumbbell_rear_foot_elevated_split_squat",
+    "name": "Dual Dumbbell Rear Foot Elevated Split Squat",
+    "baseExercise": "split_squat",
+    "equipment": "dumbbells",
+    "type": "compound",
+    "muscleGroups": [
+      "quadriceps",
+      "glutes",
+      "hamstrings"
+    ],
+    "movementPattern": "squat",
+    "description": "Bulgarian split squat holding dumbbells in both hands for added resistance",
+    "instructions": "Rear foot on bench, hold dumbbells at sides, descend until front thigh parallel, drive through front heel to stand",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "kneeling_sissy_squat": {
+    "id": "kneeling_sissy_squat",
+    "name": "Kneeling Sissy Squat",
+    "baseExercise": "sissy_squat",
+    "equipment": "bodyweight",
+    "type": "isolation",
+    "muscleGroups": [
+      "quadriceps"
+    ],
+    "movementPattern": "squat",
+    "description": "Bodyweight quad isolation performed from kneeling position with controlled lean back",
+    "instructions": "Kneel upright, slowly lean back as unit keeping knees planted, maintain constant quad tension, return to start",
+    "videoLink": null,
+    "experienceLevel": "advanced",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "swiss_ball_hamstring_curl": {
+    "id": "swiss_ball_hamstring_curl",
+    "name": "Swiss Ball Hamstring Curl",
+    "baseExercise": "hamstring_curl",
+    "equipment": "bodyweight",
+    "type": "isolation",
+    "muscleGroups": [
+      "hamstrings",
+      "glutes",
+      "core"
+    ],
+    "movementPattern": "pull",
+    "description": "Hamstring curl using stability ball for added core engagement",
+    "instructions": "Lie on back with heels on ball, lift hips, curl ball toward glutes by bending knees, extend legs while maintaining hip bridge",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "dual_dumbbell_upright_row": {
+    "id": "dual_dumbbell_upright_row",
+    "name": "Dual Dumbbell Upright Row",
+    "baseExercise": "upright_row",
+    "equipment": "dumbbells",
+    "type": "compound",
+    "muscleGroups": [
+      "shoulders",
+      "back",
+      "biceps"
+    ],
+    "movementPattern": "pull",
+    "description": "Vertical pulling movement with dumbbells targeting shoulders and upper traps",
+    "instructions": "Hold dumbbells at thighs, pull elbows up and out to shoulder height keeping dumbbells close to body, lower with control",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "glute_ham_raise": {
+    "id": "glute_ham_raise",
+    "name": "Glute Ham Raise",
+    "baseExercise": "hamstring_curl",
+    "equipment": "machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "hamstrings",
+      "glutes",
+      "core"
+    ],
+    "movementPattern": "pull",
+    "description": "Advanced hamstring and glute exercise using GHD machine",
+    "instructions": "Position ankles under footplate with knees on pad, keep body straight and lower torso toward floor with control, pull back up using hamstrings and glutes",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "bodyweight_lunge": {
+    "id": "bodyweight_lunge",
+    "name": "Lunge (Bodyweight)",
+    "baseExercise": "lunge",
+    "equipment": "bodyweight",
+    "type": "compound",
+    "muscleGroups": [
+      "quadriceps",
+      "glutes",
+      "hamstrings",
+      "core"
+    ],
+    "movementPattern": "squat",
+    "description": "Single-leg exercise for lower body strength and balance",
+    "instructions": "Step forward with one leg, lower hips until both knees bent at 90 degrees, push back to starting position, alternate legs",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "dumbbell_preacher_curl": {
+    "id": "dumbbell_preacher_curl",
+    "name": "Preacher Curl (Dumbbell)",
+    "baseExercise": "bicep_curl",
+    "equipment": "dumbbells",
+    "type": "isolation",
+    "muscleGroups": [
+      "biceps"
+    ],
+    "movementPattern": "pull",
+    "description": "Isolated bicep curl using preacher bench to eliminate momentum",
+    "instructions": "Place upper arms on preacher bench pad, hold dumbbell with arm extended, curl weight up by flexing elbow, lower with control",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "cable_tricep_pushdown": {
+    "id": "cable_tricep_pushdown",
+    "name": "Tricep Pushdown (Cable)",
+    "baseExercise": "tricep_extension",
+    "equipment": "cable_machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "triceps"
+    ],
+    "movementPattern": "push",
+    "description": "Tricep isolation exercise using high cable pulley",
+    "instructions": "Stand facing cable machine with bar at chest height, keeping elbows at sides push bar down until arms fully extended, return to start with control",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "medicine_ball_toss": {
+    "id": "medicine_ball_toss",
+    "name": "Medicine Ball Toss",
+    "baseExercise": "medicine_ball_toss",
+    "equipment": "none",
+    "type": "compound",
+    "muscleGroups": [
+      "core",
+      "shoulders",
+      "chest"
+    ],
+    "movementPattern": "push",
+    "description": "Explosive throwing movement for power development using medicine ball",
+    "instructions": "Hold medicine ball at chest, explosively throw ball against wall or to partner using chest pass motion, catch and repeat",
+    "videoLink": null,
+    "experienceLevel": "intermediate",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "seated_leg_curl": {
+    "id": "seated_leg_curl",
+    "name": "Seated Leg Curl (Machine)",
+    "baseExercise": "hamstring_curl",
+    "equipment": "machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "hamstrings"
+    ],
+    "movementPattern": "pull",
+    "description": "Isolated hamstring exercise using seated leg curl machine",
+    "instructions": "Sit in machine with pad against back of lower legs, curl weight by flexing knees and pulling heels toward glutes, extend legs with control",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "dumbbell_bicep_curl": {
+    "id": "dumbbell_bicep_curl",
+    "name": "Dumbbell Bicep Curl",
+    "baseExercise": "bicep_curl",
+    "equipment": "dumbbells",
+    "type": "isolation",
+    "muscleGroups": [
+      "biceps"
+    ],
+    "movementPattern": "pull",
+    "description": "Classic bicep isolation exercise with dumbbells",
+    "instructions": "Stand with dumbbells at sides, keeping elbows stationary curl weights up to shoulders, lower with control",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "cable_twist": {
+    "id": "cable_twist",
+    "name": "Cable Torso Rotation",
+    "baseExercise": "cable_twist",
+    "equipment": "cable_machine",
+    "type": "isolation",
+    "muscleGroups": [
+      "core"
+    ],
+    "movementPattern": "rotation",
+    "description": "Rotational core exercise using cable machine, targeting obliques",
+    "instructions": "Stand sideways to cable machine, hold handle at chest height with both hands, rotate torso away from machine keeping arms extended, return with control",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  },
+  "dumbbell_overhead_press": {
+    "id": "dumbbell_overhead_press",
+    "name": "Overhead Press (Dumbbell)",
+    "baseExercise": "overhead_press",
+    "equipment": "dumbbells",
+    "type": "compound",
+    "muscleGroups": [
+      "shoulders",
+      "triceps",
+      "core"
+    ],
+    "movementPattern": "push",
+    "description": "Vertical pressing movement for shoulder strength using dumbbells",
+    "instructions": "Stand with dumbbells at shoulder level, press dumbbells overhead until arms fully extended, lower with control to shoulders",
+    "videoLink": null,
+    "experienceLevel": "beginner",
+    "createdByMemberId": null,
+    "createdByTrainerId": null,
+    "createdByGymId": null
+  }
+}
