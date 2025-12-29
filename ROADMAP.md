@@ -63,7 +63,7 @@ All tool handlers now run on Firebase Functions. iOS is a pure passthrough clien
 - Chat interface with AI coach
 - Workout/plan creation via chat
 - Sidebar with plans, workouts, library
-- Google Sign-in (Apple Sign-in pending)
+- Google and Apple Sign-in
 
 ### Parity Status
 
@@ -86,9 +86,8 @@ All tool handlers now run on Firebase Functions. iOS is a pure passthrough clien
 ## Next Priorities
 
 1. **Web workout execution UI** - Start workout from card, log sets
-2. **Apple Sign-in for web** - Firebase Console configuration needed
-3. **Analytics charts** - Add visualization to analyze_training_data
-4. **Delete AuthenticationService.swift** - Legacy beta code cleanup (unused)
+2. **Analytics charts** - Add visualization to analyze_training_data
+3. **Delete AuthenticationService.swift** - Legacy beta code cleanup (unused)
 
 ---
 
@@ -117,6 +116,7 @@ All tool handlers now run on Firebase Functions. iOS is a pure passthrough clien
 
 | Feature | Date | Notes |
 |---------|------|-------|
+| Apple Sign-in for web | Dec 29 | Firebase Auth with Apple provider |
 | iOS Login Redesign | Dec 29 | Claude-style UI, magic links, social auth at top |
 | Web detail pages | Dec 29 | Right-side panel with Plan/Program/Workout/Exercise views |
 | Handler migration | Dec 29 | All 22 handlers now on server (100%) |
