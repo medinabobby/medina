@@ -186,6 +186,65 @@ class FirebaseAuthService: ObservableObject {
         }
     }
 
+    // MARK: - Magic Link (Email Link Sign-In)
+
+    /// Send a magic link to the user's email for passwordless sign-in
+    /// v213: Added for passwordless email authentication
+    func sendMagicLink(to email: String) async throws {
+        let actionCodeSettings = ActionCodeSettings()
+        actionCodeSettings.url = URL(string: "https://district.fitness/auth")
+        actionCodeSettings.handleCodeInApp = true
+        actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
+
+        do {
+            try await Auth.auth().sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings)
+
+            // Save email for later verification
+            UserDefaults.standard.set(email, forKey: "pendingMagicLinkEmail")
+
+            Logger.log(.info, component: "FirebaseAuth", message: "Magic link sent to: \(email)")
+        } catch {
+            Logger.log(.error, component: "FirebaseAuth", message: "Failed to send magic link: \(error)")
+            throw FirebaseAuthError.magicLinkFailed(error)
+        }
+    }
+
+    /// Handle incoming magic link URL
+    /// v213: Called from MedinaApp when app receives deep link
+    func handleMagicLink(_ url: URL) async throws {
+        let link = url.absoluteString
+
+        guard Auth.auth().isSignIn(withEmailLink: link) else {
+            Logger.log(.warning, component: "FirebaseAuth", message: "URL is not a valid sign-in link")
+            return
+        }
+
+        guard let email = UserDefaults.standard.string(forKey: "pendingMagicLinkEmail") else {
+            throw FirebaseAuthError.missingEmail
+        }
+
+        isLoading = true
+        errorMessage = nil
+
+        defer { isLoading = false }
+
+        do {
+            let result = try await Auth.auth().signIn(withEmail: email, link: link)
+            Logger.log(.info, component: "FirebaseAuth", message: "Magic link sign-in successful: \(result.user.uid)")
+
+            // Clear saved email
+            UserDefaults.standard.removeObject(forKey: "pendingMagicLinkEmail")
+
+            // Refresh token and fetch profile
+            await refreshIDToken()
+            await fetchUserProfile()
+        } catch {
+            Logger.log(.error, component: "FirebaseAuth", message: "Magic link sign-in failed: \(error)")
+            errorMessage = error.localizedDescription
+            throw FirebaseAuthError.signInFailed(error)
+        }
+    }
+
     // MARK: - Sign Out
 
     func signOut() throws {
@@ -246,9 +305,11 @@ enum FirebaseAuthError: LocalizedError {
     case invalidCredential
     case missingClientID
     case missingIDToken
+    case missingEmail
     case cancelled
     case signInFailed(Error)
     case signOutFailed(Error)
+    case magicLinkFailed(Error)
 
     var errorDescription: String? {
         switch self {
@@ -260,12 +321,16 @@ enum FirebaseAuthError: LocalizedError {
             return "Firebase client ID not configured."
         case .missingIDToken:
             return "Failed to get ID token from Google."
+        case .missingEmail:
+            return "Email address not found. Please try signing in again."
         case .cancelled:
             return "Sign in was cancelled."
         case .signInFailed(let error):
             return "Sign in failed: \(error.localizedDescription)"
         case .signOutFailed(let error):
             return "Sign out failed: \(error.localizedDescription)"
+        case .magicLinkFailed(let error):
+            return "Failed to send sign-in link: \(error.localizedDescription)"
         }
     }
 }
