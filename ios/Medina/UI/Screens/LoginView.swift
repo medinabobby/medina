@@ -153,12 +153,12 @@ struct LoginView: View {
                             .font(.caption)
                             .foregroundColor(Color("SecondaryText"))
                         HStack(spacing: 4) {
-                            Link("Terms of Service", destination: URL(string: "https://district.fitness/terms")!)
+                            Link("Terms of Service", destination: URL(string: "https://medinaintelligence.web.app/terms")!)
                                 .font(.caption)
                             Text("and")
                                 .font(.caption)
                                 .foregroundColor(Color("SecondaryText"))
-                            Link("Privacy Policy", destination: URL(string: "https://district.fitness/privacy")!)
+                            Link("Privacy Policy", destination: URL(string: "https://medinaintelligence.web.app/privacy")!)
                                 .font(.caption)
                         }
                     }

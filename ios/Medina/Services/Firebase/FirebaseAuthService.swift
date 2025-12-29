@@ -192,7 +192,7 @@ class FirebaseAuthService: ObservableObject {
     /// v213: Added for passwordless email authentication
     func sendMagicLink(to email: String) async throws {
         let actionCodeSettings = ActionCodeSettings()
-        actionCodeSettings.url = URL(string: "https://district.fitness/auth")
+        actionCodeSettings.url = URL(string: "https://medinaintelligence.web.app/auth")
         actionCodeSettings.handleCodeInApp = true
         actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
 
