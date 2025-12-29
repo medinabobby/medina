@@ -84,9 +84,11 @@ All tool handlers now run on Firebase Functions. iOS is a pure passthrough clien
 
 ## Next Priorities
 
-1. **Web workout execution UI** - Start workout from card, log sets
-2. **Apple Sign-in for web** - Firebase Console configuration needed
-3. **Analytics charts** - Add visualization to analyze_training_data
+1. **iOS Login Redesign** - Claude-style UI, magic links, remove beta password code
+   - See [LOGIN_REDESIGN_PROPOSAL.md](LOGIN_REDESIGN_PROPOSAL.md)
+2. **Web workout execution UI** - Start workout from card, log sets
+3. **Apple Sign-in for web** - Firebase Console configuration needed
+4. **Analytics charts** - Add visualization to analyze_training_data
 
 ---
 
@@ -100,6 +102,17 @@ All tool handlers now run on Firebase Functions. iOS is a pure passthrough clien
 | Push notifications | Medium | Workout reminders |
 | Home Screen widgets | Low | iOS-specific |
 | Siri Shortcuts | Low | iOS-specific |
+
+---
+
+## Backlog (Deferred)
+
+| Feature | Notes |
+|---------|-------|
+| .edu student free tier | Auto-detect .edu emails, apply free tier on sign-up |
+| Payment tiers | Stripe integration, subscription management |
+| Phone/SMS OTP auth | Alternative auth method (~$0.01-0.05/SMS cost) |
+| Web detail pages | Workout/Plan/Exercise detail views |
 
 ---
 
@@ -145,3 +158,4 @@ firebase deploy --only functions
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) - System design, data flow
 - [TESTING.md](TESTING.md) - Test strategy
+- [LOGIN_REDESIGN_PROPOSAL.md](LOGIN_REDESIGN_PROPOSAL.md) - Login UI redesign plan
