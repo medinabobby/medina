@@ -382,43 +382,31 @@ struct PlanDetailView: View {
 
     // Status helpers moved to shared StatusHelpers.swift
 
-    // MARK: - v74.0: Plan Activation
+    // MARK: - v74.0: Plan Activation (Firebase API)
 
-    /// Handle plan activation button tap
+    /// Handle plan activation button tap - uses Firebase API
     private func handleActivatePlan(plan: Plan) {
-        // Check for overlapping active plans
-        let overlappingPlans = PlanActivationService.checkForOverlap(plan: plan)
-
-        if let overlapping = overlappingPlans.first {
-            // Has overlap - show confirmation dialog with cascade info
-            activationOverlapPlan = overlapping
-            activationSkippedCount = PlanActivationService.countRemainingWorkouts(for: overlapping)
-            showActivationConfirmation = true
-        } else {
-            // No overlap - activate immediately
-            Task {
-                await performPlanActivation()
-            }
+        Task {
+            await performPlanActivation()
         }
     }
 
-    /// Perform plan activation
+    /// Perform plan activation via Firebase
     private func performPlanActivation() async {
-        guard let plan = LocalDataStore.shared.plans[planId] else {
-            errorMessage = "Unable to find plan."
-            showError = true
-            return
-        }
-
         do {
-            let result = try await PlanActivationService.activateWithAutoDeactivate(plan: plan)
+            // Call Firebase API with confirmOverlap: true (auto-complete any overlapping plan)
+            let response = try await FirebaseAPIClient.shared.activatePlan(planId: planId, confirmOverlap: true)
 
-            Logger.log(.info, component: "PlanDetailView",
-                       message: "Activated plan '\(result.activatedPlan.name)' (deactivated: \(result.deactivatedPlan?.name ?? "none"), skipped: \(result.skippedWorkoutCount))")
+            if response.success {
+                Logger.log(.info, component: "PlanDetailView",
+                           message: "Plan activated via Firebase: \(planId)")
 
-            // Clear activation state
-            activationOverlapPlan = nil
-            activationSkippedCount = 0
+                // Refresh data from Firestore
+                NotificationCenter.default.post(name: .planStatusDidChange, object: nil)
+            } else {
+                errorMessage = response.error ?? response.message ?? "Activation failed"
+                showError = true
+            }
 
         } catch {
             errorMessage = error.localizedDescription

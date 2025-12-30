@@ -14,7 +14,12 @@ actor FirebaseAPIClient {
         "tts": "https://us-central1-medinaintelligence.cloudfunctions.net/tts",
         "vision": "https://us-central1-medinaintelligence.cloudfunctions.net/vision",
         "chatSimple": "https://us-central1-medinaintelligence.cloudfunctions.net/chatSimple",
-        "calculate": "https://calculate-dpkc2km3oa-uc.a.run.app"
+        "calculate": "https://calculate-dpkc2km3oa-uc.a.run.app",
+        // Plan API endpoints - direct REST calls for iOS UI
+        "activatePlan": "https://us-central1-medinaintelligence.cloudfunctions.net/activatePlan",
+        "abandonPlan": "https://us-central1-medinaintelligence.cloudfunctions.net/abandonPlan",
+        "deletePlan": "https://us-central1-medinaintelligence.cloudfunctions.net/deletePlan",
+        "reschedulePlan": "https://us-central1-medinaintelligence.cloudfunctions.net/reschedulePlan"
     ]
     private let session: URLSession
 
@@ -112,6 +117,54 @@ actor FirebaseAPIClient {
         let response: CalculationResponse = try await post(endpoint: "calculate", body: request, requiresAuth: true)
         let latency = Date().timeIntervalSince(start) * 1000
         print("[FirebaseAPI] /calculate completed in \(Int(latency))ms")
+        return response
+    }
+
+    // MARK: - Plan API
+
+    /// Activate a draft plan
+    /// POST /activatePlan (requires auth)
+    func activatePlan(planId: String, confirmOverlap: Bool = false) async throws -> PlanActionResponse {
+        let start = Date()
+        let body = PlanActionRequest(planId: planId, confirmOverlap: confirmOverlap)
+        let response: PlanActionResponse = try await post(endpoint: "activatePlan", body: body, requiresAuth: true)
+        let latency = Date().timeIntervalSince(start) * 1000
+        print("[FirebaseAPI] /activatePlan completed in \(Int(latency))ms")
+        return response
+    }
+
+    /// Abandon (complete early) an active plan
+    /// POST /abandonPlan (requires auth)
+    func abandonPlan(planId: String) async throws -> PlanActionResponse {
+        let start = Date()
+        let body = PlanActionRequest(planId: planId)
+        let response: PlanActionResponse = try await post(endpoint: "abandonPlan", body: body, requiresAuth: true)
+        let latency = Date().timeIntervalSince(start) * 1000
+        print("[FirebaseAPI] /abandonPlan completed in \(Int(latency))ms")
+        return response
+    }
+
+    /// Delete a plan (cascade deletes programs, workouts)
+    /// POST /deletePlan (requires auth)
+    func deletePlan(planId: String) async throws -> PlanActionResponse {
+        let start = Date()
+        let body = PlanActionRequest(planId: planId)
+        let response: PlanActionResponse = try await post(endpoint: "deletePlan", body: body, requiresAuth: true)
+        let latency = Date().timeIntervalSince(start) * 1000
+        print("[FirebaseAPI] /deletePlan completed in \(Int(latency))ms")
+        return response
+    }
+
+    /// Reschedule a plan to a new start date
+    /// POST /reschedulePlan (requires auth)
+    func reschedulePlan(planId: String, newStartDate: Date) async throws -> PlanActionResponse {
+        let start = Date()
+        let formatter = ISO8601DateFormatter()
+        let dateString = formatter.string(from: newStartDate)
+        let body = PlanActionRequest(planId: planId, newStartDate: dateString)
+        let response: PlanActionResponse = try await post(endpoint: "reschedulePlan", body: body, requiresAuth: true)
+        let latency = Date().timeIntervalSince(start) * 1000
+        print("[FirebaseAPI] /reschedulePlan completed in \(Int(latency))ms")
         return response
     }
 
@@ -359,6 +412,32 @@ struct CalculationResponse: Codable {
         self.isEstimated = isEstimated
         self.error = error
     }
+}
+
+// MARK: - Plan API Types
+
+struct PlanActionRequest: Codable {
+    let planId: String
+    var confirmOverlap: Bool?
+    var newStartDate: String?  // For reschedule, ISO8601 format
+
+    init(planId: String, confirmOverlap: Bool? = nil, newStartDate: String? = nil) {
+        self.planId = planId
+        self.confirmOverlap = confirmOverlap
+        self.newStartDate = newStartDate
+    }
+}
+
+struct SuggestionChip: Codable {
+    let label: String
+    let command: String
+}
+
+struct PlanActionResponse: Codable {
+    let success: Bool
+    let message: String?
+    let suggestionChips: [SuggestionChip]?
+    let error: String?
 }
 
 // MARK: - Errors

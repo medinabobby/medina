@@ -224,7 +224,7 @@ final class WorkoutDetailViewModel: ObservableObject {
 
     // v162: Removed handleRefreshExercises - feature was never scoped/requested
 
-    // MARK: - Plan Activation
+    // MARK: - Plan Activation (Firebase API)
 
     func handleActivatePlan() {
         guard let plan = parentPlan else {
@@ -233,34 +233,26 @@ final class WorkoutDetailViewModel: ObservableObject {
             return
         }
 
-        let overlappingPlans = PlanActivationService.checkForOverlap(plan: plan)
-
-        if let overlapping = overlappingPlans.first {
-            activationOverlapPlan = overlapping
-            activationSkippedCount = PlanActivationService.countRemainingWorkouts(for: overlapping)
-            showActivationConfirmation = true
-        } else {
-            Task {
-                await performPlanActivation()
-            }
+        Task {
+            await performPlanActivation(planId: plan.id)
         }
     }
 
-    func performPlanActivation() async {
-        guard let plan = parentPlan else {
-            errorMessage = "Unable to find plan for this workout."
-            showError = true
-            return
-        }
-
+    func performPlanActivation(planId: String) async {
         do {
-            let result = try await PlanActivationService.activateWithAutoDeactivate(plan: plan)
+            // Call Firebase API with confirmOverlap: true (auto-complete any overlapping plan)
+            let response = try await FirebaseAPIClient.shared.activatePlan(planId: planId, confirmOverlap: true)
 
-            Logger.log(.info, component: "WorkoutDetailView",
-                       message: "Activated plan '\(result.activatedPlan.name)' (deactivated: \(result.deactivatedPlan?.name ?? "none"), skipped: \(result.skippedWorkoutCount))")
+            if response.success {
+                Logger.log(.info, component: "WorkoutDetailView",
+                           message: "Plan activated via Firebase: \(planId)")
 
-            activationOverlapPlan = nil
-            activationSkippedCount = 0
+                // Refresh data from Firestore
+                NotificationCenter.default.post(name: .planStatusDidChange, object: nil)
+            } else {
+                errorMessage = response.error ?? response.message ?? "Activation failed"
+                showError = true
+            }
         } catch {
             errorMessage = error.localizedDescription
             showError = true

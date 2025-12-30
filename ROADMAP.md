@@ -153,16 +153,24 @@ Issues identified in documentation audit (Dec 29, 2025).
 | Metrics duplication | `TimeAdjustedMetricsCalculator` | Merge into `MetricsCalculator` |
 | Misplaced files | `ProtocolResolver`, `ProtocolChangeService` | Move to Resolvers/, Exercise/ |
 
-### iOS Services → Server Migration (Future)
+### iOS Services → Server Migration (COMPLETE)
 
-Business logic that should move to Firebase Functions for platform consistency:
+All iOS business logic migrated to Firebase Functions. iOS is pure passthrough client.
 
-| Service | Files | LOC | Priority |
-|---------|-------|-----|----------|
-| Calculations | 5 | ~730 | HIGH - Weight/1RM formulas differ per platform if not migrated |
-| Import | 7 | ~1,500 | HIGH - Web users can't import CSV/photos |
-| Exercise Selection | 10 | ~2,500 | MEDIUM |
-| Periodization | 1 | ~500 | MEDIUM |
+| Service | LOC | Status | Firebase Endpoint |
+|---------|-----|--------|-------------------|
+| Calculations | ~730 | **COMPLETE** | `/api/calculate` |
+| Import | ~1,500 | **COMPLETE** | `/api/import` |
+| Exercise Selection | ~2,500 | **COMPLETE** | `/api/selectExercises` |
+| Plan Operations | ~1,850 | **COMPLETE** | `/api/activatePlan`, `/api/abandonPlan`, `/api/deletePlan`, `/api/reschedulePlan` |
+
+**Deleted iOS files (v225):**
+- `PeriodizationEngine.swift` (743 LOC)
+- `PlanActivationService.swift` (~300 LOC)
+- `PlanDeletionService.swift` (~150 LOC)
+- `PlanAbandonmentService.swift` (~90 LOC)
+- `PlanRescheduleService.swift` (~200 LOC)
+- `PlanTemplateService.swift` (376 LOC)
 
 ### Documentation Fixes
 
@@ -184,6 +192,10 @@ Business logic that should move to Firebase Functions for platform consistency:
 
 | Feature | Date | Notes |
 |---------|------|-------|
+| **iOS Plan services → Firebase (COMPLETE)** | Dec 30 | Deleted 6 files (~1,850 LOC): PeriodizationEngine, PlanActivationService, PlanDeletionService, PlanAbandonmentService, PlanRescheduleService, PlanTemplateService. Added /api/plan endpoints. |
+| Web settings UX parity | Dec 30 | Compact dropdown like Claude (v224) |
+| Web CSV import UX | Dec 30 | UploadModal with Firebase /api/import (v221) |
+| Web service layer | Dec 30 | `lib/api.ts` typed helpers for all Firebase endpoints (v220) |
 | **API key migration (COMPLETE)** | Dec 29 | All 6 services migrated: VoiceService, VisionExtractionService, URLExtractionService, VoiceAnnouncementService, VoiceModeManager. Config.openAIKey removed. |
 | Firebase /api/tts, /vision, /chatSimple | Dec 29 | New endpoints for proxying OpenAI calls |
 | iOS Services audit | Dec 29 | Full audit of Services folder, documented cleanup + migration plan |

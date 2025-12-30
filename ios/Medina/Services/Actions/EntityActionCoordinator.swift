@@ -160,12 +160,8 @@ class EntityActionCoordinator: ObservableObject {
 
             return result
 
-        } catch let error as PlanActivationError {
-            return .failure(error: NSError(domain: "PlanActivation", code: 1, userInfo: [NSLocalizedDescriptionKey: error.userMessage]))
-        } catch let error as PlanAbandonmentError {
-            return .failure(error: NSError(domain: "PlanAbandon", code: 1, userInfo: [NSLocalizedDescriptionKey: error.errorDescription ?? "Failed"]))
-        } catch let error as PlanDeletionError {
-            return .failure(error: NSError(domain: "PlanDeletion", code: 1, userInfo: [NSLocalizedDescriptionKey: error.userMessage]))
+        } catch let error as FirebaseAPIError {
+            return .failure(error: NSError(domain: "FirebaseAPI", code: 1, userInfo: [NSLocalizedDescriptionKey: error.errorDescription ?? "API error"]))
         } catch let error as WorkoutSkipError {
             return .failure(error: NSError(domain: "WorkoutSkip", code: 1, userInfo: [NSLocalizedDescriptionKey: error.userMessage]))
         } catch {
@@ -173,49 +169,70 @@ class EntityActionCoordinator: ObservableObject {
         }
     }
 
-    // MARK: - Plan Actions
+    // MARK: - Plan Actions (Firebase API)
 
     private func executePlanActivation(entityId: String) async throws -> ActionResult {
-        guard let plan = LocalDataStore.shared.plans.values.first(where: { $0.id == entityId }) else {
-            return .failure(error: NSError(domain: "Plan", code: 404, userInfo: [NSLocalizedDescriptionKey: "Plan not found"]))
+        // Get plan name for message (may not exist in cache)
+        let planName = LocalDataStore.shared.plans[entityId]?.name ?? "Plan"
+
+        // Call Firebase API
+        let response = try await FirebaseAPIClient.shared.activatePlan(planId: entityId)
+
+        if response.success {
+            let message = response.message ?? "'\(planName)' is now active!"
+            Logger.log(.info, component: "EntityActionCoordinator", message: "Plan activated via Firebase: \(entityId)")
+
+            // Refresh local data from Firestore
+            NotificationCenter.default.post(name: .planStatusDidChange, object: nil)
+
+            return .success(message: nil, navigationIntent: .navigateToChat(injectCard: true, injectedMessage: message))
+        } else {
+            let errorMessage = response.error ?? response.message ?? "Failed to activate plan"
+            return .failure(error: NSError(domain: "Plan", code: 400, userInfo: [NSLocalizedDescriptionKey: errorMessage]))
         }
-
-        let activatedPlan = try await PlanActivationService.activate(plan: plan)
-        let message = "'\(activatedPlan.name)' is now active!"
-
-        Logger.log(.info, component: "EntityActionCoordinator", message: "Plan activated: \(activatedPlan.id)")
-
-        // Navigate to chat and show message (card injection handled separately)
-        return .success(message: nil, navigationIntent: .navigateToChat(injectCard: true, injectedMessage: message))
     }
 
     private func executePlanAbandon(entityId: String) async throws -> ActionResult {
-        guard let plan = LocalDataStore.shared.plans.values.first(where: { $0.id == entityId }) else {
-            return .failure(error: NSError(domain: "Plan", code: 404, userInfo: [NSLocalizedDescriptionKey: "Plan not found"]))
+        // Get plan name for message
+        let planName = LocalDataStore.shared.plans[entityId]?.name ?? "Plan"
+
+        // Call Firebase API
+        let response = try await FirebaseAPIClient.shared.abandonPlan(planId: entityId)
+
+        if response.success {
+            let message = response.message ?? "'\(planName)' has been completed."
+            Logger.log(.info, component: "EntityActionCoordinator", message: "Plan abandoned via Firebase: \(entityId)")
+
+            // Refresh local data from Firestore
+            NotificationCenter.default.post(name: .planStatusDidChange, object: nil)
+
+            return .success(message: nil, navigationIntent: .navigateToChat(injectCard: true, injectedMessage: message))
+        } else {
+            let errorMessage = response.error ?? response.message ?? "Failed to abandon plan"
+            return .failure(error: NSError(domain: "Plan", code: 400, userInfo: [NSLocalizedDescriptionKey: errorMessage]))
         }
-
-        let abandonedPlan = try await PlanAbandonmentService.abandon(plan: plan)
-        let message = "'\(abandonedPlan.name)' has been abandoned."
-
-        Logger.log(.info, component: "EntityActionCoordinator", message: "Plan abandoned: \(abandonedPlan.id)")
-
-        // Navigate to chat and show message (card injection handled separately)
-        return .success(message: nil, navigationIntent: .navigateToChat(injectCard: true, injectedMessage: message))
     }
 
     private func executePlanDelete(entityId: String) async throws -> ActionResult {
-        guard let plan = LocalDataStore.shared.plans.values.first(where: { $0.id == entityId }) else {
-            return .failure(error: NSError(domain: "Plan", code: 404, userInfo: [NSLocalizedDescriptionKey: "Plan not found"]))
+        // Get plan name for message
+        let planName = LocalDataStore.shared.plans[entityId]?.name ?? "Plan"
+
+        // Call Firebase API
+        let response = try await FirebaseAPIClient.shared.deletePlan(planId: entityId)
+
+        if response.success {
+            let message = response.message ?? "'\(planName)' has been deleted."
+            Logger.log(.info, component: "EntityActionCoordinator", message: "Plan deleted via Firebase: \(entityId)")
+
+            // Refresh local data from Firestore
+            NotificationCenter.default.post(name: .planStatusDidChange, object: nil)
+
+            // Navigate to root (plan no longer exists)
+            return .success(message: nil, navigationIntent: .popToRoot(injectedMessage: message))
+        } else {
+            let errorMessage = response.error ?? response.message ?? "Failed to delete plan"
+            return .failure(error: NSError(domain: "Plan", code: 400, userInfo: [NSLocalizedDescriptionKey: errorMessage]))
         }
-
-        let planName = plan.name
-        try await PlanDeletionService.delete(plan: plan)
-        let message = "'\(planName)' has been deleted."
-
-        Logger.log(.info, component: "EntityActionCoordinator", message: "Plan deleted: \(entityId)")
-
-        // Navigate to root and show message (plan no longer exists)
-        return .success(message: nil, navigationIntent: .popToRoot(injectedMessage: message))
     }
 
     // MARK: - Workout Actions

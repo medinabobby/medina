@@ -904,3 +904,6 @@ export {importCSV} from "./api/import";
 
 // Exercise selection endpoint - library-first selection with experience fallback
 export {selectExercises} from "./api/selectExercises";
+
+// Plan API endpoints - REST wrappers for iOS UI direct calls
+export {activatePlan, abandonPlan, deletePlan, reschedulePlan} from "./api/plan";
