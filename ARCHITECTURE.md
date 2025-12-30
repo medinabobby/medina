@@ -1,6 +1,6 @@
 # Medina Architecture
 
-**Last updated:** December 29, 2025 | **iOS:** v212 | **Web:** v212 | **Backend:** v212
+**Last updated:** December 30, 2025 | **iOS:** v226 | **Web:** v226 | **Backend:** v226
 
 Medina is an AI fitness coach with iOS and web clients sharing a Firebase backend.
 
@@ -367,10 +367,11 @@ interface Message {
 
 ### Suggestion Chip Sources
 
-1. **Startup** - Empty state only
-2. **Handler-provided** - Tool returns chips
-3. **AI-invoked** - `suggest_options` tool
-4. **Fallback** - Workout scenarios only
+1. **Initial chips** - Server-side via `/api/initialChips` (context-aware based on user state)
+2. **Handler-provided** - Tool returns chips after execution
+3. **AI-invoked** - `suggest_options` tool for dynamic suggestions
+
+**Note:** As of v226, all clients (iOS + Web) fetch initial chips from server for consistency.
 
 ---
 

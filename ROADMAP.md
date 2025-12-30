@@ -1,6 +1,6 @@
 # Medina Roadmap
 
-**Last Updated:** December 29, 2025
+**Last Updated:** December 30, 2025
 
 ---
 
@@ -8,9 +8,9 @@
 
 | Platform | Version | Status |
 |----------|---------|--------|
-| iOS | v214 | TestFlight (passthrough client) |
-| Web | v212 | Production |
-| Backend | v212 | **22/22 handlers complete** |
+| iOS | v226 | TestFlight (passthrough client) |
+| Web | v226 | Production |
+| Backend | v226 | **22/22 handlers complete** |
 
 ---
 
@@ -163,6 +163,7 @@ All iOS business logic migrated to Firebase Functions. iOS is pure passthrough c
 | Import | ~1,500 | **COMPLETE** | `/api/import` |
 | Exercise Selection | ~2,500 | **COMPLETE** | `/api/selectExercises` |
 | Plan Operations | ~1,850 | **COMPLETE** | `/api/activatePlan`, `/api/abandonPlan`, `/api/deletePlan`, `/api/reschedulePlan` |
+| Suggestion Chips | ~326 | **COMPLETE** | `/api/initialChips` |
 
 **Deleted iOS files (v225):**
 - `PeriodizationEngine.swift` (743 LOC)
@@ -171,6 +172,10 @@ All iOS business logic migrated to Firebase Functions. iOS is pure passthrough c
 - `PlanAbandonmentService.swift` (~90 LOC)
 - `PlanRescheduleService.swift` (~200 LOC)
 - `PlanTemplateService.swift` (376 LOC)
+
+**Deleted iOS files (v226):**
+- `Services/Greeting/GreetingContext.swift` (95 LOC)
+- `Services/Greeting/GreetingContextBuilder.swift` (231 LOC)
 
 ### Documentation Fixes
 
@@ -192,7 +197,8 @@ All iOS business logic migrated to Firebase Functions. iOS is pure passthrough c
 
 | Feature | Date | Notes |
 |---------|------|-------|
-| **iOS Plan services → Firebase (COMPLETE)** | Dec 30 | Deleted 6 files (~1,850 LOC): PeriodizationEngine, PlanActivationService, PlanDeletionService, PlanAbandonmentService, PlanRescheduleService, PlanTemplateService. Added /api/plan endpoints. |
+| **Server-side suggestion chips (v226)** | Dec 30 | Created `/api/initialChips` endpoint. Deleted iOS Greeting folder (~326 LOC). iOS + Web now share identical chip logic from server. |
+| **iOS Plan services → Firebase (v225)** | Dec 30 | Deleted 6 files (~1,850 LOC): PeriodizationEngine, PlanActivationService, PlanDeletionService, PlanAbandonmentService, PlanRescheduleService, PlanTemplateService. Added /api/plan endpoints. |
 | Web settings UX parity | Dec 30 | Compact dropdown like Claude (v224) |
 | Web CSV import UX | Dec 30 | UploadModal with Firebase /api/import (v221) |
 | Web service layer | Dec 30 | `lib/api.ts` typed helpers for all Firebase endpoints (v220) |
@@ -219,7 +225,7 @@ Web App ───┘         │
                      └── Firestore (shared data)
 ```
 
-Tool handlers (22/22) run on Firebase Functions. iOS still has ~5,000 LOC of business logic (Calculations, Import, Exercise Selection) that should be migrated for full platform consistency.
+Tool handlers (22/22) run on Firebase Functions. iOS Services folder: 79 files, ~30,128 LOC (reduced from 87 files via v225/v226 migrations).
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for technical details.
 

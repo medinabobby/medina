@@ -1,6 +1,6 @@
 # Medina Testing Strategy
 
-**Last updated:** December 29, 2025
+**Last updated:** December 30, 2025
 
 Cross-platform testing strategy for iOS, Web, and Backend.
 
