@@ -11,9 +11,9 @@ actor FirebaseAPIClient {
         "hello": "https://hello-dpkc2km3oa-uc.a.run.app",
         "chat": "https://chat-dpkc2km3oa-uc.a.run.app",
         "getUser": "https://getuser-dpkc2km3oa-uc.a.run.app",
-        "tts": "https://tts-dpkc2km3oa-uc.a.run.app",
-        "vision": "https://vision-dpkc2km3oa-uc.a.run.app",
-        "chatSimple": "https://chatsimple-dpkc2km3oa-uc.a.run.app"
+        "tts": "https://us-central1-medinaintelligence.cloudfunctions.net/tts",
+        "vision": "https://us-central1-medinaintelligence.cloudfunctions.net/vision",
+        "chatSimple": "https://us-central1-medinaintelligence.cloudfunctions.net/chatSimple"
     ]
     private let session: URLSession
 
