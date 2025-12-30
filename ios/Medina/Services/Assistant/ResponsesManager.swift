@@ -82,7 +82,7 @@ class ResponsesManager: ObservableObject {
     func sendMessageStreaming(_ text: String) -> AsyncThrowingStream<ResponseStreamProcessor.ResponseEvent, Error> {
         return AsyncThrowingStream { continuation in
             Task { @MainActor in
-                guard let user = self.currentUser else {
+                guard self.currentUser != nil else {
                     Logger.log(.error, component: Self.component, message: "Not initialized - no current user")
                     continuation.finish(throwing: ResponsesError.notInitialized)
                     return

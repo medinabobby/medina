@@ -231,11 +231,6 @@ enum HistoricalWorkoutService {
             return protocolId
         }
 
-        // Create default protocol - simple straight sets
-        let reps = Array(repeating: 8, count: setCount)  // Default 8 reps per set
-        let intensityAdjustments = Array(repeating: 0.0, count: setCount)
-        let restBetweenSets = Array(repeating: 90, count: max(0, setCount - 1))
-
         // Note: We need to create this manually since ProtocolConfig requires Codable init
         // For now, return a generic protocol ID that the system can handle
         return "gbc-compound-3x10"  // Fallback to existing protocol

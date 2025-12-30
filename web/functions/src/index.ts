@@ -21,7 +21,11 @@ function getAdmin(): typeof AdminType {
     adminModule = require("firebase-admin");
   }
   if (!adminApp) {
-    adminApp = adminModule!.initializeApp();
+    if (adminModule!.apps.length === 0) {
+      adminApp = adminModule!.initializeApp();
+    } else {
+      adminApp = adminModule!.apps[0];
+    }
   }
   return adminModule!;
 }
@@ -53,9 +57,9 @@ function getTools() {
   return require("./tools/definitions");
 }
 
-function getHandlers() {
+function getToolHandlers() {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  return require("./handlers");
+  return require("./tools");
 }
 
 /**
@@ -261,7 +265,7 @@ export const chat = onRequest(
             // v204: Log ALL tool calls for debugging
             console.log(`Tool call detected: ${item.name} (call_id: ${item.call_id})`);
 
-            const {hasHandler} = getHandlers();
+            const {hasHandler} = getToolHandlers();
             if (hasHandler(item.name)) {
               // Mark this item as server-handled so we suppress all its events
               // Store the item ID, tool name, and call_id for later use
@@ -347,7 +351,7 @@ export const chat = onRequest(
             console.error(`Failed to parse args for ${toolCall.name}`);
           }
 
-          const {executeHandler} = getHandlers();
+          const {executeHandler} = getToolHandlers();
           const result = await executeHandler(
             toolCall.name,
             parsedArgs,

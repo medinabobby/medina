@@ -210,7 +210,6 @@ struct PlanDetailView: View {
         }
 
         // Weekly Mix
-        let totalSessions = plan.weightliftingDays + plan.cardioDays
         KeyValueRow(
             key: "Weekly Mix",
             value: "\(plan.weightliftingDays) strength • \(plan.cardioDays) cardio"

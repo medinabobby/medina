@@ -113,7 +113,7 @@ struct ExerciseSubstitutionSheet: View {
             // Check workout location
             if let workout = LocalDataStore.shared.workouts[workoutId],
                let program = LocalDataStore.shared.programs[workout.programId],
-               let plan = LocalDataStore.shared.plans[program.planId],
+               let _ = LocalDataStore.shared.plans[program.planId],
                let memberProfile = user.memberProfile {
                 // Use location from workout context if available
                 if memberProfile.trainingLocation == .home {

@@ -251,7 +251,7 @@ enum ProtocolChangeService {
                 let lastSet = sets.last!
                 for i in currentCount..<newSetCount {
                     let newSetId = "\(instance.id)_s\(i + 1)"
-                    var newSet = ExerciseSet(
+                    let newSet = ExerciseSet(
                         id: newSetId,
                         exerciseInstanceId: instance.id,
                         setNumber: i + 1,

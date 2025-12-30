@@ -9,16 +9,67 @@ interface PlansFolderProps {
   plans: Plan[];
 }
 
+// v227: Smart 3-plan limit matching iOS SidebarContext logic
+// Priority: 1. Active plan, 2. Draft/future plan, 3. Recent completed, then fill to 3
+function getSidebarPlans(plans: Plan[]): { visible: Plan[]; moreCount: number } {
+  const result: Plan[] = [];
+  const usedIds = new Set<string>();
+
+  // 1. Active plan first (most important)
+  const active = plans.find(p => p.status === 'active');
+  if (active) {
+    result.push(active);
+    usedIds.add(active.id);
+  }
+
+  // 2. Draft or future-dated plan
+  const draftOrFuture = plans.find(p =>
+    !usedIds.has(p.id) && (
+      p.status === 'draft' ||
+      (p.startDate && new Date(p.startDate) > new Date())
+    )
+  );
+  if (draftOrFuture) {
+    result.push(draftOrFuture);
+    usedIds.add(draftOrFuture.id);
+  }
+
+  // 3. Most recent completed
+  const completed = plans.find(p => !usedIds.has(p.id) && p.status === 'completed');
+  if (completed) {
+    result.push(completed);
+    usedIds.add(completed.id);
+  }
+
+  // Fill remaining slots up to 3
+  for (const plan of plans) {
+    if (result.length >= 3) break;
+    if (!usedIds.has(plan.id)) {
+      result.push(plan);
+      usedIds.add(plan.id);
+    }
+  }
+
+  return { visible: result, moreCount: plans.length - result.length };
+}
+
 export default function PlansFolder({ plans }: PlansFolderProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const [showAll, setShowAll] = useState(false);
   const { openPlan } = useDetailModal();
 
-  // Sort: active first, then by name
-  const sortedPlans = [...plans].sort((a, b) => {
+  // v227: Apply smart 3-plan limit
+  const { visible: sidebarPlans, moreCount } = getSidebarPlans(plans);
+
+  // Sort all plans for "show all" view: active first, then by name
+  const allPlansSorted = [...plans].sort((a, b) => {
     if (a.status === 'active' && b.status !== 'active') return -1;
     if (a.status !== 'active' && b.status === 'active') return 1;
     return a.name.localeCompare(b.name);
   });
+
+  // Display either smart 3 or all plans
+  const displayPlans = showAll ? allPlansSorted : sidebarPlans;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -67,7 +118,7 @@ export default function PlansFolder({ plans }: PlansFolderProps) {
             </div>
           ) : (
             <div className="space-y-0.5">
-              {sortedPlans.map(plan => (
+              {displayPlans.map(plan => (
                 <PlanItem
                   key={plan.id}
                   plan={plan}
@@ -75,6 +126,24 @@ export default function PlansFolder({ plans }: PlansFolderProps) {
                   statusColor={getStatusColor(plan.status)}
                 />
               ))}
+              {/* v227: Show "+ N more plans..." if there are hidden plans */}
+              {!showAll && moreCount > 0 && (
+                <button
+                  onClick={() => setShowAll(true)}
+                  className="w-full pl-10 pr-3 py-2 text-left text-sm text-blue-600 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  + {moreCount} more {moreCount === 1 ? 'plan' : 'plans'}...
+                </button>
+              )}
+              {/* Show "Show less" when expanded */}
+              {showAll && moreCount > 0 && (
+                <button
+                  onClick={() => setShowAll(false)}
+                  className="w-full pl-10 pr-3 py-2 text-left text-sm text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Show less
+                </button>
+              )}
             </div>
           )}
         </div>

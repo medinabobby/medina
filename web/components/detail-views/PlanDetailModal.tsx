@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { X, ArrowLeft, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, ArrowLeft, Loader2, MoreHorizontal, Trash2, XCircle } from 'lucide-react';
 import { colors } from '@/lib/colors';
 import { BreadcrumbBar, BreadcrumbItem } from './shared/BreadcrumbBar';
 import { HeroSection } from './shared/HeroSection';
@@ -22,11 +22,30 @@ interface PlanDetailModalProps {
 }
 
 export function PlanDetailModal({ planId, onBack, onClose, breadcrumbItems }: PlanDetailModalProps) {
-  const { openProgram, refresh } = useDetailModal();
+  const { openProgram, refresh, close } = useDetailModal();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState<PlanDetails | null>(null);
   const [activating, setActivating] = useState(false);
+
+  // v227: Actions menu state
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState<'abandon' | 'delete' | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const actionsMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (actionsMenuRef.current && !actionsMenuRef.current.contains(event.target as Node)) {
+        setShowActionsMenu(false);
+      }
+    }
+    if (showActionsMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showActionsMenu]);
 
   useEffect(() => {
     async function fetchPlan() {
@@ -78,6 +97,84 @@ export function PlanDetailModal({ planId, onBack, onClose, breadcrumbItems }: Pl
     }
   };
 
+  // v227: Abandon plan handler (active → abandoned)
+  const handleAbandon = async () => {
+    if (!user?.uid || !plan) return;
+
+    setActionLoading(true);
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('https://us-central1-medinaintelligence.cloudfunctions.net/abandonPlan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ planId: plan.id }),
+      });
+
+      if (response.ok) {
+        // Refresh the data
+        const data = await getPlanWithPrograms(user.uid, planId);
+        setPlan(data);
+        refresh();
+        setShowConfirmDialog(null);
+      } else {
+        console.error('Failed to abandon plan:', await response.text());
+      }
+    } catch (error) {
+      console.error('Failed to abandon plan:', error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // v227: Delete plan handler (draft/abandoned → deleted)
+  const handleDelete = async () => {
+    if (!user?.uid || !plan) return;
+
+    setActionLoading(true);
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('https://us-central1-medinaintelligence.cloudfunctions.net/deletePlan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ planId: plan.id }),
+      });
+
+      if (response.ok) {
+        // Close the detail panel after deletion
+        refresh();
+        close();
+      } else {
+        console.error('Failed to delete plan:', await response.text());
+      }
+    } catch (error) {
+      console.error('Failed to delete plan:', error);
+    } finally {
+      setActionLoading(false);
+      setShowConfirmDialog(null);
+    }
+  };
+
+  // v227: Get available actions based on plan status
+  const getAvailableActions = () => {
+    if (!plan) return [];
+    const actions: Array<{ id: 'abandon' | 'delete'; label: string; icon: typeof Trash2; destructive: boolean }> = [];
+
+    if (plan.status === 'active') {
+      actions.push({ id: 'abandon', label: 'Abandon Plan', icon: XCircle, destructive: true });
+    }
+    if (plan.status === 'draft' || plan.status === 'abandoned') {
+      actions.push({ id: 'delete', label: 'Delete Plan', icon: Trash2, destructive: true });
+    }
+
+    return actions;
+  };
+
   const formatDateShort = (date?: Date) => {
     if (!date) return '';
     return new Intl.DateTimeFormat('en-US', {
@@ -123,9 +220,39 @@ export function PlanDetailModal({ planId, onBack, onClose, breadcrumbItems }: Pl
     return `Week ${program.weekNumber}`;
   };
 
+  // v228: Format preferred days as abbreviations (e.g., "M, T, W, F, Sa")
+  const formatPreferredDays = (days: string[]) => {
+    const abbrevs: Record<string, string> = {
+      sunday: 'Su', monday: 'M', tuesday: 'T', wednesday: 'W',
+      thursday: 'Th', friday: 'F', saturday: 'Sa'
+    };
+    return days.map(d => abbrevs[d.toLowerCase()] || d).join(', ');
+  };
+
+  // v228: Calculate intensity range from programs
+  const getIntensityRange = () => {
+    const programs = plan?.programs || [];
+    const intensities = programs
+      .flatMap(p => [p.startingIntensity, p.endingIntensity])
+      .filter((i): i is number => typeof i === 'number');
+    if (intensities.length === 0) return null;
+    const min = Math.min(...intensities);
+    const max = Math.max(...intensities);
+    return min === max ? `${min}%` : `${min}% → ${max}%`;
+  };
+
+  // v228: Format weekly mix (e.g., "3 strength • 2 cardio")
+  const getWeeklyMix = () => {
+    if (!plan?.weightliftingDays && !plan?.cardioDays) return null;
+    const parts: string[] = [];
+    if (plan.weightliftingDays) parts.push(`${plan.weightliftingDays} strength`);
+    if (plan.cardioDays) parts.push(`${plan.cardioDays} cardio`);
+    return parts.join(' • ');
+  };
+
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
+      {/* Header - v227: Added actions menu */}
       <div
         className="sticky top-0 flex items-center justify-between px-4 py-3 border-b z-10"
         style={{ backgroundColor: colors.bgPrimary, borderColor: colors.borderSubtle }}
@@ -146,8 +273,75 @@ export function PlanDetailModal({ planId, onBack, onClose, breadcrumbItems }: Pl
         >
           Plan Details
         </h2>
-        <div className="w-9" />
+        {/* v227: Actions menu */}
+        <div className="relative" ref={actionsMenuRef}>
+          {getAvailableActions().length > 0 ? (
+            <>
+              <button
+                onClick={() => setShowActionsMenu(!showActionsMenu)}
+                className="p-2 -mr-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <MoreHorizontal className="w-5 h-5" style={{ color: colors.secondaryText }} />
+              </button>
+              {showActionsMenu && (
+                <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                  {getAvailableActions().map((action) => (
+                    <button
+                      key={action.id}
+                      onClick={() => {
+                        setShowActionsMenu(false);
+                        setShowConfirmDialog(action.id);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
+                      style={{ color: action.destructive ? colors.error : colors.primaryText }}
+                    >
+                      <action.icon className="w-4 h-4" />
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="w-9" />
+          )}
+        </div>
       </div>
+
+      {/* v227: Confirmation dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-sm mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold mb-2" style={{ color: colors.primaryText }}>
+              {showConfirmDialog === 'abandon' ? 'Abandon Plan?' : 'Delete Plan?'}
+            </h3>
+            <p className="text-sm mb-4" style={{ color: colors.secondaryText }}>
+              {showConfirmDialog === 'abandon'
+                ? `Are you sure you want to abandon "${plan?.name}"? This will mark all remaining workouts as skipped.`
+                : `Are you sure you want to delete "${plan?.name}"? This action cannot be undone.`}
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowConfirmDialog(null)}
+                disabled={actionLoading}
+                className="px-4 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                style={{ color: colors.secondaryText }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={showConfirmDialog === 'abandon' ? handleAbandon : handleDelete}
+                disabled={actionLoading}
+                className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors flex items-center gap-2"
+                style={{ backgroundColor: colors.error }}
+              >
+                {actionLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {showConfirmDialog === 'abandon' ? 'Abandon' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
@@ -184,7 +378,16 @@ export function PlanDetailModal({ planId, onBack, onClose, breadcrumbItems }: Pl
               <div className="space-y-0">
                 {plan.trainingLocation && <KeyValueRow label="Location" value={plan.trainingLocation} />}
                 {plan.splitType && <KeyValueRow label="Split Type" value={plan.splitType} />}
-                {plan.daysPerWeek && <KeyValueRow label="Days" value={getDaysAbbreviation(plan.daysPerWeek)} />}
+                {/* v228: Show preferred days if available, otherwise fall back to count */}
+                {plan.preferredDays && plan.preferredDays.length > 0 ? (
+                  <KeyValueRow label="Days" value={formatPreferredDays(plan.preferredDays)} />
+                ) : plan.daysPerWeek ? (
+                  <KeyValueRow label="Days" value={getDaysAbbreviation(plan.daysPerWeek)} />
+                ) : null}
+                {/* v228: Weekly mix (strength/cardio breakdown) */}
+                {getWeeklyMix() && <KeyValueRow label="Weekly Mix" value={getWeeklyMix()!} />}
+                {/* v228: Intensity range from programs */}
+                {getIntensityRange() && <KeyValueRow label="Intensity" value={getIntensityRange()!} />}
                 {plan.emphasizedMuscleGroups && plan.emphasizedMuscleGroups.length > 0 && (
                   <KeyValueRow label="Focus Areas" value={plan.emphasizedMuscleGroups.join(', ')} />
                 )}

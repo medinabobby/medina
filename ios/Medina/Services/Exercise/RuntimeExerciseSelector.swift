@@ -31,6 +31,12 @@ import Foundation
 @MainActor
 enum RuntimeExerciseSelector {
 
+    // MARK: - Error State (for UI surfacing)
+
+    /// Last error message for UI display
+    /// Set when selection fails, cleared on success
+    static var lastError: String?
+
     // MARK: - Public API
 
     /// Ensure exercises are selected for a workout, selecting if needed
@@ -280,7 +286,7 @@ enum RuntimeExerciseSelector {
                 // Even the expanded pool failed - this is a database gap
                 Logger.log(.error, component: "RuntimeExerciseSelector",
                           message: "❌ Selection failed even with expanded pool: \(retryError.userMessage)")
-                ExerciseSelectionService.lastError = retryError.userMessage
+                RuntimeExerciseSelector.lastError = retryError.userMessage
                 return []
             }
         }

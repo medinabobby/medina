@@ -16,19 +16,14 @@ interface CardState {
   workoutCards: WorkoutCardData[];
   planCards: PlanCardData[];
 }
-import ChatLayout, { useChatLayout } from '@/components/chat/ChatLayout';
+import ChatLayout from '@/components/chat/ChatLayout';
 import ChatMessages from '@/components/chat/ChatMessages';
 import ChatInput from '@/components/chat/ChatInput';
 
 function ChatArea() {
   const { getIdToken } = useAuth();
-  const { toggleSidebar } = useChatLayout();
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: 'assistant',
-      content: "Hey! I'm Medina, your AI fitness coach. Tell me about your fitness goals, and I'll help you create a personalized workout plan. What would you like to work on?",
-    },
-  ]);
+  // v227: Start with empty messages - greeting shown separately
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [streamingText, setStreamingText] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -37,8 +32,10 @@ function ChatArea() {
 
   // v226: Server-side initial chips
   const [serverChips, setServerChips] = useState<SuggestionChip[]>([]);
+  // v227: Server-side greeting
+  const [serverGreeting, setServerGreeting] = useState<string>('');
 
-  // v226: Fetch initial chips from server on mount
+  // v226: Fetch initial chips and greeting from server on mount
   useEffect(() => {
     async function loadInitialChips() {
       try {
@@ -60,6 +57,11 @@ function ChatArea() {
           if (data.chips) {
             setServerChips(data.chips);
             console.log('[Chat] Loaded initial chips:', data.chips.length);
+          }
+          // v227: Use server greeting
+          if (data.greeting) {
+            setServerGreeting(data.greeting);
+            console.log('[Chat] Loaded greeting:', data.greeting);
           }
         }
       } catch (err) {
@@ -210,30 +212,14 @@ function ChatArea() {
 
   return (
     <div className="flex flex-col h-full bg-white">
-      {/* Chat Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200">
-        <button
-          onClick={toggleSidebar}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors md:hidden"
-        >
-          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-sm">M</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <h1 className="font-semibold text-gray-900 text-sm">Medina</h1>
-          <p className="text-xs text-gray-500">AI Fitness Coach</p>
-        </div>
-      </div>
+      {/* v231: Removed duplicate header - sidebar has toggle. Just pass toggleSidebar to ChatMessages */}
 
-      {/* Messages Area */}
+      {/* Messages Area - v227: Pass greeting for empty state */}
       <ChatMessages
         messages={messages}
         streamingText={streamingText}
         isLoading={isLoading}
+        greeting={serverGreeting}
       />
 
       {/* Error Banner */}
@@ -243,11 +229,11 @@ function ChatArea() {
         </div>
       )}
 
-      {/* Input Area */}
+      {/* Input Area - v227: Show chips when no user messages */}
       <ChatInput
         onSend={handleSend}
         isLoading={isLoading}
-        suggestions={messages.length <= 1 ? serverChips : []}
+        suggestions={messages.length === 0 ? serverChips : []}
       />
     </div>
   );

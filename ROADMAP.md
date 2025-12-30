@@ -8,21 +8,21 @@
 
 | Platform | Version | Status |
 |----------|---------|--------|
-| iOS | v226 | TestFlight (passthrough client) |
-| Web | v226 | Production |
-| Backend | v226 | **22/22 handlers complete** |
+| iOS | v232 | TestFlight (passthrough client) |
+| Web | v232 | Production |
+| Backend | v232 | **22/22 tools complete** |
 
 ---
 
-## Handler Migration Progress
+## Tool Migration Progress
 
-**22 of 22 handlers complete (100%)**
+**22 of 22 tools complete (100%)**
 
-All tool handlers now run on Firebase Functions. iOS is a pure passthrough client.
+All tools now run on Firebase Functions. iOS is a pure passthrough client.
 
 ### Complete (All Phases)
 
-| Phase | Handler | Description |
+| Phase | Tool | Description |
 |-------|---------|-------------|
 | 0 | `show_schedule` | Query and display workout schedule |
 | 0 | `update_profile` | Update user profile fields |
@@ -67,27 +67,45 @@ All tool handlers now run on Firebase Functions. iOS is a pure passthrough clien
 
 ### Parity Status
 
-| Feature | iOS | Web |
-|---------|-----|-----|
-| Create workout | Yes | Yes |
-| Create plan | Yes | Yes |
-| Start/end workout | Yes | Yes |
-| Modify workout | Yes | Yes |
-| Change protocol | Yes | Yes |
-| Training analytics | Yes | Yes (text) |
-| Workout execution UI | Yes | No |
-| Voice mode | Yes | No |
-| Apple Health | Yes | N/A |
-| View schedule | Yes | Yes |
-| Message trainer | Yes | Yes |
+| Feature | iOS | Web | Notes |
+|---------|-----|-----|-------|
+| Create workout | Yes | Yes | Via chat |
+| Create plan | Yes | Yes | Via chat |
+| Start/end workout | Yes | No | **iOS only** - no web execution UI |
+| Modify workout | Yes | Yes | Via chat |
+| Change protocol | Yes | Yes | Via chat |
+| Training analytics | Yes | Yes | Text-based MVP |
+| Workout execution UI | Yes | No | **iOS only** - set logging, timer, etc. |
+| Voice mode | Yes | No | **iOS only** - TTS/STT during workout |
+| Apple Health | Yes | N/A | Platform-specific |
+| View schedule | Yes | Yes | Via chat |
+| Message trainer | Yes | Yes | Via chat |
 
 ---
 
 ## Next Priorities
 
-1. **Web workout execution UI** - Start workout from card, log sets
-2. **Analytics charts** - Add visualization to analyze_training_data
-3. **Delete AuthenticationService.swift** - Legacy beta code cleanup (unused)
+1. **Server-side workout creation** - Move WorkoutCreationService to Firebase Functions
+2. **Server-side workout modification** - Move WorkoutModificationService to Firebase
+3. **Web workout execution UI** - Start workout from card, log sets
+4. **Analytics charts** - Add visualization to analyze_training_data
+
+### Server Migration Roadmap
+
+Goal: iOS becomes pure UI shell. All business logic on Firebase Functions.
+
+| Service | LOC | Status | Target Endpoint |
+|---------|-----|--------|-----------------|
+| WorkoutCreationService | ~400 | Planned | `/api/createWorkout` |
+| WorkoutModificationService | ~300 | Planned | `/api/modifyWorkout` |
+| ProtocolAssignmentService | ~250 | Planned | (merged into createWorkout) |
+| InstanceInitializationService | ~300 | Planned | (merged into createWorkout) |
+| DurationAwareWorkoutBuilder | ~350 | Planned | (merged into createWorkout) |
+
+**Benefits:**
+- Cross-platform parity (iOS, Web, Android share identical logic)
+- Instant updates (no App Store approval for bug fixes)
+- Single optimization point (improve once, benefit all platforms)
 
 ---
 
@@ -141,17 +159,17 @@ Issues identified in documentation audit (Dec 29, 2025).
 |-------|----------|-------|
 | ~~Hardcoded API key~~ | ~~`ios/Services/Assistant/Config.swift`~~ | **COMPLETE** - All 6 services migrated to Firebase endpoints |
 | Firestore security rules | `web/firestore.rules` | Still has TODO comment, allows any auth user to read/write anything |
-| Orphaned tool definition | `definitions.ts` | `createCustomWorkout` defined but no handler exists |
+| Orphaned tool definition | `definitions.ts` | `createCustomWorkout` defined but no tool exists |
 
 ### iOS Services Cleanup (Dec 29, 2025 Audit)
 
 | Issue | Location | Action |
 |-------|----------|--------|
 | Empty folder | `ios/Services/Message/` | Deleted |
-| Unused handlers | `ios/Services/Assistant/ToolHandling/Handlers/` | Deleted |
-| Voice fragmentation | `ios/Services/Voice/` (7 files) | Merge to 3 |
-| Metrics duplication | `TimeAdjustedMetricsCalculator` | Merge into `MetricsCalculator` |
-| Misplaced files | `ProtocolResolver`, `ProtocolChangeService` | Move to Resolvers/, Exercise/ |
+| Unused tool handlers | `ios/Services/Assistant/ToolHandling/Handlers/` | Deleted |
+| ~~Voice fragmentation~~ | ~~`ios/Services/Voice/` (7 files)~~ | **COMPLETE** - Merged to 3 files (v231) |
+| ~~Metrics duplication~~ | ~~`TimeAdjustedMetricsCalculator`~~ | **COMPLETE** - File doesn't exist (already merged) |
+| ~~Misplaced files~~ | ~~`ProtocolResolver`, `ProtocolChangeService`~~ | **COMPLETE** - Moved to Resolvers/, Exercise/ (v230) |
 
 ### iOS Services → Server Migration (COMPLETE)
 
@@ -197,6 +215,11 @@ All iOS business logic migrated to Firebase Functions. iOS is pure passthrough c
 
 | Feature | Date | Notes |
 |---------|------|-------|
+| **ExerciseSelectionService consolidation (v232)** | Dec 30 | Deleted ExerciseSelectionService.swift (~600 LOC) - methods were unused, logic duplicated in RuntimeExerciseSelector. Moved `lastError` to RuntimeExerciseSelector. |
+| **iOS Services cleanup (v232)** | Dec 30 | Deleted 2 dead files (~500 LOC): ExerciseSummaryService.swift (unused), TrainerSidebarSections.swift (obsolete - replaced by SidebarFilterSection). Trainer functionality preserved. |
+| **Voice consolidation (v231)** | Dec 30 | Merged 7 voice files → 3: VoiceInput.swift (STT + VoiceModeManager), VoiceOutput.swift (TTS + Templates), VoiceCoordination.swift (Sequencer + Announcements + Realtime). |
+| **iOS Services cleanup (v230)** | Dec 30 | Moved ProtocolResolver → Resolvers/, ProtocolChangeService → Exercise/. Verified AuthenticationService.swift and TimeAdjustedMetricsCalculator don't exist (already cleaned up). |
+| **Terminology alignment (v229)** | Dec 30 | Renamed `handlers/` → `tools/` for OpenAI standard terminology. Created `CLAUDE.md` for AI assistant context. Updated all docs. |
 | **Server-side suggestion chips (v226)** | Dec 30 | Created `/api/initialChips` endpoint. Deleted iOS Greeting folder (~326 LOC). iOS + Web now share identical chip logic from server. |
 | **iOS Plan services → Firebase (v225)** | Dec 30 | Deleted 6 files (~1,850 LOC): PeriodizationEngine, PlanActivationService, PlanDeletionService, PlanAbandonmentService, PlanRescheduleService, PlanTemplateService. Added /api/plan endpoints. |
 | Web settings UX parity | Dec 30 | Compact dropdown like Claude (v224) |
@@ -211,7 +234,7 @@ All iOS business logic migrated to Firebase Functions. iOS is pure passthrough c
 | Apple Sign-in for web | Dec 29 | Firebase Auth with Apple provider |
 | iOS Login Redesign | Dec 29 | Claude-style UI, magic links, social auth at top |
 | Web detail pages | Dec 29 | Right-side panel with Plan/Program/Workout/Exercise views |
-| Handler migration | Dec 29 | All 22 handlers now on server (100%) |
+| Tool migration | Dec 29 | All 22 tools now on server (100%) |
 | iOS parity fixes | Dec 29 | Chevrons, status colors, sidebar structure |
 
 ---
@@ -225,7 +248,7 @@ Web App ───┘         │
                      └── Firestore (shared data)
 ```
 
-Tool handlers (22/22) run on Firebase Functions. iOS Services folder: 79 files, ~30,128 LOC (reduced from 87 files via v225/v226 migrations).
+Tools (22/22) run on Firebase Functions. iOS Services folder: 75 files (reduced from 87 files via v225/v226/v231/v232 cleanups).
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for technical details.
 

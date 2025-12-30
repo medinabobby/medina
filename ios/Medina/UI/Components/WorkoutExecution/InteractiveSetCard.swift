@@ -312,7 +312,7 @@ struct InteractiveSetCard: View {
         } else if isLogged {
             // Completed → Edit (Phase 4)
             print("TODO: Open edit modal")
-        } else if !isDisabled, let weight = adjustedWeight, let reps = adjustedReps {
+        } else if !isDisabled, adjustedWeight != nil, adjustedReps != nil {
             // Pending → Complete
             handleComplete()
         }

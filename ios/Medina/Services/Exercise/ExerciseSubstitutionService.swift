@@ -259,7 +259,7 @@ enum ExerciseSubstitutionService {
     ) -> Double {
         let levels: [ExperienceLevel] = [.beginner, .intermediate, .advanced, .expert]
 
-        guard let origIndex = levels.firstIndex(of: originalLevel),
+        guard let _ = levels.firstIndex(of: originalLevel),
               let candIndex = levels.firstIndex(of: candidateLevel),
               let userIndex = levels.firstIndex(of: userLevel) else {
             return 0.5

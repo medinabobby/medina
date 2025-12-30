@@ -4,14 +4,19 @@ import { useRef, useEffect } from 'react';
 import type { ChatMessage, WorkoutCardData, PlanCardData } from '@/lib/types';
 import { colors } from '@/lib/colors';
 import { useDetailModal } from '@/components/detail-views';
+import { MedinaIcon } from '@/components/icons/MedinaIcon';
 
 interface ChatMessagesProps {
   messages: ChatMessage[];
   streamingText?: string;
   isLoading: boolean;
+  greeting?: string; // v227: Server-side greeting for empty state
 }
 
-export default function ChatMessages({ messages, streamingText, isLoading }: ChatMessagesProps) {
+// v232: Default greeting shows while server greeting loads
+const DEFAULT_GREETING = "Ready when you are.";
+
+export default function ChatMessages({ messages, streamingText, isLoading, greeting }: ChatMessagesProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
@@ -19,9 +24,24 @@ export default function ChatMessages({ messages, streamingText, isLoading }: Cha
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streamingText]);
 
+  // v227: Show greeting when no messages
+  const showGreeting = messages.length === 0 && !streamingText && !isLoading;
+  const displayGreeting = greeting || DEFAULT_GREETING;
+
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+        {/* v233: Centered greeting with Medina brand icon */}
+        {showGreeting && displayGreeting && (
+          <div className="flex flex-col items-center justify-center min-h-[40vh] text-center">
+            {/* Medina tic-tac-toe brand icon */}
+            <MedinaIcon className="w-12 h-12 mb-4 text-blue-500" />
+            <p className="text-xl text-gray-800 font-medium">
+              {displayGreeting}
+            </p>
+          </div>
+        )}
+
         {messages.map((message, index) => (
           <MessageBubble key={index} message={message} />
         ))}
@@ -36,14 +56,10 @@ export default function ChatMessages({ messages, streamingText, isLoading }: Cha
           </div>
         )}
 
-        {/* Loading indicator */}
+        {/* v233: Loading indicator - animated Medina icon */}
         {isLoading && !streamingText && (
           <div className="flex justify-start">
-            <div className="flex gap-1.5">
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-            </div>
+            <MedinaIcon className="w-6 h-6 text-blue-500" animate />
           </div>
         )}
 
@@ -76,43 +92,33 @@ function MessageBubble({ message }: MessageBubbleProps) {
   }
 
   // AI message: left-aligned, plain text (no bubble) - Claude/ChatGPT style
+  // v230: Removed avatar to match Claude pattern
   return (
     <div className="flex justify-start">
-      <div className="max-w-[85%]">
-        {/* AI avatar */}
-        <div className="flex items-start gap-3">
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-            style={{ background: `linear-gradient(to bottom right, ${colors.accentBlue}, ${colors.accentBlueHover})` }}
-          >
-            <span className="text-white font-bold text-xs">M</span>
-          </div>
-          <div className="flex-1 min-w-0 space-y-3">
-            {message.content && (
-              <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
-                {message.content}
-              </p>
-            )}
+      <div className="max-w-[85%] space-y-3">
+        {message.content && (
+          <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+            {message.content}
+          </p>
+        )}
 
-            {/* Workout Cards */}
-            {message.workoutCards?.map((card) => (
-              <WorkoutCard
-                key={card.workoutId}
-                card={card}
-                onClick={() => openWorkout(card.workoutId, card.workoutName)}
-              />
-            ))}
+        {/* Workout Cards */}
+        {message.workoutCards?.map((card) => (
+          <WorkoutCard
+            key={card.workoutId}
+            card={card}
+            onClick={() => openWorkout(card.workoutId, card.workoutName)}
+          />
+        ))}
 
-            {/* Plan Cards */}
-            {message.planCards?.map((card) => (
-              <PlanCard
-                key={card.planId}
-                card={card}
-                onClick={() => openPlan(card.planId, card.planName)}
-              />
-            ))}
-          </div>
-        </div>
+        {/* Plan Cards */}
+        {message.planCards?.map((card) => (
+          <PlanCard
+            key={card.planId}
+            card={card}
+            onClick={() => openPlan(card.planId, card.planName)}
+          />
+        ))}
       </div>
     </div>
   );

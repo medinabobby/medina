@@ -199,7 +199,7 @@ enum VisionExtractionService {
 
         // Parse the JSON content from Firebase response
         guard let contentData = response.content.data(using: .utf8),
-              let json = try JSONSerialization.jsonObject(with: contentData) as? [String: Any] else {
+              let _ = try JSONSerialization.jsonObject(with: contentData) as? [String: Any] else {
             throw ExtractionError.parseError("Invalid JSON in vision response")
         }
 

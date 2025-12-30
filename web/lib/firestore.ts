@@ -266,6 +266,10 @@ export async function getPlanWithPrograms(uid: string, planId: string): Promise<
     trainingLocation: planData.trainingLocation,
     splitType: planData.splitType,
     daysPerWeek: planData.daysPerWeek,
+    // v228: Additional fields for iOS parity
+    weightliftingDays: planData.weightliftingDays,
+    cardioDays: planData.cardioDays,
+    preferredDays: planData.preferredDays,
   };
 }
 

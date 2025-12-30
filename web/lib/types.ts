@@ -49,6 +49,9 @@ export interface Program {
   weekNumber: number;
   status: 'pending' | 'active' | 'completed';
   workoutIds: string[];
+  // v228: Intensity fields for range display
+  startingIntensity?: number;
+  endingIntensity?: number;
 }
 
 // ============================================
@@ -220,6 +223,10 @@ export interface PlanDetails extends Plan {
   trainingLocation?: string;
   splitType?: string;
   daysPerWeek?: number;
+  // v228: Additional fields for iOS parity
+  weightliftingDays?: number;
+  cardioDays?: number;
+  preferredDays?: string[];
 }
 
 export interface ProgramDetails extends Program {

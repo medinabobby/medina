@@ -76,24 +76,22 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
   return (
     <aside className={sidebarClasses}>
       <div className="flex flex-col h-full">
-        {/* Header */}
+        {/* Header - v227: Removed blue M icon, added sidebar toggle */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">M</span>
-            </div>
-            <span className="font-semibold text-gray-900">Medina</span>
-          </div>
-          {isMobile && (
+            {/* Sidebar toggle icon (Claude/ChatGPT style panel icon) */}
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Close sidebar"
             >
-              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <line x1="9" y1="3" x2="9" y2="21" />
               </svg>
             </button>
-          )}
+            <span className="font-semibold text-gray-900">Medina</span>
+          </div>
         </div>
 
         {/* Search */}

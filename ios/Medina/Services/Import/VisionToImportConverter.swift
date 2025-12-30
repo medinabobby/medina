@@ -55,7 +55,7 @@ enum VisionToImportConverter {
                 exercisesByName[normalizedName] = existing
             } else {
                 // Create new entry
-                var exerciseData = ImportedExerciseData(
+                let exerciseData = ImportedExerciseData(
                     exerciseName: normalizedName,
                     matchedExerciseId: matchedId,
                     matchConfidence: matchedId != nil ? 0.8 : nil,

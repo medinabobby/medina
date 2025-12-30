@@ -486,7 +486,7 @@ enum SupersetPairingService {
 
         // First, add superset pairs in order (group 1 pair, group 2 pair, etc.)
         for group in groups.sorted(by: { $0.groupNumber < $1.groupNumber }) {
-            let newStartPosition = reorderedIds.count
+            _ = reorderedIds.count  // Track start position for potential future logging
             var newPositions: [Int] = []
 
             for originalPos in group.exercisePositions {

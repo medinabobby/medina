@@ -237,7 +237,7 @@ class WorkoutSummaryService {
                         targetVolume += targetWeight * Double(targetReps)
                     }
                 }
-            } else if let config = protocolConfig {
+            } else if protocolConfig != nil {
                 // Exercise was skipped (no instance) - add target volume to denominator
                 // Use protocol config to estimate expected volume
                 // Note: We can't know exact target weight without 1RM, so use 0 for actual

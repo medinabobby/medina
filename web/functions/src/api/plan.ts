@@ -1,8 +1,8 @@
 /**
- * Plan API endpoints - REST wrappers for plan tool handlers
+ * Plan API endpoints - REST wrappers for plan tools
  *
  * Enables iOS UI to call plan operations directly without going through chat.
- * All handlers already exist - this just exposes them as REST endpoints.
+ * All tools already exist - this just exposes them as REST endpoints.
  *
  * POST /api/plan/activate
  * POST /api/plan/abandon
@@ -11,11 +11,11 @@
  */
 
 import {onRequest} from "firebase-functions/v2/https";
-import {activatePlanHandler} from "../handlers/activatePlan";
-import {abandonPlanHandler} from "../handlers/abandonPlan";
-import {deletePlanHandler} from "../handlers/deletePlan";
-import {reschedulePlanHandler} from "../handlers/reschedulePlan";
-import {HandlerContext} from "../handlers/index";
+import {activatePlanHandler} from "../tools/activatePlan";
+import {abandonPlanHandler} from "../tools/abandonPlan";
+import {deletePlanHandler} from "../tools/deletePlan";
+import {reschedulePlanHandler} from "../tools/reschedulePlan";
+import {HandlerContext} from "../tools/index";
 
 // Lazy-loaded admin module
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

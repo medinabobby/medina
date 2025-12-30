@@ -67,9 +67,6 @@ struct MedinaApp: App {
             Logger.log(.error, component: "MedinaApp", message: "Firebase sign-out failed: \(error)")
         }
 
-        // Clear saved local session
-        AuthenticationService.shared.clearSession()
-
         // Reset state to show login
         autoLoginUserId = nil
         isCheckingSession = false

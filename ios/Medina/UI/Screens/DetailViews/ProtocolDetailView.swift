@@ -61,7 +61,7 @@ struct ProtocolDetailView: View {
     }
 
     private func toggleLibrary() {
-        guard var library = LocalDataStore.shared.libraries[userId] else {
+        guard let library = LocalDataStore.shared.libraries[userId] else {
             // No library exists, create one and add protocol
             var newLibrary = UserLibrary(userId: userId)
             let newEntry = ProtocolLibraryEntry(

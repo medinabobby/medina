@@ -1,12 +1,13 @@
 /**
- * Tool Handler Infrastructure
+ * AI Tools - Server-Side Execution
  *
- * Provides types, router, and execution logic for server-side tool handlers.
- * Handlers execute on the server instead of being passed through to iOS.
+ * This module provides the infrastructure for AI tools that execute on the server.
+ * When the AI calls a tool, it either:
+ * - Executes here on the server (if hasHandler returns true)
+ * - Passes through to iOS for client-side execution
  *
- * v210: Lazy handler loading to avoid Firebase deployment timeout
- * Handlers are loaded on first use, not at module initialization
- * NOTE: No top-level imports to minimize initialization time
+ * v210: Lazy loading to avoid Firebase deployment timeout
+ * v229: Renamed from handlers/ to tools/ for OpenAI terminology alignment
  */
 
 // Import Firestore types only (no runtime import)

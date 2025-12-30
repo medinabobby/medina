@@ -1,6 +1,6 @@
 # Medina Testing Strategy
 
-**Last updated:** December 30, 2025
+**Last updated:** December 30, 2025 | **Version:** v232
 
 Cross-platform testing strategy for iOS, Web, and Backend.
 
@@ -8,14 +8,21 @@ Cross-platform testing strategy for iOS, Web, and Backend.
 
 ## Testing Philosophy
 
-### Principle: Test at the Right Layer
+### Principle: Test Where the Logic Lives
+
+With our **server-first architecture**, most business logic runs on Firebase Functions. This means:
+
+- **Backend tests** cover business logic for ALL platforms (iOS, Web, future Android)
+- **Client tests** focus on platform-specific UI and real-time features only
 
 ```
 ┌─────────────────────────────────────────────┐
 │         BACKEND (Firebase Functions)         │
 │  ════════════════════════════════════════   │
-│  Server handlers, Firestore operations,      │
-│  AI tool execution, data validation          │
+│  AI Services: chat, tts, vision             │
+│  Workout Services: calculate, select        │
+│  Data Services: import, plan endpoints      │
+│  Tool Handlers: 22 AI-invokable tools       │
 │                                              │
 │  TEST HERE: All shared business logic        │
 │  Framework: Vitest + Firestore Emulator      │
@@ -31,9 +38,10 @@ Cross-platform testing strategy for iOS, Web, and Backend.
 ```
 
 **Why this matters:**
-- Server handlers run the same code for iOS and Web
+- Server code runs the same for iOS and Web
 - Testing once at the backend covers both platforms
 - Client tests focus on platform-specific UI/UX
+- Future Android app gets tested logic for free
 
 ---
 
@@ -209,38 +217,33 @@ xcodebuild test -project Medina.xcodeproj -scheme Medina -destination 'platform=
 
 ---
 
-## Handler Migration Testing
+## Tool Testing (All 22 on Server)
 
-As handlers move from iOS to server:
+All 22 AI-invokable tools now run on Firebase Functions. iOS is a passthrough client.
 
-### Before Migration (iOS Passthrough)
+### Current Flow
 ```
 User → Firebase Function → OpenAI → Tool Call
                                         ↓
-                              Passthrough to iOS
-                                        ↓
-                              iOS executes handler
-                              iOS updates Firestore
-```
-**Test in:** iOS (`MedinaTests/ToolHandlerTests/`)
-
-### After Migration (Server Handler)
-```
-User → Firebase Function → OpenAI → Tool Call
-                                        ↓
-                              Server executes handler
+                              Server executes tool
                               Server updates Firestore
+                                        ↓
+                              iOS reads via Firestore listener
 ```
-**Test in:** Backend (`web/functions/src/handlers/*.test.ts`)
 
-### Migration Checklist
-When migrating a handler:
-1. [ ] Write backend unit tests
-2. [ ] Write backend integration tests (Firestore Emulator)
-3. [ ] Deploy to Firebase
-4. [ ] Verify iOS passthrough disabled
-5. [ ] Mark iOS tests as deprecated (don't delete yet)
-6. [ ] Monitor for regressions
+**Test in:** Backend (`web/functions/src/tools/*.test.ts`)
+
+### Test Location by Category
+| Tool Category | Test Files |
+|---------------|------------|
+| Schedule tools | `show_schedule.test.ts`, `skip_workout.test.ts` |
+| Profile tools | `update_profile.test.ts` |
+| Plan tools | `create_plan.test.ts`, `activate_plan.test.ts`, etc. |
+| Workout tools | `create_workout.test.ts`, `modify_workout.test.ts`, etc. |
+| Library tools | `add_to_library.test.ts`, `remove_from_library.test.ts`, etc. |
+
+### Legacy iOS Tests
+iOS tool handler tests in `MedinaTests/ToolHandlerTests/` are now deprecated. They tested the passthrough pattern which is no longer used.
 
 ---
 
