@@ -44,6 +44,8 @@ next-env.d.ts
 functions/lib/
 functions/node_modules/
 functions/coverage/
+functions/serviceAccountKey.json
+functions/scripts/.env.test
 firebase-debug.log
 firebase-debug*.log
 .firebase/

@@ -17,12 +17,22 @@ import {onRequest} from "firebase-functions/v2/https";
 // Lazy-loaded admin module
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let adminModule: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let adminApp: any = null;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getAdmin(): any {
   if (!adminModule) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     adminModule = require("firebase-admin");
+  }
+  if (!adminApp) {
+    // Initialize only if not already initialized
+    if (adminModule.apps.length === 0) {
+      adminApp = adminModule.initializeApp();
+    } else {
+      adminApp = adminModule.apps[0];
+    }
   }
   return adminModule;
 }
