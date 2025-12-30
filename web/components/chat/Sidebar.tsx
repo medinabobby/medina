@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/AuthProvider';
 import { getPlans } from '@/lib/firestore';
 import type { Plan } from '@/lib/types';
 import PlansFolder from './folders/PlansFolder';
-import TrainingPreferencesModal from '@/components/TrainingPreferencesModal';
+import SettingsModal from '@/components/SettingsModal';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -32,22 +32,7 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
-  const [showTrainingPreferences, setShowTrainingPreferences] = useState(false);
-  const settingsMenuRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target as Node)) {
-        setShowSettingsMenu(false);
-      }
-    }
-    if (showSettingsMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [showSettingsMenu]);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   // Load data when user is available
   useEffect(() => {
@@ -201,58 +186,25 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
               </p>
               <p className="text-xs text-gray-500">Member</p>
             </div>
-            {/* Gear icon with dropdown */}
-            <div className="relative" ref={settingsMenuRef}>
-              <button
-                onClick={() => setShowSettingsMenu(!showSettingsMenu)}
-                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                title="Settings"
-              >
-                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </button>
-
-              {/* Settings Dropdown - Claude style */}
-              {showSettingsMenu && (
-                <div className="absolute bottom-full right-0 mb-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-50">
-                  <button
-                    onClick={() => {
-                      setShowSettingsMenu(false);
-                      setShowTrainingPreferences(true);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    Training Preferences
-                  </button>
-                  <div className="border-t border-gray-100 my-1" />
-                  <button
-                    onClick={() => {
-                      setShowSettingsMenu(false);
-                      signOut();
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    Log out
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Gear icon - opens Settings modal */}
+            <button
+              onClick={() => setShowSettingsModal(true)}
+              className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+              title="Settings"
+            >
+              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Training Preferences Modal */}
-      <TrainingPreferencesModal
-        isOpen={showTrainingPreferences}
-        onClose={() => setShowTrainingPreferences(false)}
+      {/* Settings Modal - iOS parity */}
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
       />
     </aside>
   );
