@@ -271,4 +271,63 @@ enum WeightCalculationService {
     private static func roundToNearestPlate(_ weight: Double) -> Double {
         return round(weight / 2.5) * 2.5
     }
+
+    // MARK: - Firebase-Backed Async Methods
+
+    /// Calculate weight for target reps via Firebase (async version)
+    /// Falls back to local calculation on error
+    static func weightForRepsAsync(oneRM: Double, targetReps: Int) async -> Double {
+        do {
+            let request = CalculationRequest(type: .weightForReps, oneRM: oneRM, targetReps: targetReps)
+            let response = try await FirebaseAPIClient.shared.calculate(request)
+            return response.result ?? oneRM
+        } catch {
+            Logger.log(.warning, component: "WeightCalculationService",
+                      message: "Firebase weightForReps failed, using local: \(error.localizedDescription)")
+            return weightForReps(oneRM: oneRM, targetReps: targetReps)
+        }
+    }
+
+    /// Calculate target weight via Firebase (async version)
+    /// Caller must provide oneRM (for compounds) or workingWeight (for isolations)
+    /// Falls back to local calculation on error
+    static func calculateTargetWeightAsync(
+        oneRM: Double?,
+        exerciseType: ExerciseType,
+        baseIntensity: Double,
+        intensityOffset: Double,
+        rpe: Int? = nil,
+        workingWeight: Double? = nil
+    ) async -> Double? {
+        do {
+            let request = CalculationRequest(
+                type: .targetWeight,
+                oneRM: oneRM,
+                exerciseType: exerciseType.rawValue,
+                baseIntensity: baseIntensity,
+                intensityOffset: intensityOffset,
+                rpe: rpe,
+                workingWeight: workingWeight
+            )
+            let response = try await FirebaseAPIClient.shared.calculate(request)
+            return response.result
+        } catch {
+            Logger.log(.warning, component: "WeightCalculationService",
+                      message: "Firebase targetWeight failed, using local rounding")
+            // Fallback: do basic calculation locally
+            if exerciseType == .compound, let oneRM = oneRM {
+                let targetWeight = oneRM * (baseIntensity + intensityOffset)
+                return roundToNearestPlate(targetWeight)
+            } else if exerciseType == .isolation, let workingWeight = workingWeight {
+                let rangeSize = workingWeight * 0.10
+                let lowEnd = workingWeight - rangeSize
+                let highEnd = workingWeight + rangeSize
+                let rpeValue = rpe ?? 9
+                let rpePosition: Double = rpeValue >= 9 ? 1.0 : (rpeValue == 8 ? 0.5 : 0.0)
+                let targetWeight = lowEnd + (highEnd - lowEnd) * rpePosition
+                return round(targetWeight / 5.0) * 5.0
+            }
+            return nil
+        }
+    }
 }

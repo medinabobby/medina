@@ -895,3 +895,6 @@ export const chatSimple = onRequest(
     }
   }
 );
+
+// Calculation endpoint - centralized formulas for iOS and web
+export {calculate} from "./api/calculate";

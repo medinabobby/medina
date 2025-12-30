@@ -13,7 +13,8 @@ actor FirebaseAPIClient {
         "getUser": "https://getuser-dpkc2km3oa-uc.a.run.app",
         "tts": "https://us-central1-medinaintelligence.cloudfunctions.net/tts",
         "vision": "https://us-central1-medinaintelligence.cloudfunctions.net/vision",
-        "chatSimple": "https://us-central1-medinaintelligence.cloudfunctions.net/chatSimple"
+        "chatSimple": "https://us-central1-medinaintelligence.cloudfunctions.net/chatSimple",
+        "calculate": "https://calculate-dpkc2km3oa-uc.a.run.app"
     ]
     private let session: URLSession
 
@@ -101,6 +102,16 @@ actor FirebaseAPIClient {
         let response: ChatSimpleResponse = try await post(endpoint: "chatSimple", body: body, requiresAuth: true)
         let latency = Date().timeIntervalSince(start) * 1000
         print("[FirebaseAPI] /chatSimple completed in \(Int(latency))ms")
+        return response
+    }
+
+    /// Calculation endpoint - centralized formulas for iOS and web
+    /// POST /calculate (requires auth)
+    func calculate(_ request: CalculationRequest) async throws -> CalculationResponse {
+        let start = Date()
+        let response: CalculationResponse = try await post(endpoint: "calculate", body: request, requiresAuth: true)
+        let latency = Date().timeIntervalSince(start) * 1000
+        print("[FirebaseAPI] /calculate completed in \(Int(latency))ms")
         return response
     }
 
@@ -264,6 +275,90 @@ struct ChatSimpleRequest: Codable {
 
 struct ChatSimpleResponse: Codable {
     let content: String
+}
+
+// MARK: - Calculation Types
+
+enum CalculationType: String, Codable {
+    case oneRM
+    case weightForReps
+    case best1RM
+    case recency1RM
+    case targetWeight
+}
+
+struct CalculationSetData: Codable {
+    let weight: Double
+    let reps: Int
+    let setIndex: Int
+}
+
+struct CalculationSessionData: Codable {
+    let date: String  // ISO8601 format
+    let best1RM: Double
+}
+
+struct CalculationRequest: Codable {
+    let type: CalculationType
+
+    // oneRM
+    var weight: Double?
+    var reps: Int?
+
+    // weightForReps
+    var oneRM: Double?
+    var targetReps: Int?
+
+    // best1RM
+    var sets: [CalculationSetData]?
+
+    // recency1RM
+    var sessions: [CalculationSessionData]?
+
+    // targetWeight
+    var exerciseType: String?
+    var baseIntensity: Double?
+    var intensityOffset: Double?
+    var rpe: Int?
+    var workingWeight: Double?
+
+    init(type: CalculationType,
+         weight: Double? = nil,
+         reps: Int? = nil,
+         oneRM: Double? = nil,
+         targetReps: Int? = nil,
+         sets: [CalculationSetData]? = nil,
+         sessions: [CalculationSessionData]? = nil,
+         exerciseType: String? = nil,
+         baseIntensity: Double? = nil,
+         intensityOffset: Double? = nil,
+         rpe: Int? = nil,
+         workingWeight: Double? = nil) {
+        self.type = type
+        self.weight = weight
+        self.reps = reps
+        self.oneRM = oneRM
+        self.targetReps = targetReps
+        self.sets = sets
+        self.sessions = sessions
+        self.exerciseType = exerciseType
+        self.baseIntensity = baseIntensity
+        self.intensityOffset = intensityOffset
+        self.rpe = rpe
+        self.workingWeight = workingWeight
+    }
+}
+
+struct CalculationResponse: Codable {
+    let result: Double?
+    let isEstimated: Bool?
+    let error: String?
+
+    init(result: Double? = nil, isEstimated: Bool? = nil, error: String? = nil) {
+        self.result = result
+        self.isEstimated = isEstimated
+        self.error = error
+    }
 }
 
 // MARK: - Errors

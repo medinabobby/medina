@@ -181,4 +181,54 @@ enum OneRMCalculationService {
         }
         return selectBest1RM(from: setData)
     }
+
+    // MARK: - Firebase-Backed Async Methods
+
+    /// Calculate 1RM via Firebase (async version)
+    /// Falls back to local calculation on error
+    static func calculateAsync(weight: Double, reps: Int) async -> Double? {
+        do {
+            let request = CalculationRequest(type: .oneRM, weight: weight, reps: reps)
+            let response = try await FirebaseAPIClient.shared.calculate(request)
+            return response.result
+        } catch {
+            Logger.log(.warning, component: "OneRMCalculationService",
+                      message: "Firebase calculate failed, using local: \(error.localizedDescription)")
+            return calculate(weight: weight, reps: reps)
+        }
+    }
+
+    /// Quality-weighted 1RM selection via Firebase (async version)
+    /// Falls back to local calculation on error
+    static func selectBest1RMAsync(from sets: [SetDataForRM]) async -> Double? {
+        do {
+            let setsData = sets.map { set in
+                CalculationSetData(weight: set.weight, reps: set.reps, setIndex: set.setIndex)
+            }
+            let request = CalculationRequest(type: .best1RM, sets: setsData)
+            let response = try await FirebaseAPIClient.shared.calculate(request)
+            return response.result
+        } catch {
+            Logger.log(.warning, component: "OneRMCalculationService",
+                      message: "Firebase best1RM failed, using local: \(error.localizedDescription)")
+            return selectBest1RM(from: sets)
+        }
+    }
+
+    /// Recency-weighted 1RM via Firebase (async version)
+    /// Falls back to local calculation on error
+    static func recencyWeighted1RMAsync(from sessions: [SessionDataForRM]) async -> Double? {
+        do {
+            let sessionsData = sessions.map { session in
+                CalculationSessionData(date: session.date.ISO8601Format(), best1RM: session.best1RM)
+            }
+            let request = CalculationRequest(type: .recency1RM, sessions: sessionsData)
+            let response = try await FirebaseAPIClient.shared.calculate(request)
+            return response.result
+        } catch {
+            Logger.log(.warning, component: "OneRMCalculationService",
+                      message: "Firebase recency1RM failed, using local: \(error.localizedDescription)")
+            return recencyWeighted1RM(from: sessions)
+        }
+    }
 }
