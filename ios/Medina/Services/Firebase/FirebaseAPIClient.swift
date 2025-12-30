@@ -440,7 +440,8 @@ struct PlanActionRequest: Codable {
     }
 }
 
-struct SuggestionChip: Codable {
+/// API response chip (distinct from UI SuggestionChip)
+struct APIChip: Codable {
     let label: String
     let command: String
 }
@@ -448,14 +449,14 @@ struct SuggestionChip: Codable {
 struct PlanActionResponse: Codable {
     let success: Bool
     let message: String?
-    let suggestionChips: [SuggestionChip]?
+    let suggestionChips: [APIChip]?
     let error: String?
 }
 
 struct InitialChipsResponse: Codable {
     let success: Bool
     let greeting: String
-    let chips: [SuggestionChip]
+    let chips: [APIChip]
 }
 
 // MARK: - Errors

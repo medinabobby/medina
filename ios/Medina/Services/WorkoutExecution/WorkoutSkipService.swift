@@ -19,6 +19,10 @@ extension NSNotification.Name {
     /// Posted when a workout's status changes (skipped, started, completed, etc.)
     /// Used by SidebarView to refresh workout lists
     static let workoutStatusDidChange = NSNotification.Name("workoutStatusDidChange")
+
+    /// Posted when a plan's status changes (activated, abandoned, deleted, etc.)
+    /// Used by SidebarView to refresh plan lists
+    static let planStatusDidChange = NSNotification.Name("planStatusDidChange")
 }
 
 // MARK: - WorkoutSkipService
