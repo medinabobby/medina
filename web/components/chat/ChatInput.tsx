@@ -3,20 +3,19 @@
 import { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { colors } from '@/lib/colors';
 
+// v226: Suggestion chip with label (display) and command (sent to AI)
+interface SuggestionChip {
+  label: string;
+  command: string;
+}
+
 interface ChatInputProps {
   onSend: (message: string) => void;
   isLoading: boolean;
-  suggestions?: string[];
+  suggestions?: SuggestionChip[];
 }
 
-const DEFAULT_SUGGESTIONS = [
-  "Create a workout",
-  "Show my schedule",
-  "What should I train today?",
-  "Analyze my progress",
-];
-
-export default function ChatInput({ onSend, isLoading, suggestions = DEFAULT_SUGGESTIONS }: ChatInputProps) {
+export default function ChatInput({ onSend, isLoading, suggestions = [] }: ChatInputProps) {
   const [input, setInput] = useState('');
   const [showPlusMenu, setShowPlusMenu] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -62,9 +61,9 @@ export default function ChatInput({ onSend, isLoading, suggestions = DEFAULT_SUG
     }
   };
 
-  const handleChipClick = (suggestion: string) => {
+  const handleChipClick = (chip: SuggestionChip) => {
     if (isLoading) return;
-    onSend(suggestion);
+    onSend(chip.command);
   };
 
   return (
@@ -73,13 +72,13 @@ export default function ChatInput({ onSend, isLoading, suggestions = DEFAULT_SUG
       {!isLoading && suggestions.length > 0 && (
         <div className="px-4 pt-3 pb-2">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {suggestions.map((suggestion, index) => (
+            {suggestions.map((chip, index) => (
               <button
                 key={index}
-                onClick={() => handleChipClick(suggestion)}
+                onClick={() => handleChipClick(chip)}
                 className="flex-shrink-0 px-3 py-1.5 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors whitespace-nowrap"
               >
-                {suggestion}
+                {chip.label}
               </button>
             ))}
           </div>

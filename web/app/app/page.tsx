@@ -1,10 +1,16 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { useAuth } from '@/components/AuthProvider';
 import { sendMessage, StreamEvent, WorkoutCardData, PlanCardData } from '@/lib/chat';
 import type { ChatMessage } from '@/lib/types';
+
+// v226: Server-side suggestion chips
+interface SuggestionChip {
+  label: string;
+  command: string;
+}
 
 interface CardState {
   workoutCards: WorkoutCardData[];
@@ -28,6 +34,41 @@ function ChatArea() {
   const [error, setError] = useState<string | null>(null);
   const [responseId, setResponseId] = useState<string | undefined>();
   const [pendingCards, setPendingCards] = useState<CardState>({ workoutCards: [], planCards: [] });
+
+  // v226: Server-side initial chips
+  const [serverChips, setServerChips] = useState<SuggestionChip[]>([]);
+
+  // v226: Fetch initial chips from server on mount
+  useEffect(() => {
+    async function loadInitialChips() {
+      try {
+        const token = await getIdToken();
+        if (!token) return;
+
+        const response = await fetch(
+          'https://us-central1-medinaintelligence.cloudfunctions.net/initialChips',
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.chips) {
+            setServerChips(data.chips);
+            console.log('[Chat] Loaded initial chips:', data.chips.length);
+          }
+        }
+      } catch (err) {
+        console.error('[Chat] Failed to load initial chips:', err);
+      }
+    }
+
+    loadInitialChips();
+  }, [getIdToken]);
 
   const handleStreamEvent = useCallback((
     event: StreamEvent,
@@ -206,6 +247,7 @@ function ChatArea() {
       <ChatInput
         onSend={handleSend}
         isLoading={isLoading}
+        suggestions={messages.length <= 1 ? serverChips : []}
       />
     </div>
   );

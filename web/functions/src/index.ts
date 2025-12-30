@@ -907,3 +907,6 @@ export {selectExercises} from "./api/selectExercises";
 
 // Plan API endpoints - REST wrappers for iOS UI direct calls
 export {activatePlan, abandonPlan, deletePlan, reschedulePlan} from "./api/plan";
+
+// Initial chips endpoint - context-aware suggestion chips for chat initialization
+export {initialChips} from "./api/initialChips";

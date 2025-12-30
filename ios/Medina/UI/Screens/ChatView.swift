@@ -54,6 +54,10 @@ struct ChatView: View {
     @State private var entityListTitle = ""
     @State private var entityListData: EntityListData?
 
+    // v226: Server-side initial chips
+    @State private var serverChips: [SuggestionChip] = []
+    @State private var isLoadingChips = false
+
     init(user: UnifiedUser) {
         _viewModel = StateObject(wrappedValue: ChatViewModel(user: user))
         _sidebarContext = StateObject(wrappedValue: SidebarContext(user: user))
@@ -103,6 +107,10 @@ struct ChatView: View {
             // v99.8: Auto-focus input to drive user action (Claude mobile pattern)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 isInputFocused = true
+            }
+            // v226: Fetch initial chips from server
+            Task {
+                await loadInitialChips()
             }
         }
         .onDisappear { cleanupNotificationObservers() }
@@ -210,20 +218,10 @@ struct ChatView: View {
             return []
         }
 
-        let user = viewModel.user
-
         // Priority 2 - Startup chips (empty state only)
-        // v187: Removed admin/gymOwner routing (deferred for beta) - route to member chips
+        // v226: Use server chips instead of local chip builders
         if viewModel.messages.isEmpty {
-            // Role-specific chips for startup
-            if user.hasRole(.trainer) {
-                return buildTrainerChips()
-            } else if viewModel.isNewUser {
-                // v179: New users get simplified chips focused on getting started
-                return buildNewUserChips()
-            } else {
-                return buildMemberChips()
-            }
+            return serverChips
         }
 
         // v146: No fallback chips after conversations
@@ -232,133 +230,7 @@ struct ChatView: View {
         // All handlers set appropriate chips - if none exist, stay clean
         return []
     }
-
-    /// Member suggestion chips
-    /// v141: Single-line chips for consistent UX (no subtitles)
-    private func buildMemberChips() -> [SuggestionChip] {
-        var chips: [SuggestionChip] = []
-        let context = GreetingContextBuilder.build(for: viewModel.user)
-
-        // Priority 1: Continue in-progress workout
-        if context.inProgressWorkout != nil {
-            chips.append(SuggestionChip(
-                "Continue workout",
-                command: "Continue my workout"
-            ))
-        }
-
-        // Priority 2: Start today's scheduled workout
-        if context.inProgressWorkout == nil, context.todaysWorkout != nil {
-            chips.append(SuggestionChip(
-                "Start today's workout",
-                command: "Start my workout"
-            ))
-        }
-        // v136: Priority 2b - Start next scheduled workout (if no workout today)
-        else if context.inProgressWorkout == nil,
-                context.todaysWorkout == nil,
-                context.nextWorkout != nil {
-            chips.append(SuggestionChip(
-                "Start next workout",
-                command: "Start my workout"
-            ))
-        }
-
-        // Priority 3: Message trainer (v189: replaced "Book a class" since classes removed in v186)
-        if viewModel.user.memberProfile?.trainerId != nil {
-            chips.append(SuggestionChip(
-                "Message trainer",
-                command: "Send a message to my trainer"
-            ))
-        }
-
-        // General options
-        chips.append(SuggestionChip(
-            "Create workout",
-            command: "Create a workout for me"
-        ))
-
-        chips.append(SuggestionChip(
-            "Analyze progress",
-            command: "Analyze my training progress"
-        ))
-
-        // Only show "Create plan" if user doesn't have an active plan
-        if context.planName == nil {
-            chips.append(SuggestionChip(
-                "Create plan",
-                command: "Help me create a training plan"
-            ))
-        }
-
-        return chips
-    }
-
-    /// v179: New user suggestion chips
-    /// Focused on getting started (no workout history, incomplete profile)
-    private func buildNewUserChips() -> [SuggestionChip] {
-        var chips: [SuggestionChip] = []
-
-        // Priority 1: Create a workout (immediate value)
-        chips.append(SuggestionChip(
-            "Create a workout",
-            command: "Create a workout for me"
-        ))
-
-        // Priority 2: Create a training plan (structured approach)
-        chips.append(SuggestionChip(
-            "Create a training plan",
-            command: "Help me create a training plan"
-        ))
-
-        // Priority 3: Complete profile (helps AI give better recommendations)
-        if !viewModel.user.hasCompletedOnboarding {
-            chips.append(SuggestionChip(
-                "Complete my profile",
-                command: "Help me complete my profile"
-            ))
-        }
-
-        return chips
-    }
-
-    /// Trainer suggestion chips
-    /// v100.1: Only show chips for features that actually work
-    /// v141: Single-line chips for consistent UX (no subtitles)
-    private func buildTrainerChips() -> [SuggestionChip] {
-        var chips: [SuggestionChip] = []
-
-        let memberCount = UserDataStore.members(assignedToTrainer: viewModel.user.id).count
-
-        // Member management - works via TrainerContextBuilder + create_plan/send_message
-        if memberCount > 0 {
-            chips.append(SuggestionChip(
-                "Create member plan",
-                command: "Help me create a training plan for one of my members"
-            ))
-
-            chips.append(SuggestionChip(
-                "Message member",
-                command: "Send a message to one of my members"
-            ))
-        }
-
-        // View class schedule - works via ListClassesHandler
-        chips.append(SuggestionChip(
-            "View schedule",
-            command: "Show me the class schedule for this week"
-        ))
-
-        // General fitness questions - always works
-        chips.append(SuggestionChip(
-            "Ask a question",
-            command: "I have a question about training"
-        ))
-
-        return chips
-    }
-
-    // v187: Removed buildGymManagerChips (admin/gymOwner UI deferred for beta)
+    // v226: Local chip builders removed - now using server-side chips from /api/initialChips
 
     // MARK: - Sidebar
 
@@ -527,6 +399,32 @@ struct ChatView: View {
                 name: NSNotification.Name("UserLogout"),
                 object: nil
             )
+        }
+    }
+
+    // MARK: - v226: Server Chips
+
+    /// Load initial suggestion chips from server
+    private func loadInitialChips() async {
+        guard !isLoadingChips else { return }
+        isLoadingChips = true
+
+        do {
+            let response = try await FirebaseAPIClient.shared.initialChips()
+            await MainActor.run {
+                self.serverChips = response.chips.map {
+                    SuggestionChip($0.label, command: $0.command)
+                }
+                self.isLoadingChips = false
+            }
+            Logger.log(.info, component: "ChatView",
+                      message: "v226: Loaded \(response.chips.count) initial chips from server")
+        } catch {
+            Logger.log(.error, component: "ChatView",
+                      message: "v226: Failed to load initial chips: \(error)")
+            await MainActor.run {
+                self.isLoadingChips = false
+            }
         }
     }
 

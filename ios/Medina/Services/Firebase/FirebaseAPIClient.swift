@@ -19,7 +19,9 @@ actor FirebaseAPIClient {
         "activatePlan": "https://us-central1-medinaintelligence.cloudfunctions.net/activatePlan",
         "abandonPlan": "https://us-central1-medinaintelligence.cloudfunctions.net/abandonPlan",
         "deletePlan": "https://us-central1-medinaintelligence.cloudfunctions.net/deletePlan",
-        "reschedulePlan": "https://us-central1-medinaintelligence.cloudfunctions.net/reschedulePlan"
+        "reschedulePlan": "https://us-central1-medinaintelligence.cloudfunctions.net/reschedulePlan",
+        // Initial chips endpoint - context-aware suggestion chips
+        "initialChips": "https://us-central1-medinaintelligence.cloudfunctions.net/initialChips"
     ]
     private let session: URLSession
 
@@ -165,6 +167,16 @@ actor FirebaseAPIClient {
         let response: PlanActionResponse = try await post(endpoint: "reschedulePlan", body: body, requiresAuth: true)
         let latency = Date().timeIntervalSince(start) * 1000
         print("[FirebaseAPI] /reschedulePlan completed in \(Int(latency))ms")
+        return response
+    }
+
+    /// Get initial suggestion chips for chat
+    /// GET /initialChips (requires auth)
+    func initialChips() async throws -> InitialChipsResponse {
+        let start = Date()
+        let response: InitialChipsResponse = try await get(endpoint: "initialChips", requiresAuth: true)
+        let latency = Date().timeIntervalSince(start) * 1000
+        print("[FirebaseAPI] /initialChips completed in \(Int(latency))ms (\(response.chips.count) chips)")
         return response
     }
 
@@ -438,6 +450,12 @@ struct PlanActionResponse: Codable {
     let message: String?
     let suggestionChips: [SuggestionChip]?
     let error: String?
+}
+
+struct InitialChipsResponse: Codable {
+    let success: Bool
+    let greeting: String
+    let chips: [SuggestionChip]
 }
 
 // MARK: - Errors
