@@ -403,7 +403,7 @@ private struct WorkoutAlertsModifier: ViewModifier {
                     viewModel.activationSkippedCount = 0
                 }
                 Button("Replace Plan", role: .destructive) {
-                    Task { await viewModel.performPlanActivation() }
+                    Task { await viewModel.performPlanActivation(planId: viewModel.parentPlan?.id ?? "") }
                 }
             } message: {
                 if let overlapPlan = viewModel.activationOverlapPlan {
