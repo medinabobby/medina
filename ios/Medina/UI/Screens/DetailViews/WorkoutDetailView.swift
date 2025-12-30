@@ -85,75 +85,32 @@ struct WorkoutDetailView: View {
 
     var body: some View {
         mainContent
-        .navigationTitle(navigationTitle)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if let workout = LocalDataStore.shared.workouts[workoutId] {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    workoutActionsMenu(for: workout)
-                }
+            .navigationTitle(navigationTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { toolbarContent }
+            .modifier(WorkoutAlertsModifier(
+                actionCoordinator: actionCoordinator,
+                viewModel: viewModel,
+                showActiveSessionAlert: $showActiveSessionAlert,
+                activeSessionConflictMessage: activeSessionConflictMessage,
+                continueCurrentWorkout: continueCurrentWorkout,
+                endAndStartNewWorkout: endAndStartNewWorkout,
+                clearConflictState: clearConflictState
+            ))
+            .modifier(WorkoutSheetsModifier(
+                viewModel: viewModel,
+                workoutId: workoutId
+            ))
+    }
+
+    // MARK: - Toolbar Content
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        if let workout = LocalDataStore.shared.workouts[workoutId] {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                workoutActionsMenu(for: workout)
             }
-        }
-        .alert(actionCoordinator.alertTitle, isPresented: $actionCoordinator.showAlert) {
-            Button("Cancel", role: .cancel) { actionCoordinator.cancelAction() }
-            Button("Confirm", role: .destructive) {
-                Task { await actionCoordinator.confirmAction() }
-            }
-        } message: {
-            Text(actionCoordinator.alertMessage)
-        }
-        .alert("Error", isPresented: $viewModel.showError) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            if let errorMessage = viewModel.errorMessage {
-                Text(errorMessage)
-            }
-        }
-        .alert("Replace Active Plan?", isPresented: $viewModel.showActivationConfirmation) {
-            Button("Cancel", role: .cancel) {
-                viewModel.activationOverlapPlan = nil
-                viewModel.activationSkippedCount = 0
-            }
-            Button("Replace Plan", role: .destructive) {
-                Task { await viewModel.performPlanActivation() }
-            }
-        } message: {
-            if let overlapPlan = viewModel.activationOverlapPlan {
-                Text("\"\(viewModel.parentPlan?.name ?? "New Plan")\" will replace \"\(overlapPlan.name)\". \(overlapPlan.name) will be abandoned and \(viewModel.activationSkippedCount) remaining \(viewModel.activationSkippedCount == 1 ? "workout" : "workouts") will be marked as skipped.")
-            }
-        }
-        // v175: Active session conflict alert
-        .alert("Workout In Progress", isPresented: $showActiveSessionAlert) {
-            Button("Continue Current") { continueCurrentWorkout() }
-            Button("End & Start New", role: .destructive) { endAndStartNewWorkout() }
-            Button("Cancel", role: .cancel) { clearConflictState() }
-        } message: {
-            Text(activeSessionConflictMessage)
-        }
-        .sheet(isPresented: $viewModel.showSummarySheet) {
-            let userId = LocalDataStore.shared.currentUserId ?? "bobby"
-            WorkoutSummaryView(workoutId: workoutId, memberId: userId)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowWorkoutSummary"))) { notification in
-            if let notificationWorkoutId = notification.userInfo?["workoutId"] as? String,
-               notificationWorkoutId == workoutId {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    viewModel.showSummarySheet = true
-                }
-            }
-        }
-        .sheet(item: $viewModel.substitutionContext) { context in
-            ExerciseSubstitutionSheet(
-                exerciseInstance: context.instance,
-                workoutId: workoutId,
-                onSubstitute: { newExerciseId in
-                    viewModel.performSubstitution(instanceId: context.id, newExerciseId: newExerciseId)
-                    viewModel.substitutionContext = nil
-                },
-                onDismiss: {
-                    viewModel.substitutionContext = nil
-                }
-            )
         }
     }
 
@@ -408,6 +365,93 @@ struct WorkoutDetailView: View {
                 break
             }
         }
+    }
+}
+
+// MARK: - View Modifiers (extracted to help type checker)
+
+/// Alerts modifier - extracted from body to reduce type-check complexity
+private struct WorkoutAlertsModifier: ViewModifier {
+    @ObservedObject var actionCoordinator: EntityActionCoordinator
+    @ObservedObject var viewModel: WorkoutDetailViewModel
+    @Binding var showActiveSessionAlert: Bool
+    let activeSessionConflictMessage: String
+    let continueCurrentWorkout: () -> Void
+    let endAndStartNewWorkout: () -> Void
+    let clearConflictState: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .alert(actionCoordinator.alertTitle, isPresented: $actionCoordinator.showAlert) {
+                Button("Cancel", role: .cancel) { actionCoordinator.cancelAction() }
+                Button("Confirm", role: .destructive) {
+                    Task { await actionCoordinator.confirmAction() }
+                }
+            } message: {
+                Text(actionCoordinator.alertMessage)
+            }
+            .alert("Error", isPresented: $viewModel.showError) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                }
+            }
+            .alert("Replace Active Plan?", isPresented: $viewModel.showActivationConfirmation) {
+                Button("Cancel", role: .cancel) {
+                    viewModel.activationOverlapPlan = nil
+                    viewModel.activationSkippedCount = 0
+                }
+                Button("Replace Plan", role: .destructive) {
+                    Task { await viewModel.performPlanActivation() }
+                }
+            } message: {
+                if let overlapPlan = viewModel.activationOverlapPlan {
+                    Text("\"\(viewModel.parentPlan?.name ?? "New Plan")\" will replace \"\(overlapPlan.name)\". \(overlapPlan.name) will be abandoned and \(viewModel.activationSkippedCount) remaining \(viewModel.activationSkippedCount == 1 ? "workout" : "workouts") will be marked as skipped.")
+                }
+            }
+            .alert("Workout In Progress", isPresented: $showActiveSessionAlert) {
+                Button("Continue Current") { continueCurrentWorkout() }
+                Button("End & Start New", role: .destructive) { endAndStartNewWorkout() }
+                Button("Cancel", role: .cancel) { clearConflictState() }
+            } message: {
+                Text(activeSessionConflictMessage)
+            }
+    }
+}
+
+/// Sheets modifier - extracted from body to reduce type-check complexity
+private struct WorkoutSheetsModifier: ViewModifier {
+    @ObservedObject var viewModel: WorkoutDetailViewModel
+    let workoutId: String
+
+    func body(content: Content) -> some View {
+        content
+            .sheet(isPresented: $viewModel.showSummarySheet) {
+                let userId = LocalDataStore.shared.currentUserId ?? "bobby"
+                WorkoutSummaryView(workoutId: workoutId, memberId: userId)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowWorkoutSummary"))) { notification in
+                if let notificationWorkoutId = notification.userInfo?["workoutId"] as? String,
+                   notificationWorkoutId == workoutId {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        viewModel.showSummarySheet = true
+                    }
+                }
+            }
+            .sheet(item: $viewModel.substitutionContext) { context in
+                ExerciseSubstitutionSheet(
+                    exerciseInstance: context.instance,
+                    workoutId: workoutId,
+                    onSubstitute: { newExerciseId in
+                        viewModel.performSubstitution(instanceId: context.id, newExerciseId: newExerciseId)
+                        viewModel.substitutionContext = nil
+                    },
+                    onDismiss: {
+                        viewModel.substitutionContext = nil
+                    }
+                )
+            }
     }
 }
 
