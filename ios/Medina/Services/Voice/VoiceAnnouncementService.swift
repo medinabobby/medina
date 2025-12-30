@@ -3,6 +3,7 @@
 // Medina
 //
 // v86.0: AI-generated workout voice announcements
+// v215: Migrated to Firebase /api/chatSimple endpoint (API key on server)
 // Uses GPT-4o-mini to create personality-driven, contextual coaching
 //
 
@@ -114,15 +115,10 @@ class VoiceAnnouncementService {
         let workoutDuration: TimeInterval?
     }
 
-    // MARK: - Private Properties
-
-    private let apiKey: String
-
     // MARK: - Initialization
 
-    init(apiKey: String = Config.openAIKey) {
-        self.apiKey = apiKey
-    }
+    /// v215: No longer needs API key (uses Firebase endpoint)
+    init() {}
 
     // MARK: - Public API
 
@@ -222,51 +218,22 @@ class VoiceAnnouncementService {
         return lines.joined(separator: "\n")
     }
 
-    /// Call GPT-4o-mini API
+    /// v215: Now uses Firebase /api/chatSimple endpoint (API key on server)
     private func callGPT(systemPrompt: String, userPrompt: String) async throws -> String {
-        guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
-            throw NSError(domain: "VoiceAnnouncementService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let body: [String: Any] = [
-            "model": "gpt-4o-mini",
-            "messages": [
-                ["role": "system", "content": systemPrompt],
-                ["role": "user", "content": userPrompt]
-            ],
-            "max_tokens": 100,  // Keep announcements brief
-            "temperature": 0.7  // Some creativity for natural variation
+        // Build messages for chat completion
+        let messages: [[String: String]] = [
+            ["role": "system", "content": systemPrompt],
+            ["role": "user", "content": userPrompt]
         ]
 
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        // Call Firebase chatSimple endpoint
+        let response = try await FirebaseAPIClient.shared.chatSimple(
+            messages: messages,
+            model: "gpt-4o-mini",
+            temperature: 0.7  // Some creativity for natural variation
+        )
 
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw NSError(domain: "VoiceAnnouncementService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
-        }
-
-        if httpResponse.statusCode != 200 {
-            let errorBody = String(data: data, encoding: .utf8) ?? "Unknown error"
-            Logger.log(.error, component: "VoiceAnnouncementService", message: "GPT API error: \(httpResponse.statusCode) - \(errorBody)")
-            throw NSError(domain: "VoiceAnnouncementService", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorBody])
-        }
-
-        // Parse response
-        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let choices = json["choices"] as? [[String: Any]],
-              let first = choices.first,
-              let message = first["message"] as? [String: Any],
-              let content = message["content"] as? String else {
-            throw NSError(domain: "VoiceAnnouncementService", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to parse response"])
-        }
-
-        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
         Logger.log(.info, component: "VoiceAnnouncementService", message: "Generated: \(trimmed.prefix(50))...")
 
         return trimmed

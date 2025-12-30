@@ -684,3 +684,214 @@ export const getUser = onRequest({cors: true, invoker: "public"}, async (req, re
     res.status(500).json({error: "Internal server error"});
   }
 });
+
+/**
+ * Text-to-Speech endpoint - Proxies OpenAI TTS API
+ * POST /api/tts
+ * Body: { text: string, voice?: string, speed?: number }
+ * Returns: audio/mpeg binary data
+ *
+ * Requires: Authorization header with Firebase ID token
+ */
+export const tts = onRequest(
+  {cors: true, invoker: "public", timeoutSeconds: 60},
+  async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(405).json({error: "Method not allowed"});
+      return;
+    }
+
+    try {
+      // Verify Firebase auth token
+      const authHeader = req.headers.authorization;
+      if (!authHeader?.startsWith("Bearer ")) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
+      const idToken = authHeader.split("Bearer ")[1];
+      const adminSdk = getAdmin();
+      const decodedToken = await adminSdk.auth().verifyIdToken(idToken);
+      const uid = decodedToken.uid;
+
+      // Validate request body
+      const {text, voice = "nova", speed = 1.0} = req.body;
+
+      if (!text || typeof text !== "string") {
+        res.status(400).json({error: "text is required"});
+        return;
+      }
+
+      console.log(`TTS request from ${uid}: ${text.substring(0, 50)}... (voice: ${voice})`);
+
+      // Call OpenAI TTS API
+      const openai = getOpenAI();
+      const response = await openai.audio.speech.create({
+        model: "tts-1",
+        voice: voice,
+        input: text,
+        response_format: "mp3",
+        speed: speed,
+      });
+
+      // Get audio data as buffer
+      const audioBuffer = Buffer.from(await response.arrayBuffer());
+
+      // Return audio data
+      res.setHeader("Content-Type", "audio/mpeg");
+      res.setHeader("Content-Length", audioBuffer.length.toString());
+      res.send(audioBuffer);
+    } catch (error) {
+      console.error("TTS error:", error);
+      const errorMessage = error instanceof Error ? error.message : "TTS failed";
+      res.status(500).json({error: errorMessage});
+    }
+  }
+);
+
+/**
+ * Vision endpoint - Proxies OpenAI Vision API for image analysis
+ * POST /api/vision
+ * Body: { imageBase64: string, prompt: string, model?: string, jsonMode?: boolean }
+ * Returns: { content: string }
+ *
+ * Requires: Authorization header with Firebase ID token
+ */
+export const vision = onRequest(
+  {cors: true, invoker: "public", timeoutSeconds: 120},
+  async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(405).json({error: "Method not allowed"});
+      return;
+    }
+
+    try {
+      // Verify Firebase auth token
+      const authHeader = req.headers.authorization;
+      if (!authHeader?.startsWith("Bearer ")) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
+      const idToken = authHeader.split("Bearer ")[1];
+      const adminSdk = getAdmin();
+      const decodedToken = await adminSdk.auth().verifyIdToken(idToken);
+      const uid = decodedToken.uid;
+
+      // Validate request body
+      const {imageBase64, prompt, model = "gpt-4o", jsonMode = false} = req.body;
+
+      if (!imageBase64 || typeof imageBase64 !== "string") {
+        res.status(400).json({error: "imageBase64 is required"});
+        return;
+      }
+
+      if (!prompt || typeof prompt !== "string") {
+        res.status(400).json({error: "prompt is required"});
+        return;
+      }
+
+      console.log(`Vision request from ${uid}: prompt length ${prompt.length}, image size ${imageBase64.length}, jsonMode: ${jsonMode}`);
+
+      // Call OpenAI Vision API
+      const openai = getOpenAI();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const requestOptions: any = {
+        model: model,
+        messages: [
+          {
+            role: "user",
+            content: [
+              {type: "text", text: prompt},
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/jpeg;base64,${imageBase64}`,
+                },
+              },
+            ],
+          },
+        ],
+        max_tokens: 4096,
+      };
+
+      // Add JSON mode if requested
+      if (jsonMode) {
+        requestOptions.response_format = {type: "json_object"};
+      }
+
+      const response = await openai.chat.completions.create(requestOptions);
+
+      const content = response.choices[0]?.message?.content || "";
+      console.log(`Vision response for ${uid}: ${content.substring(0, 100)}...`);
+
+      res.json({content});
+    } catch (error) {
+      console.error("Vision error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Vision failed";
+      res.status(500).json({error: errorMessage});
+    }
+  }
+);
+
+/**
+ * Simple chat completion endpoint - Proxies OpenAI Chat API (non-streaming)
+ * POST /api/chatSimple
+ * Body: { messages: array, model?: string, temperature?: number }
+ * Returns: { content: string }
+ *
+ * Use this for simple one-shot completions (announcements, extraction, etc.)
+ * For conversation with tools, use /api/chat instead.
+ *
+ * Requires: Authorization header with Firebase ID token
+ */
+export const chatSimple = onRequest(
+  {cors: true, invoker: "public", timeoutSeconds: 60},
+  async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(405).json({error: "Method not allowed"});
+      return;
+    }
+
+    try {
+      // Verify Firebase auth token
+      const authHeader = req.headers.authorization;
+      if (!authHeader?.startsWith("Bearer ")) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
+      const idToken = authHeader.split("Bearer ")[1];
+      const adminSdk = getAdmin();
+      const decodedToken = await adminSdk.auth().verifyIdToken(idToken);
+      const uid = decodedToken.uid;
+
+      // Validate request body
+      const {messages, model = "gpt-4o-mini", temperature = 0.7} = req.body;
+
+      if (!messages || !Array.isArray(messages) || messages.length === 0) {
+        res.status(400).json({error: "messages array is required"});
+        return;
+      }
+
+      console.log(`ChatSimple request from ${uid}: ${messages.length} messages, model: ${model}`);
+
+      // Call OpenAI Chat API
+      const openai = getOpenAI();
+      const response = await openai.chat.completions.create({
+        model: model,
+        messages: messages,
+        temperature: temperature,
+      });
+
+      const content = response.choices[0]?.message?.content || "";
+      console.log(`ChatSimple response for ${uid}: ${content.substring(0, 100)}...`);
+
+      res.json({content});
+    } catch (error) {
+      console.error("ChatSimple error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Chat failed";
+      res.status(500).json({error: errorMessage});
+    }
+  }
+);

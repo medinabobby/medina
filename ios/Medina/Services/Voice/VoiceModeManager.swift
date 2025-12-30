@@ -3,6 +3,7 @@
 // Medina
 //
 // v106.3: Unified voice chat mode (STT → GPT → TTS loop)
+// v215: Migrated TTS to Firebase /api/tts endpoint (API key on server)
 // Simpler alternative to Realtime API for beta
 // Created: December 10, 2025
 //
@@ -75,7 +76,7 @@ class VoiceModeManager: ObservableObject {
 
     init() {
         self.speechService = SpeechRecognitionService()
-        self.voiceService = VoiceService(apiKey: Config.openAIKey)
+        self.voiceService = VoiceService()
     }
 
     // MARK: - Public Methods
@@ -231,36 +232,18 @@ class VoiceModeManager: ObservableObject {
         try await speakDirect(cleanText)
     }
 
-    /// Direct TTS call (bypasses user settings check for voice mode)
+    /// v215: Now uses Firebase /api/tts endpoint (API key on server)
+    /// Uses shimmer voice for chat (more conversational than nova)
     private func speakDirect(_ text: String) async throws {
-        guard let url = URL(string: "https://api.openai.com/v1/audio/speech") else {
-            throw NSError(domain: "VoiceModeManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(Config.openAIKey)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        // Use shimmer voice for chat (more conversational than nova)
-        let body: [String: Any] = [
-            "model": "tts-1",
-            "input": text,
-            "voice": "shimmer",
-            "response_format": "mp3",
-            "speed": 1.05  // Slightly faster for conversation
-        ]
-
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw NSError(domain: "VoiceModeManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "TTS API error"])
-        }
+        // Call Firebase TTS endpoint
+        let audioData = try await FirebaseAPIClient.shared.tts(
+            text: text,
+            voice: "shimmer",
+            speed: 1.05  // Slightly faster for conversation
+        )
 
         // Play audio
-        let player = try AVAudioPlayer(data: data)
+        let player = try AVAudioPlayer(data: audioData)
         player.prepareToPlay()
         player.volume = 1.0
         player.play()

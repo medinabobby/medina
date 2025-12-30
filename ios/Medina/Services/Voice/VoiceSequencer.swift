@@ -52,7 +52,7 @@ final class VoiceSequencer: ObservableObject {
         voiceService: VoiceService? = nil,
         announcementService: VoiceAnnouncementService? = nil
     ) {
-        self.voiceService = voiceService ?? VoiceService(apiKey: Config.openAIKey)
+        self.voiceService = voiceService ?? VoiceService()
         self.announcementService = announcementService ?? VoiceAnnouncementService()
     }
 

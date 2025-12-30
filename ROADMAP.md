@@ -139,8 +139,30 @@ Issues identified in documentation audit (Dec 29, 2025).
 
 | Issue | Location | Notes |
 |-------|----------|-------|
+| ~~Hardcoded API key~~ | ~~`ios/Services/Assistant/Config.swift`~~ | **COMPLETE** - All 6 services migrated to Firebase endpoints |
 | Firestore security rules | `web/firestore.rules` | Still has TODO comment, allows any auth user to read/write anything |
 | Orphaned tool definition | `definitions.ts` | `createCustomWorkout` defined but no handler exists |
+
+### iOS Services Cleanup (Dec 29, 2025 Audit)
+
+| Issue | Location | Action |
+|-------|----------|--------|
+| Empty folder | `ios/Services/Message/` | Deleted |
+| Unused handlers | `ios/Services/Assistant/ToolHandling/Handlers/` | Deleted |
+| Voice fragmentation | `ios/Services/Voice/` (7 files) | Merge to 3 |
+| Metrics duplication | `TimeAdjustedMetricsCalculator` | Merge into `MetricsCalculator` |
+| Misplaced files | `ProtocolResolver`, `ProtocolChangeService` | Move to Resolvers/, Exercise/ |
+
+### iOS Services → Server Migration (Future)
+
+Business logic that should move to Firebase Functions for platform consistency:
+
+| Service | Files | LOC | Priority |
+|---------|-------|-----|----------|
+| Calculations | 5 | ~730 | HIGH - Weight/1RM formulas differ per platform if not migrated |
+| Import | 7 | ~1,500 | HIGH - Web users can't import CSV/photos |
+| Exercise Selection | 10 | ~2,500 | MEDIUM |
+| Periodization | 1 | ~500 | MEDIUM |
 
 ### Documentation Fixes
 
@@ -162,6 +184,11 @@ Issues identified in documentation audit (Dec 29, 2025).
 
 | Feature | Date | Notes |
 |---------|------|-------|
+| **API key migration (COMPLETE)** | Dec 29 | All 6 services migrated: VoiceService, VisionExtractionService, URLExtractionService, VoiceAnnouncementService, VoiceModeManager. Config.openAIKey removed. |
+| Firebase /api/tts, /vision, /chatSimple | Dec 29 | New endpoints for proxying OpenAI calls |
+| iOS Services audit | Dec 29 | Full audit of Services folder, documented cleanup + migration plan |
+| Magic link domain fix | Dec 29 | district.fitness → medinaintelligence.web.app |
+| Web /auth, /terms, /privacy | Dec 29 | Added legal pages and magic link callback |
 | District → Medina rebrand | Dec 29 | Removed B2B demo UI (Classes, Kisi), updated branding |
 | Apple Sign-in for web | Dec 29 | Firebase Auth with Apple provider |
 | iOS Login Redesign | Dec 29 | Claude-style UI, magic links, social auth at top |
@@ -180,7 +207,7 @@ Web App ───┘         │
                      └── Firestore (shared data)
 ```
 
-Both clients are now "dumb" - all business logic runs on Firebase Functions.
+Tool handlers (22/22) run on Firebase Functions. iOS still has ~5,000 LOC of business logic (Calculations, Import, Exercise Selection) that should be migrated for full platform consistency.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for technical details.
 

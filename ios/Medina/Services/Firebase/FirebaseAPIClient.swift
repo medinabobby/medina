@@ -10,7 +10,10 @@ actor FirebaseAPIClient {
     private let endpoints: [String: String] = [
         "hello": "https://hello-dpkc2km3oa-uc.a.run.app",
         "chat": "https://chat-dpkc2km3oa-uc.a.run.app",
-        "getUser": "https://getuser-dpkc2km3oa-uc.a.run.app"
+        "getUser": "https://getuser-dpkc2km3oa-uc.a.run.app",
+        "tts": "https://tts-dpkc2km3oa-uc.a.run.app",
+        "vision": "https://vision-dpkc2km3oa-uc.a.run.app",
+        "chatSimple": "https://chatsimple-dpkc2km3oa-uc.a.run.app"
     ]
     private let session: URLSession
 
@@ -68,6 +71,39 @@ actor FirebaseAPIClient {
         return response
     }
 
+    /// Text-to-speech - returns audio data
+    /// POST /tts (requires auth)
+    func tts(text: String, voice: String = "nova", speed: Double = 1.0) async throws -> Data {
+        let start = Date()
+        let body = TTSRequest(text: text, voice: voice, speed: speed)
+        let audioData = try await postBinary(endpoint: "tts", body: body, requiresAuth: true)
+        let latency = Date().timeIntervalSince(start) * 1000
+        print("[FirebaseAPI] /tts completed in \(Int(latency))ms (\(audioData.count) bytes)")
+        return audioData
+    }
+
+    /// Vision - analyze image with GPT-4o
+    /// POST /vision (requires auth)
+    func vision(imageBase64: String, prompt: String, model: String = "gpt-4o", jsonMode: Bool = false) async throws -> VisionResponse {
+        let start = Date()
+        let body = VisionRequest(imageBase64: imageBase64, prompt: prompt, model: model, jsonMode: jsonMode)
+        let response: VisionResponse = try await post(endpoint: "vision", body: body, requiresAuth: true)
+        let latency = Date().timeIntervalSince(start) * 1000
+        print("[FirebaseAPI] /vision completed in \(Int(latency))ms")
+        return response
+    }
+
+    /// Simple chat completion - no streaming, no tools
+    /// POST /chatSimple (requires auth)
+    func chatSimple(messages: [[String: String]], model: String = "gpt-4o-mini", temperature: Double = 0.7) async throws -> ChatSimpleResponse {
+        let start = Date()
+        let body = ChatSimpleRequest(messages: messages, model: model, temperature: temperature)
+        let response: ChatSimpleResponse = try await post(endpoint: "chatSimple", body: body, requiresAuth: true)
+        let latency = Date().timeIntervalSince(start) * 1000
+        print("[FirebaseAPI] /chatSimple completed in \(Int(latency))ms")
+        return response
+    }
+
     // MARK: - HTTP Methods
 
     private func get<T: Decodable>(endpoint: String, requiresAuth: Bool) async throws -> T {
@@ -106,6 +142,46 @@ actor FirebaseAPIClient {
         }
 
         return try await execute(request)
+    }
+
+    /// POST that returns binary data (for TTS audio)
+    private func postBinary<B: Encodable>(endpoint: String, body: B, requiresAuth: Bool) async throws -> Data {
+        guard let urlString = endpoints[endpoint],
+              let url = URL(string: urlString) else {
+            throw FirebaseAPIError.notFound
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(body)
+
+        if requiresAuth {
+            guard let token = authToken else {
+                throw FirebaseAPIError.notAuthenticated
+            }
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw FirebaseAPIError.invalidResponse
+        }
+
+        switch httpResponse.statusCode {
+        case 200...299:
+            return data
+        case 401:
+            throw FirebaseAPIError.unauthorized
+        case 403:
+            throw FirebaseAPIError.forbidden
+        case 404:
+            throw FirebaseAPIError.notFound
+        case 500...599:
+            throw FirebaseAPIError.serverError(httpResponse.statusCode)
+        default:
+            throw FirebaseAPIError.httpError(httpResponse.statusCode)
+        }
     }
 
     private func execute<T: Decodable>(_ request: URLRequest) async throws -> T {
@@ -161,6 +237,33 @@ struct ChatRequest: Codable {
 struct ChatResponse: Codable {
     let reply: String
     let timestamp: String
+}
+
+struct TTSRequest: Codable {
+    let text: String
+    let voice: String
+    let speed: Double
+}
+
+struct VisionRequest: Codable {
+    let imageBase64: String
+    let prompt: String
+    let model: String
+    let jsonMode: Bool
+}
+
+struct VisionResponse: Codable {
+    let content: String
+}
+
+struct ChatSimpleRequest: Codable {
+    let messages: [[String: String]]
+    let model: String
+    let temperature: Double
+}
+
+struct ChatSimpleResponse: Codable {
+    let content: String
 }
 
 // MARK: - Errors

@@ -25,7 +25,7 @@ struct WorkoutDetailView: View {
     // Session coordinator for workout execution
     @StateObject private var sessionCoordinator: WorkoutSessionCoordinator = {
         let userId = TestDataManager.shared.currentUserId ?? "bobby"
-        let voiceService = VoiceService(apiKey: Config.openAIKey)
+        let voiceService = VoiceService()
         return WorkoutSessionCoordinator(memberId: userId, voiceService: voiceService)
     }()
 

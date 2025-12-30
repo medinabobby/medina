@@ -71,7 +71,7 @@ class ChatViewModel: ObservableObject {
 
     init(user: UnifiedUser) {
         self.user = user
-        self.voiceService = VoiceService(apiKey: Config.openAIKey)
+        self.voiceService = VoiceService()
 
         // v80.0: Initialize ResponsesManager (much simpler - no API calls needed)
         Task {

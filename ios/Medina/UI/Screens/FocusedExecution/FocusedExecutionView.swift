@@ -34,7 +34,7 @@ struct FocusedExecutionView: View {
 
         // Create session coordinator with voice service
         let userId = TestDataManager.shared.currentUserId ?? "bobby"
-        let voiceService = VoiceService(apiKey: Config.openAIKey)
+        let voiceService = VoiceService()
         let coordinator = WorkoutSessionCoordinator(memberId: userId, voiceService: voiceService)
 
         _viewModel = StateObject(wrappedValue: FocusedExecutionViewModel(

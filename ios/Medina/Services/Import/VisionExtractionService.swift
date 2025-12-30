@@ -3,6 +3,7 @@
 // Medina
 //
 // v79.5: Extract workout data from images using GPT-4o Vision
+// v215: Migrated to Firebase /api/vision endpoint (API key on server)
 // Created: December 3, 2025
 //
 // Supports:
@@ -186,54 +187,32 @@ enum VisionExtractionService {
 
     // MARK: - Vision API Call
 
+    /// v215: Now uses Firebase /api/vision endpoint (API key on server)
     private static func callVisionAPI(base64Image: String, prompt: String) async throws -> [String: Any] {
-        let apiKey = Config.openAIKey
-        let url = URL(string: "https://api.openai.com/v1/chat/completions")!
+        // Call Firebase Vision endpoint instead of OpenAI directly
+        let response = try await FirebaseAPIClient.shared.vision(
+            imageBase64: base64Image,
+            prompt: prompt,
+            model: "gpt-4o",
+            jsonMode: true
+        )
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        // Parse the JSON content from Firebase response
+        guard let contentData = response.content.data(using: .utf8),
+              let json = try JSONSerialization.jsonObject(with: contentData) as? [String: Any] else {
+            throw ExtractionError.parseError("Invalid JSON in vision response")
+        }
 
-        let body: [String: Any] = [
-            "model": "gpt-4o",
-            "messages": [
+        // Wrap in OpenAI-like structure for backwards compatibility with parseExtractionResponse
+        return [
+            "choices": [
                 [
-                    "role": "user",
-                    "content": [
-                        ["type": "text", "text": prompt],
-                        [
-                            "type": "image_url",
-                            "image_url": [
-                                "url": "data:image/jpeg;base64,\(base64Image)",
-                                "detail": "high"
-                            ]
-                        ]
+                    "message": [
+                        "content": response.content
                     ]
                 ]
-            ],
-            "max_tokens": 4096,
-            "response_format": ["type": "json_object"]
+            ]
         ]
-
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw ExtractionError.apiError("Invalid response")
-        }
-
-        if httpResponse.statusCode != 200 {
-            let errorBody = String(data: data, encoding: .utf8) ?? "Unknown error"
-            throw ExtractionError.apiError("HTTP \(httpResponse.statusCode): \(errorBody)")
-        }
-
-        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            throw ExtractionError.parseError("Invalid JSON response")
-        }
-
-        return json
     }
 
     // MARK: - Response Parsing

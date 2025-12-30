@@ -4,6 +4,7 @@
 //
 // v31.0: Voice workout execution - OpenAI TTS integration
 // v86.0: Removed MacPaw/OpenAI dependency, using direct HTTP calls
+// v215: Migrated to Firebase TTS endpoint (API key on server)
 // Last reviewed: December 2025
 //
 
@@ -12,17 +13,17 @@ import AVFoundation
 
 /// Service for text-to-speech voice guidance during workouts
 ///
-/// Uses OpenAI TTS-1 API for natural, human-like coaching voice.
+/// Uses Firebase /api/tts endpoint which proxies to OpenAI TTS-1 API.
+/// API key is stored securely on server - iOS never has access.
 /// Recommended voice: nova (warm, energetic female voice for motivation)
 ///
 /// Usage:
 /// ```swift
-/// let service = VoiceService(apiKey: Config.openAIKey)
-/// try await service.speak("Starting your workout! First exercise: Back Squat")
+/// let service = VoiceService()
+/// try await service.speak("Starting your workout!", userId: user.id)
 /// ```
 @MainActor
 class VoiceService: ObservableObject {
-    private let apiKey: String
     private var audioPlayer: AVAudioPlayer?
     private let dataManager: TestDataManager
 
@@ -33,11 +34,9 @@ class VoiceService: ObservableObject {
         case alloy, echo, fable, onyx, nova, shimmer
     }
 
-    /// Initialize voice service with OpenAI API key
-    /// - Parameter apiKey: OpenAI API key (get from https://platform.openai.com/api-keys)
+    /// Initialize voice service
     /// - Parameter dataManager: Data manager for accessing user voice settings
-    init(apiKey: String, dataManager: TestDataManager = .shared) {
-        self.apiKey = apiKey
+    init(dataManager: TestDataManager = .shared) {
         self.dataManager = dataManager
 
         // Configure audio session for playback on iOS devices
@@ -51,11 +50,18 @@ class VoiceService: ObservableObject {
         }
     }
 
-    /// Speak text using OpenAI TTS with natural voice
+    /// Legacy initializer for backwards compatibility (apiKey ignored)
+    /// - Parameter apiKey: Ignored - API key now on server
+    /// - Parameter dataManager: Data manager for accessing user voice settings
+    @available(*, deprecated, message: "API key no longer needed - stored on server")
+    convenience init(apiKey: String, dataManager: TestDataManager = .shared) {
+        self.init(dataManager: dataManager)
+    }
+
+    /// Speak text using Firebase TTS endpoint
     ///
     /// v47: Checks user's voice settings before speaking. If voice is disabled, returns silently.
-    ///
-    /// Cost: ~$0.015 per 1000 characters (~$0.002 per workout start message)
+    /// v215: Now uses Firebase /api/tts endpoint (API key on server)
     ///
     /// - Parameters:
     ///   - text: Text to speak (workout guidance, exercise instructions, etc.)
@@ -75,43 +81,18 @@ class VoiceService: ObservableObject {
         isSpeaking = true
         defer { isSpeaking = false }
 
-        Logger.log(.info, component: "VoiceService", message: "Speaking: \(text.prefix(50))...")
-
-        // Build request
-        guard let url = URL(string: "https://api.openai.com/v1/audio/speech") else {
-            throw NSError(domain: "VoiceService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let body: [String: Any] = [
-            "model": "tts-1",
-            "input": text,
-            "voice": voice.rawValue,
-            "response_format": "mp3",
-            "speed": 1.0
-        ]
-
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        Logger.log(.info, component: "VoiceService", message: "Speaking via Firebase: \(text.prefix(50))...")
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw NSError(domain: "VoiceService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
-            }
-
-            guard httpResponse.statusCode == 200 else {
-                let errorBody = String(data: data, encoding: .utf8) ?? "Unknown error"
-                Logger.log(.error, component: "VoiceService", message: "TTS API error: \(httpResponse.statusCode) - \(errorBody)")
-                throw NSError(domain: "VoiceService", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorBody])
-            }
+            // v215: Call Firebase TTS endpoint instead of OpenAI directly
+            let audioData = try await FirebaseAPIClient.shared.tts(
+                text: text,
+                voice: voice.rawValue,
+                speed: 1.0
+            )
 
             // Play audio
-            audioPlayer = try AVAudioPlayer(data: data)
+            audioPlayer = try AVAudioPlayer(data: audioData)
             audioPlayer?.prepareToPlay()
             audioPlayer?.volume = 1.0
 
@@ -121,7 +102,7 @@ class VoiceService: ObservableObject {
                 throw NSError(domain: "VoiceService", code: 3, userInfo: [NSLocalizedDescriptionKey: "Audio playback failed"])
             }
 
-            Logger.log(.info, component: "VoiceService", message: "Audio playback started (\(data.count) bytes)")
+            Logger.log(.info, component: "VoiceService", message: "Audio playback started (\(audioData.count) bytes)")
 
             // Wait for playback to complete
             while audioPlayer?.isPlaying == true {

@@ -3,6 +3,7 @@
 // Medina
 //
 // v106: Extract workout/plan data from URLs using GPT-4
+// v215: Migrated to Firebase /api/chatSimple endpoint (API key on server)
 // Created: December 10, 2025
 //
 // Supports:
@@ -245,49 +246,37 @@ enum URLExtractionService {
 
     // MARK: - API Call
 
+    /// v215: Now uses Firebase /api/chatSimple endpoint (API key on server)
     private static func callExtractionAPI(prompt: String) async throws -> [String: Any] {
-        let apiKey = Config.openAIKey
-        let url = URL(string: "https://api.openai.com/v1/chat/completions")!
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let body: [String: Any] = [
-            "model": "gpt-4o",
-            "messages": [
-                [
-                    "role": "system",
-                    "content": "You are a fitness program analyzer. Extract structured workout data from webpage content. Return only valid JSON."
-                ],
-                [
-                    "role": "user",
-                    "content": prompt
-                ]
+        // Build messages for chat completion
+        let messages: [[String: String]] = [
+            [
+                "role": "system",
+                "content": "You are a fitness program analyzer. Extract structured workout data from webpage content. Return only valid JSON."
             ],
-            "max_tokens": 4096,
-            "response_format": ["type": "json_object"]
+            [
+                "role": "user",
+                "content": prompt
+            ]
         ]
 
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        // Call Firebase chatSimple endpoint
+        let response = try await FirebaseAPIClient.shared.chatSimple(
+            messages: messages,
+            model: "gpt-4o",
+            temperature: 0.3  // Lower temperature for structured extraction
+        )
 
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw ExtractionError.apiError("Invalid response")
-        }
-
-        if httpResponse.statusCode != 200 {
-            let errorBody = String(data: data, encoding: .utf8) ?? "Unknown error"
-            throw ExtractionError.apiError("HTTP \(httpResponse.statusCode): \(errorBody)")
-        }
-
-        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            throw ExtractionError.parseError("Invalid JSON response")
-        }
-
-        return json
+        // Wrap in OpenAI-like structure for backwards compatibility with parseExtractionResponse
+        return [
+            "choices": [
+                [
+                    "message": [
+                        "content": response.content
+                    ]
+                ]
+            ]
+        ]
     }
 
     // MARK: - Response Parsing
