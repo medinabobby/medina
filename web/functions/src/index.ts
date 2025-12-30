@@ -898,3 +898,6 @@ export const chatSimple = onRequest(
 
 // Calculation endpoint - centralized formulas for iOS and web
 export {calculate} from "./api/calculate";
+
+// Import endpoint - CSV parsing, exercise matching, intelligence analysis
+export {importCSV} from "./api/import";
