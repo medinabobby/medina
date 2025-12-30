@@ -444,7 +444,7 @@ class ChatViewModel: ObservableObject {
                     Logger.spine("ChatViewModel", "📋 Workout card: \(cardData.workoutName)")
 
                     // v211: Fetch newly created workout from Firestore into local cache
-                    if let userId = TestDataManager.shared.currentUserId {
+                    if let userId = LocalDataStore.shared.currentUserId {
                         Task {
                             do {
                                 if let workout = try await FirestoreWorkoutRepository.shared.fetchWorkout(
@@ -452,7 +452,7 @@ class ChatViewModel: ObservableObject {
                                     memberId: userId
                                 ) {
                                     await MainActor.run {
-                                        TestDataManager.shared.workouts[cardData.workoutId] = workout
+                                        LocalDataStore.shared.workouts[cardData.workoutId] = workout
                                         Logger.log(.info, component: "ChatViewModel",
                                                   message: "✅ Synced workout \(cardData.workoutId) from Firestore")
                                     }
@@ -478,7 +478,7 @@ class ChatViewModel: ObservableObject {
                     Logger.spine("ChatViewModel", "📋 Plan card: \(cardData.planName)")
 
                     // v211: Fetch newly created plan from Firestore into local cache
-                    if let userId = TestDataManager.shared.currentUserId {
+                    if let userId = LocalDataStore.shared.currentUserId {
                         Task {
                             do {
                                 if let plan = try await FirestorePlanRepository.shared.fetchPlan(
@@ -486,7 +486,7 @@ class ChatViewModel: ObservableObject {
                                     memberId: userId
                                 ) {
                                     await MainActor.run {
-                                        TestDataManager.shared.plans[cardData.planId] = plan
+                                        LocalDataStore.shared.plans[cardData.planId] = plan
                                         Logger.log(.info, component: "ChatViewModel",
                                                   message: "✅ Synced plan \(cardData.planId) from Firestore")
                                     }
@@ -797,7 +797,7 @@ class ChatViewModel: ObservableObject {
     /// v161: Also check for workout.status == .inProgress (persisted state after app restart)
     private func generateFallbackWorkoutChips() -> [SuggestionChip]? {
         // v155: If there's an active session, don't suggest starting a different workout
-        if TestDataManager.shared.activeSession(for: user.id) != nil {
+        if LocalDataStore.shared.activeSession(for: user.id) != nil {
             return nil  // Let the AI's response about continuing be sufficient
         }
 

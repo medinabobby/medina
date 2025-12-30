@@ -155,8 +155,8 @@ struct GreetingContextBuilder {
     /// v161: Check active session FIRST, then fall back to workout status
     private static func getInProgressWorkout(for userId: String) -> Workout? {
         // Priority 1: Active session (most accurate, in-memory state)
-        if let activeSession = TestDataManager.shared.activeSession(for: userId),
-           let workout = TestDataManager.shared.workouts[activeSession.workoutId] {
+        if let activeSession = LocalDataStore.shared.activeSession(for: userId),
+           let workout = LocalDataStore.shared.workouts[activeSession.workoutId] {
             return workout
         }
 

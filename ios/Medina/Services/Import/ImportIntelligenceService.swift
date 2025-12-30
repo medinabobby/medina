@@ -417,7 +417,7 @@ struct ImportIntelligenceService {
         for exercise in exercises {
             // Try to match exercise to database to get muscle groups
             if let exerciseId = exercise.matchedExerciseId,
-               let exerciseData = TestDataManager.shared.exercises[exerciseId] {
+               let exerciseData = LocalDataStore.shared.exercises[exerciseId] {
                 for muscle in exerciseData.muscleGroups {
                     muscleFrequency[muscle, default: 0] += 1
                 }

@@ -25,7 +25,7 @@ struct ThreadRow: View {
 
     private var otherParticipantName: String {
         guard let otherId = thread.otherParticipant(currentUserId: currentUserId),
-              let user = TestDataManager.shared.users[otherId] else {
+              let user = LocalDataStore.shared.users[otherId] else {
             return "Unknown"
         }
         return user.name

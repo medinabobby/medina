@@ -39,7 +39,7 @@ enum ProtocolAssignmentService {
     /// Assign protocols to all workouts in a program
     ///
     /// **v51.0 Process:**
-    /// 1. Load user's library from TestDataManager
+    /// 1. Load user's library from LocalDataStore
     /// 2. Calculate weekly intensity progression for program
     /// 3. For each workout, determine week number
     /// 4. For each exercise, use LibraryProtocolSelector or fallback to hard-coded mapping
@@ -53,7 +53,7 @@ enum ProtocolAssignmentService {
     /// - Returns: Tuple of (workouts with protocolVariantIds populated, workout ID → intensity mapping)
     static func assignProtocols(for workouts: [Workout], program: Program, userId: String, goal: FitnessGoal) -> (workouts: [Workout], intensities: [String: Double]) {
         // v51.0: Load user's library
-        let library = TestDataManager.shared.libraries[userId]
+        let library = LocalDataStore.shared.libraries[userId]
         // Calculate weekly intensity progression
         let weeklyIntensities = calculateWeeklyIntensities(for: program)
 
@@ -199,7 +199,7 @@ enum ProtocolAssignmentService {
         var protocolVariantIds: [Int: String] = [:]
 
         for (index, exerciseId) in exerciseIds.enumerated() {
-            guard let exercise = TestDataManager.shared.exercises[exerciseId] else {
+            guard let exercise = LocalDataStore.shared.exercises[exerciseId] else {
                 continue
             }
 
@@ -249,7 +249,7 @@ enum ProtocolAssignmentService {
     /// Select protocol config for an exercise using data-driven matching
     ///
     /// **v58.4: Rule-Based Selection**
-    /// 1. Query available protocol configs from TestDataManager
+    /// 1. Query available protocol configs from LocalDataStore
     /// 2. Filter by exercise type (compound → lower reps, isolation → higher reps)
     /// 3. Match intensity to protocol's average RPE
     /// 4. Fallback to defaults if no match
@@ -292,7 +292,7 @@ enum ProtocolAssignmentService {
         intensity: Double,
         progressionType: ProgressionType
     ) -> String? {
-        let allConfigs = TestDataManager.shared.protocolConfigs
+        let allConfigs = LocalDataStore.shared.protocolConfigs
 
         // Map intensity to target RPE range
         let targetRPE: ClosedRange<Double> = {
@@ -400,8 +400,8 @@ enum ProtocolAssignmentService {
     ///   - exerciseId: Exercise ID to validate against
     /// - Returns: true if compatible, false if mismatch detected
     static func isProtocolExerciseCompatible(protocolId: String, exerciseId: String) -> Bool {
-        guard let exercise = TestDataManager.shared.exercises[exerciseId],
-              let protocolConfig = TestDataManager.shared.protocolConfigs[protocolId] else {
+        guard let exercise = LocalDataStore.shared.exercises[exerciseId],
+              let protocolConfig = LocalDataStore.shared.protocolConfigs[protocolId] else {
             return true  // Allow if we can't validate (missing data)
         }
 

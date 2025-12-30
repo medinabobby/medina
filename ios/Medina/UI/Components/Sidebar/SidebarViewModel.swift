@@ -68,7 +68,7 @@ final class SidebarViewModel: ObservableObject {
     }
 
     private func loadLibrary() {
-        library = TestDataManager.shared.libraries[userId]
+        library = LocalDataStore.shared.libraries[userId]
     }
 
     private func loadExercises() {
@@ -77,9 +77,9 @@ final class SidebarViewModel: ObservableObject {
             return
         }
 
-        let prefs = TestDataManager.shared.userExercisePreferences(for: userId)
+        let prefs = LocalDataStore.shared.userExercisePreferences(for: userId)
         libraryExercises = library.exercises.compactMap { exerciseId in
-            TestDataManager.shared.exercises[exerciseId]
+            LocalDataStore.shared.exercises[exerciseId]
         }.sorted { ex1, ex2 in
             let isFav1 = prefs.isFavorite(ex1.id)
             let isFav2 = prefs.isFavorite(ex2.id)

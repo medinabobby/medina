@@ -176,7 +176,7 @@ class EntityActionCoordinator: ObservableObject {
     // MARK: - Plan Actions
 
     private func executePlanActivation(entityId: String) async throws -> ActionResult {
-        guard let plan = TestDataManager.shared.plans.values.first(where: { $0.id == entityId }) else {
+        guard let plan = LocalDataStore.shared.plans.values.first(where: { $0.id == entityId }) else {
             return .failure(error: NSError(domain: "Plan", code: 404, userInfo: [NSLocalizedDescriptionKey: "Plan not found"]))
         }
 
@@ -190,7 +190,7 @@ class EntityActionCoordinator: ObservableObject {
     }
 
     private func executePlanAbandon(entityId: String) async throws -> ActionResult {
-        guard let plan = TestDataManager.shared.plans.values.first(where: { $0.id == entityId }) else {
+        guard let plan = LocalDataStore.shared.plans.values.first(where: { $0.id == entityId }) else {
             return .failure(error: NSError(domain: "Plan", code: 404, userInfo: [NSLocalizedDescriptionKey: "Plan not found"]))
         }
 
@@ -204,7 +204,7 @@ class EntityActionCoordinator: ObservableObject {
     }
 
     private func executePlanDelete(entityId: String) async throws -> ActionResult {
-        guard let plan = TestDataManager.shared.plans.values.first(where: { $0.id == entityId }) else {
+        guard let plan = LocalDataStore.shared.plans.values.first(where: { $0.id == entityId }) else {
             return .failure(error: NSError(domain: "Plan", code: 404, userInfo: [NSLocalizedDescriptionKey: "Plan not found"]))
         }
 
@@ -222,13 +222,13 @@ class EntityActionCoordinator: ObservableObject {
 
     // v55.0: Guided-only (removed mode parameter)
     private func executeWorkoutStart(entityId: String) async throws -> ActionResult {
-        guard let workout = TestDataManager.shared.workouts.values.first(where: { $0.id == entityId }) else {
+        guard let workout = LocalDataStore.shared.workouts.values.first(where: { $0.id == entityId }) else {
             return .failure(error: NSError(domain: "Workout", code: 404, userInfo: [NSLocalizedDescriptionKey: "Workout not found"]))
         }
 
         // Check if workout belongs to draft plan
-        if let program = TestDataManager.shared.programs[workout.programId],
-           let plan = TestDataManager.shared.plans[program.planId],
+        if let program = LocalDataStore.shared.programs[workout.programId],
+           let plan = LocalDataStore.shared.plans[program.planId],
            plan.status == .draft {
             let message = "Cannot start workout from draft plan. Activate '\(plan.name)' first."
             return .failure(error: NSError(domain: "Workout", code: 400, userInfo: [NSLocalizedDescriptionKey: message]))
@@ -245,14 +245,14 @@ class EntityActionCoordinator: ObservableObject {
     }
 
     private func executeWorkoutSkip(entityId: String) async throws -> ActionResult {
-        guard let workout = TestDataManager.shared.workouts.values.first(where: { $0.id == entityId }) else {
+        guard let workout = LocalDataStore.shared.workouts.values.first(where: { $0.id == entityId }) else {
             return .failure(error: NSError(domain: "Workout", code: 404, userInfo: [NSLocalizedDescriptionKey: "Workout not found"]))
         }
 
         // Mark workout as skipped
         var updatedWorkout = workout
         updatedWorkout.status = .skipped
-        TestDataManager.shared.workouts[workout.id] = updatedWorkout
+        LocalDataStore.shared.workouts[workout.id] = updatedWorkout
 
         // v167: Save to DeltaStore for sync/audit consistency (matches handler pattern)
         let delta = DeltaStore.WorkoutDelta(
@@ -263,8 +263,8 @@ class EntityActionCoordinator: ObservableObject {
         DeltaStore.shared.saveWorkoutDelta(delta)
 
         // v206: Sync to Firestore (fire-and-forget)
-        if let program = TestDataManager.shared.programs[workout.programId],
-           let plan = TestDataManager.shared.plans[program.planId] {
+        if let program = LocalDataStore.shared.programs[workout.programId],
+           let plan = LocalDataStore.shared.plans[program.planId] {
             Task {
                 do {
                     try await FirestoreWorkoutRepository.shared.saveWorkout(updatedWorkout, memberId: plan.memberId)
@@ -291,7 +291,7 @@ class EntityActionCoordinator: ObservableObject {
             return .failure(error: NSError(domain: "Protocol", code: 401, userInfo: [NSLocalizedDescriptionKey: "User ID required"]))
         }
 
-        guard var library = TestDataManager.shared.libraries[userId] else {
+        guard var library = LocalDataStore.shared.libraries[userId] else {
             return .failure(error: NSError(domain: "Protocol", code: 404, userInfo: [NSLocalizedDescriptionKey: "Library not found"]))
         }
 
@@ -302,12 +302,12 @@ class EntityActionCoordinator: ObservableObject {
         // Enable the protocol
         library.protocols[index].isEnabled = true
         library.lastModified = Date()
-        TestDataManager.shared.libraries[userId] = library
+        LocalDataStore.shared.libraries[userId] = library
 
         // Persist
         try LibraryPersistenceService.save(library)
 
-        let protocolName = TestDataManager.shared.protocolConfigs[entityId]?.variantName ?? "Protocol"
+        let protocolName = LocalDataStore.shared.protocolConfigs[entityId]?.variantName ?? "Protocol"
         Logger.log(.info, component: "EntityActionCoordinator", message: "Protocol enabled: \(entityId)")
 
         return .success(message: "'\(protocolName)' enabled", navigationIntent: nil)
@@ -318,7 +318,7 @@ class EntityActionCoordinator: ObservableObject {
             return .failure(error: NSError(domain: "Protocol", code: 401, userInfo: [NSLocalizedDescriptionKey: "User ID required"]))
         }
 
-        guard var library = TestDataManager.shared.libraries[userId] else {
+        guard var library = LocalDataStore.shared.libraries[userId] else {
             return .failure(error: NSError(domain: "Protocol", code: 404, userInfo: [NSLocalizedDescriptionKey: "Library not found"]))
         }
 
@@ -329,12 +329,12 @@ class EntityActionCoordinator: ObservableObject {
         // Disable the protocol
         library.protocols[index].isEnabled = false
         library.lastModified = Date()
-        TestDataManager.shared.libraries[userId] = library
+        LocalDataStore.shared.libraries[userId] = library
 
         // Persist
         try LibraryPersistenceService.save(library)
 
-        let protocolName = TestDataManager.shared.protocolConfigs[entityId]?.variantName ?? "Protocol"
+        let protocolName = LocalDataStore.shared.protocolConfigs[entityId]?.variantName ?? "Protocol"
         Logger.log(.info, component: "EntityActionCoordinator", message: "Protocol disabled: \(entityId)")
 
         return .success(message: "'\(protocolName)' disabled", navigationIntent: nil)
@@ -345,7 +345,7 @@ class EntityActionCoordinator: ObservableObject {
             return .failure(error: NSError(domain: "Protocol", code: 401, userInfo: [NSLocalizedDescriptionKey: "User ID required"]))
         }
 
-        guard var library = TestDataManager.shared.libraries[userId] else {
+        guard var library = LocalDataStore.shared.libraries[userId] else {
             return .failure(error: NSError(domain: "Protocol", code: 404, userInfo: [NSLocalizedDescriptionKey: "Library not found"]))
         }
 
@@ -353,12 +353,12 @@ class EntityActionCoordinator: ObservableObject {
             return .failure(error: NSError(domain: "Protocol", code: 404, userInfo: [NSLocalizedDescriptionKey: "Protocol not found in library"]))
         }
 
-        let protocolName = TestDataManager.shared.protocolConfigs[entityId]?.variantName ?? "Protocol"
+        let protocolName = LocalDataStore.shared.protocolConfigs[entityId]?.variantName ?? "Protocol"
 
         // Remove the protocol
         library.protocols.remove(at: index)
         library.lastModified = Date()
-        TestDataManager.shared.libraries[userId] = library
+        LocalDataStore.shared.libraries[userId] = library
 
         // Persist
         try LibraryPersistenceService.save(library)
@@ -376,7 +376,7 @@ class EntityActionCoordinator: ObservableObject {
         }
 
         // Get exercise name for user feedback
-        let exerciseName = TestDataManager.shared.exercises[entityId]?.name ?? "Exercise"
+        let exerciseName = LocalDataStore.shared.exercises[entityId]?.name ?? "Exercise"
 
         // Add to library
         try LibraryPersistenceService.addExercise(entityId, userId: userId)
@@ -392,7 +392,7 @@ class EntityActionCoordinator: ObservableObject {
         }
 
         // Get exercise name for user feedback
-        let exerciseName = TestDataManager.shared.exercises[entityId]?.name ?? "Exercise"
+        let exerciseName = LocalDataStore.shared.exercises[entityId]?.name ?? "Exercise"
 
         // Remove from library
         try LibraryPersistenceService.removeExercise(entityId, userId: userId)

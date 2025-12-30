@@ -187,13 +187,13 @@ When migrating a handler from iOS to server:
 5. **iOS: Sync on card receipt** - ChatViewModel must fetch from Firestore:
    ```swift
    case .workoutCard(let cardData):
-       // Fetch from Firestore → TestDataManager
-       if let userId = TestDataManager.shared.currentUserId {
+       // Fetch from Firestore → LocalDataStore
+       if let userId = LocalDataStore.shared.currentUserId {
            Task {
                if let workout = try await FirestoreWorkoutRepository.shared.fetchWorkout(
                    id: cardData.workoutId, memberId: userId
                ) {
-                   TestDataManager.shared.workouts[cardData.workoutId] = workout
+                   LocalDataStore.shared.workouts[cardData.workoutId] = workout
                }
            }
        }
@@ -210,7 +210,7 @@ When migrating a handler from iOS to server:
 │                                                                      │
 │   iOS Tool Handler                                                   │
 │   ├── 1. Create workout object locally                              │
-│   ├── 2. Add to TestDataManager.workouts[id] = workout   ◄── SYNC   │
+│   ├── 2. Add to LocalDataStore.workouts[id] = workout   ◄── SYNC   │
 │   ├── 3. Save to Firestore (async)                                  │
 │   └── 4. Show card → User taps → Found ✅                           │
 │                                                                      │
@@ -227,13 +227,13 @@ When migrating a handler from iOS to server:
 │                    ▼                                                 │
 │   iOS ChatViewModel receives card                                    │
 │   ├── 3. Fetch workout from Firestore                ◄── NEW STEP   │
-│   ├── 4. Add to TestDataManager.workouts[id]         ◄── SYNC       │
+│   ├── 4. Add to LocalDataStore.workouts[id]         ◄── SYNC       │
 │   └── 5. Show card → User taps → Found ✅                           │
 │                                                                      │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-**Critical:** Server handlers don't populate `TestDataManager`. iOS must sync.
+**Critical:** Server handlers don't populate `LocalDataStore`. iOS must sync.
 
 ---
 
@@ -321,7 +321,7 @@ Plans generate multiple programs based on duration:
 ```
 Firestore = Source of Truth
    │
-   └──► iOS: TestDataManager (in-memory cache)
+   └──► iOS: LocalDataStore (in-memory cache)
    │         └──► DeltaStore (workout progress, UserDefaults)
    │
    └──► Web: React state (in-memory)
@@ -334,7 +334,7 @@ Firestore = Source of Truth
 ```
 1. Load reference data (protocols, exercises, gyms)
 2. Firebase Auth (Apple or Google Sign-in)
-3. Fetch user data from Firestore → populate TestDataManager
+3. Fetch user data from Firestore → populate LocalDataStore
 4. Apply DeltaStore (workout progress)
 ```
 
@@ -403,21 +403,21 @@ interface Message {
 | `WorkoutSessionCoordinator` | Workout execution state |
 | `FirebaseChatClient` | HTTP client for `/api/chat` |
 
-### TestDataManager (In-Memory Cache)
+### LocalDataStore (In-Memory Cache)
 
 Central cache for user data. **Firestore is source of truth** - this is just a local cache.
 
 ```swift
 // Key properties
-TestDataManager.shared.currentUserId: String?     // Firebase UID
-TestDataManager.shared.workouts: [String: Workout]  // workoutId → Workout
-TestDataManager.shared.plans: [String: Plan]        // planId → Plan
-TestDataManager.shared.users: [String: UnifiedUser] // userId → User
-TestDataManager.shared.programs: [String: Program]  // programId → Program
+LocalDataStore.shared.currentUserId: String?     // Firebase UID
+LocalDataStore.shared.workouts: [String: Workout]  // workoutId → Workout
+LocalDataStore.shared.plans: [String: Plan]        // planId → Plan
+LocalDataStore.shared.users: [String: UnifiedUser] // userId → User
+LocalDataStore.shared.programs: [String: Program]  // programId → Program
 
 // After server creates entity, sync it:
-TestDataManager.shared.workouts[workoutId] = fetchedWorkout
-TestDataManager.shared.plans[planId] = fetchedPlan
+LocalDataStore.shared.workouts[workoutId] = fetchedWorkout
+LocalDataStore.shared.plans[planId] = fetchedPlan
 ```
 
 **Note:** No `currentUser` property - use `currentUserId` to look up user.

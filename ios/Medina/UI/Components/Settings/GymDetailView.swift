@@ -14,7 +14,7 @@ struct GymDetailView: View {
 
     private var gym: Gym? {
         guard let gymId = user.gymId else { return nil }
-        return TestDataManager.shared.gyms[gymId]
+        return LocalDataStore.shared.gyms[gymId]
     }
 
     var body: some View {

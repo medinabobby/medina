@@ -36,7 +36,7 @@ struct MessageBubble: View {
                 // v62.3: Use EntityListFormatters for consistent formatting with All Workouts list
                 // v178: Show BOTH text AND card (text above, card below) - matches summaryCardData pattern
                 let config: StatusListRowConfig = {
-                    if let workout = TestDataManager.shared.workouts[workoutData.workoutId] {
+                    if let workout = LocalDataStore.shared.workouts[workoutData.workoutId] {
                         return EntityListFormatters.formatWorkout(workout)
                     } else {
                         // Fallback if workout not found
@@ -75,7 +75,7 @@ struct MessageBubble: View {
                 // v63.0: Plan created using StatusListRow
                 // v63.0.1: Use plan's actual status for badge (Draft, Active, etc.)
                 let (statusText, statusColor): (String, Color) = {
-                    if let plan = TestDataManager.shared.plans[planData.planId] {
+                    if let plan = LocalDataStore.shared.plans[planData.planId] {
                         return plan.status.statusInfo()
                     }
                     return ("Draft", Color("SecondaryText"))  // Default for new plans

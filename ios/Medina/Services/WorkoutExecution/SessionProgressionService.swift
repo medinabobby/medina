@@ -8,7 +8,7 @@
 // Purpose: Pure session progression business logic (no UI, no voice)
 // Handles: Set/exercise advancement, skip operations, reset operations
 //
-// ⚠️ Side Effects: Mutates TestDataManager.shared and DeltaStore.shared directly
+// ⚠️ Side Effects: Mutates LocalDataStore.shared and DeltaStore.shared directly
 // This matches current architecture pattern (not pure functions)
 //
 
@@ -47,7 +47,7 @@ class SessionProgressionService {
         // Mark current exercise instance as complete or skipped if needed
         if didCompleteExercise {
             // v57.0: Check if ANY set was actually completed (not all skipped)
-            let allSets = TestDataManager.shared.exerciseSets.values.filter {
+            let allSets = LocalDataStore.shared.exerciseSets.values.filter {
                 $0.exerciseInstanceId == currentInstance.id
             }
             let hasCompletedSet = allSets.contains { $0.completion == .completed }
@@ -76,12 +76,12 @@ class SessionProgressionService {
                     // Mark ALL exercises in superset as skipped if they have incomplete sets
                     for pos in group.exercisePositions {
                         let exerciseId = workout.exerciseIds[pos]
-                        if let instance = TestDataManager.shared.exerciseInstances.values.first(where: {
+                        if let instance = LocalDataStore.shared.exerciseInstances.values.first(where: {
                             $0.workoutId == workout.id && $0.exerciseId == exerciseId
                         }) {
                             // Check if this exercise has any incomplete sets
                             let hasIncompleteSets = instance.setIds.contains { setId in
-                                guard let set = TestDataManager.shared.exerciseSets[setId] else { return false }
+                                guard let set = LocalDataStore.shared.exerciseSets[setId] else { return false }
                                 return set.completion != .completed && set.completion != .skipped
                             }
 
@@ -193,7 +193,7 @@ class SessionProgressionService {
     /// Skip the current exercise (all remaining sets) and advance to the next exercise
     ///
     /// ⚠️ Side Effects:
-    /// - Mutates `TestDataManager.shared.exerciseSets` (marks sets as skipped)
+    /// - Mutates `LocalDataStore.shared.exerciseSets` (marks sets as skipped)
     /// - Mutates `DeltaStore.shared` (saves set deltas)
     ///
     /// - Parameters:
@@ -211,7 +211,7 @@ class SessionProgressionService {
         }
 
         // Get exercise name for voice announcement
-        let exercise = TestDataManager.shared.exercises[instance.exerciseId]
+        let exercise = LocalDataStore.shared.exercises[instance.exerciseId]
         let exerciseName = exercise?.name ?? "exercise"
 
         // Skip ALL remaining sets of current exercise
@@ -229,9 +229,9 @@ class SessionProgressionService {
             DeltaStore.shared.saveSetDelta(setDelta)
 
             // Update in-memory set completion status
-            if var set = TestDataManager.shared.exerciseSets[setId] {
+            if var set = LocalDataStore.shared.exerciseSets[setId] {
                 set.completion = .skipped
-                TestDataManager.shared.exerciseSets[setId] = set
+                LocalDataStore.shared.exerciseSets[setId] = set
             }
         }
 
@@ -258,13 +258,13 @@ class SessionProgressionService {
     /// Unskip a previously skipped set
     ///
     /// ⚠️ Side Effects:
-    /// - Mutates `TestDataManager.shared.exerciseSets` (clears set data)
+    /// - Mutates `LocalDataStore.shared.exerciseSets` (clears set data)
     /// - Mutates `DeltaStore.shared` (removes skip delta)
     ///
     /// - Parameter setId: ID of set to unskip
     /// - Returns: true if successful, false if set not found
     func unskipSet(setId: String) -> Bool {
-        guard let set = TestDataManager.shared.exerciseSets[setId] else {
+        guard let set = LocalDataStore.shared.exerciseSets[setId] else {
             Logger.log(.warning, component: "SessionProgressionService", message: "Set not found for unskip: \(setId)")
             return false
         }
@@ -283,7 +283,7 @@ class SessionProgressionService {
         updatedSet.completion = nil  // nil means pending
         updatedSet.actualWeight = nil
         updatedSet.actualReps = nil
-        TestDataManager.shared.exerciseSets[setId] = updatedSet
+        LocalDataStore.shared.exerciseSets[setId] = updatedSet
 
         Logger.log(.info, component: "SessionProgressionService",
                    message: "Unskipped set: \(setId)")
@@ -296,10 +296,10 @@ class SessionProgressionService {
     /// Reset workout - clear all data, delete session
     ///
     /// ⚠️ Side Effects:
-    /// - Mutates `TestDataManager.shared.sessions` (deletes session)
-    /// - Mutates `TestDataManager.shared.exerciseInstances` (resets status)
-    /// - Mutates `TestDataManager.shared.exerciseSets` (clears set data)
-    /// - Mutates `TestDataManager.shared.workouts` (resets status)
+    /// - Mutates `LocalDataStore.shared.sessions` (deletes session)
+    /// - Mutates `LocalDataStore.shared.exerciseInstances` (resets status)
+    /// - Mutates `LocalDataStore.shared.exerciseSets` (clears set data)
+    /// - Mutates `LocalDataStore.shared.workouts` (resets status)
     /// - Mutates `DeltaStore.shared` (clears all deltas for workout)
     ///
     /// - Parameters:
@@ -309,15 +309,15 @@ class SessionProgressionService {
     func resetWorkout(workoutId: String, activeSessionId: String?) -> String? {
         // 1. Find and DELETE active session
         var deletedSessionId: String?
-        if let session = TestDataManager.shared.sessions.values.first(where: {
+        if let session = LocalDataStore.shared.sessions.values.first(where: {
             $0.workoutId == workoutId && $0.status == .active
         }) {
-            TestDataManager.shared.sessions.removeValue(forKey: session.id)
+            LocalDataStore.shared.sessions.removeValue(forKey: session.id)
             deletedSessionId = session.id
         }
 
         // 2. Get instances using workoutId field
-        let instances = TestDataManager.shared.exerciseInstances.values.filter {
+        let instances = LocalDataStore.shared.exerciseInstances.values.filter {
             $0.workoutId == workoutId
         }
 
@@ -339,10 +339,10 @@ class SessionProgressionService {
         for instance in instances {
             var updated = instance
             updated.status = .scheduled
-            TestDataManager.shared.exerciseInstances[instance.id] = updated
+            LocalDataStore.shared.exerciseInstances[instance.id] = updated
 
             for setId in instance.setIds {
-                if var set = TestDataManager.shared.exerciseSets[setId] {
+                if var set = LocalDataStore.shared.exerciseSets[setId] {
                     set.actualWeight = nil
                     set.actualReps = nil
                     set.completion = nil
@@ -350,15 +350,15 @@ class SessionProgressionService {
                     set.endTime = nil
                     set.notes = nil
                     set.recordedDate = nil
-                    TestDataManager.shared.exerciseSets[setId] = set
+                    LocalDataStore.shared.exerciseSets[setId] = set
                 }
             }
         }
 
-        if var workout = TestDataManager.shared.workouts[workoutId] {
+        if var workout = LocalDataStore.shared.workouts[workoutId] {
             workout.status = .scheduled
             workout.completedDate = nil
-            TestDataManager.shared.workouts[workoutId] = workout
+            LocalDataStore.shared.workouts[workoutId] = workout
         }
 
         return deletedSessionId
@@ -367,14 +367,14 @@ class SessionProgressionService {
     /// Reset exercise - clear data
     ///
     /// ⚠️ Side Effects:
-    /// - Mutates `TestDataManager.shared.exerciseInstances` (resets status)
-    /// - Mutates `TestDataManager.shared.exerciseSets` (clears set data)
+    /// - Mutates `LocalDataStore.shared.exerciseInstances` (resets status)
+    /// - Mutates `LocalDataStore.shared.exerciseSets` (clears set data)
     /// - Mutates `DeltaStore.shared` (clears deltas for exercise)
     ///
     /// - Parameter instanceId: ID of exercise instance to reset
     /// - Returns: true if successful, false if instance not found
     func resetExercise(instanceId: String) -> Bool {
-        guard let instance = TestDataManager.shared.exerciseInstances[instanceId] else {
+        guard let instance = LocalDataStore.shared.exerciseInstances[instanceId] else {
             return false
         }
 
@@ -385,10 +385,10 @@ class SessionProgressionService {
         // Clear in-memory state
         var updated = instance
         updated.status = .scheduled
-        TestDataManager.shared.exerciseInstances[instanceId] = updated
+        LocalDataStore.shared.exerciseInstances[instanceId] = updated
 
         for setId in instance.setIds {
-            if var set = TestDataManager.shared.exerciseSets[setId] {
+            if var set = LocalDataStore.shared.exerciseSets[setId] {
                 set.actualWeight = nil
                 set.actualReps = nil
                 set.completion = nil
@@ -396,7 +396,7 @@ class SessionProgressionService {
                 set.endTime = nil
                 set.notes = nil
                 set.recordedDate = nil
-                TestDataManager.shared.exerciseSets[setId] = set
+                LocalDataStore.shared.exerciseSets[setId] = set
             }
         }
 
@@ -417,7 +417,7 @@ class SessionProgressionService {
 
         let exerciseId = workout.exerciseIds[session.currentExerciseIndex]
 
-        return TestDataManager.shared.exerciseInstances.values.first {
+        return LocalDataStore.shared.exerciseInstances.values.first {
             $0.workoutId == workout.id && $0.exerciseId == exerciseId
         }
     }
@@ -434,7 +434,7 @@ class SessionProgressionService {
         }
 
         let setId = instance.setIds[session.currentSetIndex]
-        guard let set = TestDataManager.shared.exerciseSets[setId] else {
+        guard let set = LocalDataStore.shared.exerciseSets[setId] else {
             return nil
         }
 
@@ -456,7 +456,7 @@ class SessionProgressionService {
         let exerciseId = workout.exerciseIds[session.currentExerciseIndex]
 
         // Find the exercise instance for this workout
-        guard let instance = TestDataManager.shared.exerciseInstances.values.first(where: {
+        guard let instance = LocalDataStore.shared.exerciseInstances.values.first(where: {
             $0.workoutId == workout.id && $0.exerciseId == exerciseId
         }) else {
             return nil
@@ -469,7 +469,7 @@ class SessionProgressionService {
 
         // Get the next set
         let nextSetId = instance.setIds[session.currentSetIndex]
-        guard let nextSet = TestDataManager.shared.exerciseSets[nextSetId] else {
+        guard let nextSet = LocalDataStore.shared.exerciseSets[nextSetId] else {
             return nil
         }
 
@@ -496,7 +496,7 @@ class SessionProgressionService {
     ) -> Bool {
         return group.exercisePositions.contains { pos in
             let exerciseId = workout.exerciseIds[pos]
-            guard let instance = TestDataManager.shared.exerciseInstances.values.first(where: {
+            guard let instance = LocalDataStore.shared.exerciseInstances.values.first(where: {
                 $0.workoutId == workout.id && $0.exerciseId == exerciseId
             }) else {
                 return false
@@ -508,7 +508,7 @@ class SessionProgressionService {
             }
 
             let setId = instance.setIds[setIndex]
-            guard let set = TestDataManager.shared.exerciseSets[setId] else {
+            guard let set = LocalDataStore.shared.exerciseSets[setId] else {
                 // Set doesn't exist in memory → treat as pending
                 return true
             }
@@ -531,7 +531,7 @@ class SessionProgressionService {
     ) -> Int? {
         return group.exercisePositions.first { pos in
             let exerciseId = workout.exerciseIds[pos]
-            guard let instance = TestDataManager.shared.exerciseInstances.values.first(where: {
+            guard let instance = LocalDataStore.shared.exerciseInstances.values.first(where: {
                 $0.workoutId == workout.id && $0.exerciseId == exerciseId
             }) else {
                 return false
@@ -543,7 +543,7 @@ class SessionProgressionService {
             }
 
             let setId = instance.setIds[setIndex]
-            guard let set = TestDataManager.shared.exerciseSets[setId] else {
+            guard let set = LocalDataStore.shared.exerciseSets[setId] else {
                 return true
             }
 
@@ -573,11 +573,11 @@ class SessionProgressionService {
         // Loop through all exercises, wrapping around once
         while checkedCount < maxChecks {
             let exerciseId = workout.exerciseIds[candidatePos]
-            if let instance = TestDataManager.shared.exerciseInstances.values.first(where: {
+            if let instance = LocalDataStore.shared.exerciseInstances.values.first(where: {
                 $0.workoutId == workout.id && $0.exerciseId == exerciseId
             }), setIndex < instance.setIds.count {
                 let setId = instance.setIds[setIndex]
-                if let set = TestDataManager.shared.exerciseSets[setId] {
+                if let set = LocalDataStore.shared.exerciseSets[setId] {
                     if set.completion != .completed && set.completion != .skipped {
                         return candidatePos
                     }

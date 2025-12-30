@@ -113,7 +113,7 @@ struct UserContext {
     init(userId: String) {
         self.userId = userId
         // Use UnifiedUser system directly
-        if let user = TestDataManager.shared.users[userId] {
+        if let user = LocalDataStore.shared.users[userId] {
             self.userRole = user.primaryRole ?? .member
         } else {
             self.userRole = .member
@@ -151,14 +151,14 @@ struct UserContext {
 
     /// Get all gyms visible to this user
     func getVisibleGyms() -> [Gym] {
-        let allGyms = Array(TestDataManager.shared.gyms.values)
+        let allGyms = Array(LocalDataStore.shared.gyms.values)
 
         switch userRole {
         case .member, .trainer, .admin:
             // Members, trainers, and admins can see their gym
-            if let user = TestDataManager.shared.users[userId],
+            if let user = LocalDataStore.shared.users[userId],
                let userGymId = user.gymId,
-               let gym = TestDataManager.shared.gyms[userGymId] {
+               let gym = LocalDataStore.shared.gyms[userGymId] {
                 return [gym]
             }
             return allGyms // Fallback to all gyms
@@ -182,8 +182,8 @@ struct UserContext {
 
         case .trainer:
             // Trainers can view assigned members
-            if let targetUser = TestDataManager.shared.users[memberId],
-               let viewerUser = TestDataManager.shared.users[userId],
+            if let targetUser = LocalDataStore.shared.users[memberId],
+               let viewerUser = LocalDataStore.shared.users[userId],
                targetUser.hasRole(.member),
                viewerUser.hasRole(.trainer) {
                 return targetUser.memberProfile?.trainerId == viewerUser.id
@@ -192,8 +192,8 @@ struct UserContext {
 
         case .admin, .gymOwner:
             // Admins can view members in their gym
-            if let targetUser = TestDataManager.shared.users[memberId],
-               let viewerUser = TestDataManager.shared.users[userId] {
+            if let targetUser = LocalDataStore.shared.users[memberId],
+               let viewerUser = LocalDataStore.shared.users[userId] {
                 return targetUser.gymId == viewerUser.gymId
             }
             return false
@@ -234,7 +234,7 @@ struct RoleQueryContext {
     init(userId: String) {
         self.userId = userId
         // Use UnifiedUser system directly
-        if let user = TestDataManager.shared.users[userId] {
+        if let user = LocalDataStore.shared.users[userId] {
             self.userRole = user.primaryRole ?? .member
         } else {
             self.userRole = .member

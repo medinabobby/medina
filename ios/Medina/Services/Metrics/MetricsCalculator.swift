@@ -90,9 +90,9 @@ enum MetricsCalculator {
 
     static func workoutProgress(for workout: Workout, memberId: String?) -> CardProgressMetrics {
         // v17.5 fix: Reload latest deltas from UserDefaults before calculating
-        // During a workout session, deltas are saved but not re-applied to TestDataManager
+        // During a workout session, deltas are saved but not re-applied to LocalDataStore
         // This ensures we see the most recent set/instance/workout completion data
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
         manager.exerciseSets = DeltaStore.shared.applySetDeltas(to: manager.exerciseSets)
         manager.exerciseInstances = DeltaStore.shared.applyInstanceDeltas(to: manager.exerciseInstances)
         manager.workouts = DeltaStore.shared.applyWorkoutDeltas(to: manager.workouts)
@@ -150,7 +150,7 @@ enum MetricsCalculator {
             let expectedSetsCount: Int
             let repsPerSet: Int
 
-            if let protocolConfig = TestDataManager.shared.protocolConfigs[protocolVariantId] {
+            if let protocolConfig = LocalDataStore.shared.protocolConfigs[protocolVariantId] {
                 // ProtocolConfig has reps: [Int] array (one per set)
                 expectedSetsCount = protocolConfig.reps.count
                 // For reps calculation, use first set's target (assumes uniform reps per set)

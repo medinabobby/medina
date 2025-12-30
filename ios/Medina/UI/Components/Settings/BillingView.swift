@@ -18,7 +18,7 @@ struct BillingView: View {
 
     private var gym: Gym? {
         guard let gymId = user.gymId else { return nil }
-        return TestDataManager.shared.gyms[gymId]
+        return LocalDataStore.shared.gyms[gymId]
     }
 
     private var currentTierId: String? {
@@ -190,7 +190,7 @@ struct BillingView: View {
         updatedUser.memberProfile = profile
 
         // Persist changes
-        TestDataManager.shared.users[user.id] = updatedUser
+        LocalDataStore.shared.users[user.id] = updatedUser
 
         // v206: Sync to Firestore (fire-and-forget)
         Task {

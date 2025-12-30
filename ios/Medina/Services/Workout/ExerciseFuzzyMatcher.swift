@@ -28,7 +28,7 @@ enum ExerciseFuzzyMatcher {
     /// Try to match an AI-provided ID to an actual exercise
     /// Returns the Exercise if found, nil otherwise
     static func match(_ aiId: String) -> Exercise? {
-        let exercises = TestDataManager.shared.exercises
+        let exercises = LocalDataStore.shared.exercises
 
         // 1. Exact match (most common case - fast path)
         if let exercise = exercises[aiId] {
@@ -110,7 +110,7 @@ enum ExerciseFuzzyMatcher {
         if result.hasPrefix("bodyweight_") {
             let stripped = String(result.dropFirst("bodyweight_".count))
             // Only strip if the stripped version exists
-            if TestDataManager.shared.exercises[stripped] != nil {
+            if LocalDataStore.shared.exercises[stripped] != nil {
                 result = stripped
             }
         }

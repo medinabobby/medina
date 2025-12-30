@@ -162,7 +162,7 @@ end
 
 ## Notes
 
-- Tests use `TestDataManager.shared` with JSON data
+- Tests use `LocalDataStore.shared` with JSON data
 - Each test starts with clean slate via `resetAndReload()`
 - Tests are independent and can run in any order
 - No network calls or async operations

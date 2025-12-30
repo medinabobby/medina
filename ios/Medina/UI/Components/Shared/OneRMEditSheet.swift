@@ -246,7 +246,7 @@ struct OneRMEditSheet: View {
         let targetId = "\(userId)-\(exercise.id)"
 
         // Create or update target
-        var target = TestDataManager.shared.targets[targetId] ?? ExerciseTarget(
+        var target = LocalDataStore.shared.targets[targetId] ?? ExerciseTarget(
             id: targetId,
             exerciseId: exercise.id,
             memberId: userId,
@@ -267,8 +267,8 @@ struct OneRMEditSheet: View {
         )
         target.targetHistory.append(historyEntry)
 
-        // Save to TestDataManager
-        TestDataManager.shared.targets[targetId] = target
+        // Save to LocalDataStore
+        LocalDataStore.shared.targets[targetId] = target
 
         // v206: Removed legacy disk persistence - Firestore is source of truth
         // TODO: Add Firestore target sync when ready
@@ -284,8 +284,8 @@ struct OneRMEditSheet: View {
 // MARK: - Preview
 
 #Preview("Add New 1RM") {
-    // Use TestDataManager exercise for preview
-    if let exercise = TestDataManager.shared.exercises["barbell_bench_press"] {
+    // Use LocalDataStore exercise for preview
+    if let exercise = LocalDataStore.shared.exercises["barbell_bench_press"] {
         OneRMEditSheet(
             exercise: exercise,
             userId: "bobby",
@@ -297,8 +297,8 @@ struct OneRMEditSheet: View {
 }
 
 #Preview("Edit Existing 1RM") {
-    // Use TestDataManager exercise for preview
-    if let exercise = TestDataManager.shared.exercises["barbell_bench_press"] {
+    // Use LocalDataStore exercise for preview
+    if let exercise = LocalDataStore.shared.exercises["barbell_bench_press"] {
         OneRMEditSheet(
             exercise: exercise,
             userId: "bobby",

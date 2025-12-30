@@ -36,13 +36,13 @@ class FocusedExecutionViewModelTests: XCTestCase {
     override func setUp() async throws {
         try await super.setUp()
 
-        // Reset TestDataManager to clean state
-        TestDataManager.shared.resetAndReload()
+        // Reset LocalDataStore to clean state
+        LocalDataStore.shared.resetAndReload()
         DeltaStore.shared.clearAllDeltas()
 
         // Create test user
         testUser = TestFixtures.testUser
-        TestDataManager.shared.currentUserId = testUser.id
+        LocalDataStore.shared.currentUserId = testUser.id
 
         // Create a test workout with exercises and instances
         testWorkout = try await createTestWorkout(
@@ -111,11 +111,11 @@ class FocusedExecutionViewModelTests: XCTestCase {
         // Given: Set has target weight configured
         let instanceId = "\(testWorkout.id)_ex0"
 
-        if let firstSetId = TestDataManager.shared.exerciseInstances[instanceId]?.setIds.first,
-           var firstSet = TestDataManager.shared.exerciseSets[firstSetId] {
+        if let firstSetId = LocalDataStore.shared.exerciseInstances[instanceId]?.setIds.first,
+           var firstSet = LocalDataStore.shared.exerciseSets[firstSetId] {
             firstSet.targetWeight = 135.0
             firstSet.targetReps = 8
-            TestDataManager.shared.exerciseSets[firstSetId] = firstSet
+            LocalDataStore.shared.exerciseSets[firstSetId] = firstSet
         }
 
         // When: Workout started
@@ -208,7 +208,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
         await viewModel.logSet()
 
         // Then: Data should be persisted
-        let updatedSet = TestDataManager.shared.exerciseSets[setId]
+        let updatedSet = LocalDataStore.shared.exerciseSets[setId]
         XCTAssertEqual(updatedSet?.actualWeight, 225.0, "Actual weight should be persisted")
         XCTAssertEqual(updatedSet?.actualReps, 5, "Actual reps should be persisted")
         XCTAssertEqual(updatedSet?.completion, .completed, "Set should be marked completed")
@@ -251,7 +251,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
         await viewModel.skipExercise()
 
         // Then: Set should be marked skipped
-        let updatedSet = TestDataManager.shared.exerciseSets[setId]
+        let updatedSet = LocalDataStore.shared.exerciseSets[setId]
         XCTAssertEqual(updatedSet?.completion, .skipped, "Set should be marked skipped")
         XCTAssertNil(updatedSet?.actualReps, "Skipped set should have no actual reps")
         XCTAssertNil(updatedSet?.actualWeight, "Skipped set should have no actual weight")
@@ -282,7 +282,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
 
         // Then: Check set statuses
         // First set should be completed, remaining should be skipped
-        let sets = instance.setIds.compactMap { TestDataManager.shared.exerciseSets[$0] }
+        let sets = instance.setIds.compactMap { LocalDataStore.shared.exerciseSets[$0] }
         let completedSets = sets.filter { $0.completion == .completed }
         let skippedSets = sets.filter { $0.completion == .skipped }
 
@@ -344,7 +344,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
             return
         }
 
-        let substituteId = TestDataManager.shared.exercises.values.first {
+        let substituteId = LocalDataStore.shared.exercises.values.first {
             $0.id != originalExerciseId && $0.type == originalExercise.type
         }?.id
 
@@ -360,7 +360,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
         try await Task.sleep(nanoseconds: 300_000_000)
 
         // Then: Exercise should be changed (check the instance's exerciseId was updated)
-        let updatedInstance = TestDataManager.shared.exerciseInstances[viewModel.currentInstance?.id ?? ""]
+        let updatedInstance = LocalDataStore.shared.exerciseInstances[viewModel.currentInstance?.id ?? ""]
         XCTAssertEqual(updatedInstance?.exerciseId, newExerciseId, "Instance's exerciseId should be updated after substitution")
     }
 
@@ -373,7 +373,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
         XCTAssertGreaterThan(originalSetCount, 0, "Should have sets - got \(originalSetCount)")
 
         let originalExerciseId = viewModel.currentExercise?.id
-        let substituteId = TestDataManager.shared.exercises.keys.first {
+        let substituteId = LocalDataStore.shared.exercises.keys.first {
             $0 != originalExerciseId
         }
         guard let newExerciseId = substituteId else {
@@ -414,7 +414,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
         // Then: Workout should be complete
         XCTAssertTrue(viewModel.isWorkoutComplete, "Workout should be marked complete")
 
-        let workout = TestDataManager.shared.workouts[testWorkout.id]
+        let workout = LocalDataStore.shared.workouts[testWorkout.id]
         XCTAssertEqual(workout?.status, .completed, "Workout status should be completed")
     }
 
@@ -440,18 +440,18 @@ class FocusedExecutionViewModelTests: XCTestCase {
 
         // Then: Check that exercise 1 instances are completed, rest are skipped
         // This is verified by checking the instance completion status via DeltaStore
-        let workout = TestDataManager.shared.workouts[testWorkout.id]!
+        let workout = LocalDataStore.shared.workouts[testWorkout.id]!
 
         // Count completed vs skipped instances
         var completedCount = 0
         var skippedCount = 0
 
         for exerciseId in workout.exerciseIds {
-            if let instance = TestDataManager.shared.exerciseInstances.values.first(where: {
+            if let instance = LocalDataStore.shared.exerciseInstances.values.first(where: {
                 $0.workoutId == workout.id && $0.exerciseId == exerciseId
             }) {
                 // Check sets for this instance
-                let sets = instance.setIds.compactMap { TestDataManager.shared.exerciseSets[$0] }
+                let sets = instance.setIds.compactMap { LocalDataStore.shared.exerciseSets[$0] }
                 let hasCompletedSet = sets.contains { $0.completion == .completed }
 
                 if hasCompletedSet {
@@ -489,7 +489,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
         try await Task.sleep(nanoseconds: 200_000_000)
 
         // Then: Workout should be marked as SKIPPED (not completed)
-        let workout = TestDataManager.shared.workouts[testWorkout.id]
+        let workout = LocalDataStore.shared.workouts[testWorkout.id]
         XCTAssertEqual(workout?.status, .skipped,
             "v165: Workout with all exercises skipped should be .skipped, not .completed")
 
@@ -515,7 +515,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
         try await Task.sleep(nanoseconds: 200_000_000)
 
         // Then: Workout should be marked as COMPLETED (had at least one completed set)
-        let workout = TestDataManager.shared.workouts[testWorkout.id]
+        let workout = LocalDataStore.shared.workouts[testWorkout.id]
         XCTAssertEqual(workout?.status, .completed,
             "Workout with at least one completed set should be .completed")
 
@@ -534,7 +534,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
         try await Task.sleep(nanoseconds: 200_000_000)
 
         // Then: Workout should be marked as SKIPPED
-        let workout = TestDataManager.shared.workouts[testWorkout.id]
+        let workout = LocalDataStore.shared.workouts[testWorkout.id]
         XCTAssertEqual(workout?.status, .skipped,
             "v165: Ending workout with no completed sets should mark as .skipped")
     }
@@ -561,8 +561,8 @@ class FocusedExecutionViewModelTests: XCTestCase {
             try await Task.sleep(nanoseconds: 100_000_000)
         }
 
-        // Verify 2 sets are completed (check fresh data from TestDataManager)
-        let setsBefore = instance.setIds.compactMap { TestDataManager.shared.exerciseSets[$0] }
+        // Verify 2 sets are completed (check fresh data from LocalDataStore)
+        let setsBefore = instance.setIds.compactMap { LocalDataStore.shared.exerciseSets[$0] }
         let completedBefore = setsBefore.filter { $0.completion == .completed }.count
         XCTAssertEqual(completedBefore, 2, "Should have 2 completed sets before reset")
 
@@ -914,7 +914,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
         let endDate = Calendar.current.date(byAdding: .day, value: 28, to: Date())!
 
         var plan = createMinimalPlan(id: planId, memberId: userId, startDate: startDate, endDate: endDate)
-        TestDataManager.shared.plans[plan.id] = plan
+        LocalDataStore.shared.plans[plan.id] = plan
 
         let program = Program(
             id: "test_program_\(UUID().uuidString.prefix(8))",
@@ -929,10 +929,10 @@ class FocusedExecutionViewModelTests: XCTestCase {
             progressionType: .linear,
             status: .active
         )
-        TestDataManager.shared.programs[program.id] = program
+        LocalDataStore.shared.programs[program.id] = program
 
         // Get some exercise IDs (use real exercises from seed data)
-        let availableExercises = Array(TestDataManager.shared.exercises.values)
+        let availableExercises = Array(LocalDataStore.shared.exercises.values)
             .filter { $0.type == .compound || $0.type == .isolation }
             .prefix(exerciseCount)
 
@@ -945,7 +945,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
         let exerciseIds = availableExercises.map { $0.id }
 
         // Get protocol ID
-        let protocolId = TestDataManager.shared.protocolConfigs.values
+        let protocolId = LocalDataStore.shared.protocolConfigs.values
             .first { $0.reps.count >= setsPerExercise }?.id ?? "strength_3x5_moderate"
 
         // Build protocolVariantIds as dictionary [position: protocolId]
@@ -972,7 +972,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
             protocolCustomizations: nil
         )
 
-        TestDataManager.shared.workouts[workout.id] = workout
+        LocalDataStore.shared.workouts[workout.id] = workout
 
         // Create exercise instances and sets
         for (index, exerciseId) in exerciseIds.enumerated() {
@@ -990,7 +990,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
                     targetReps: 10,
                     completion: .scheduled
                 )
-                TestDataManager.shared.exerciseSets[setId] = exerciseSet
+                LocalDataStore.shared.exerciseSets[setId] = exerciseSet
                 setIds.append(setId)
             }
 
@@ -1003,7 +1003,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
                 setIds: setIds,
                 status: .scheduled
             )
-            TestDataManager.shared.exerciseInstances[instanceId] = instance
+            LocalDataStore.shared.exerciseInstances[instanceId] = instance
         }
 
         return workout
@@ -1017,7 +1017,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
         let endDate = Calendar.current.date(byAdding: .day, value: 28, to: Date())!
 
         var plan = createMinimalPlan(id: planId, memberId: userId, startDate: startDate, endDate: endDate)
-        TestDataManager.shared.plans[plan.id] = plan
+        LocalDataStore.shared.plans[plan.id] = plan
 
         let program = Program(
             id: "test_cardio_program_\(UUID().uuidString.prefix(8))",
@@ -1032,10 +1032,10 @@ class FocusedExecutionViewModelTests: XCTestCase {
             progressionType: .linear,
             status: .active
         )
-        TestDataManager.shared.programs[program.id] = program
+        LocalDataStore.shared.programs[program.id] = program
 
         // Find or create a cardio exercise
-        var cardioExerciseId = TestDataManager.shared.exercises.values
+        var cardioExerciseId = LocalDataStore.shared.exercises.values
             .first { $0.type == .cardio }?.id
 
         if cardioExerciseId == nil {
@@ -1051,12 +1051,12 @@ class FocusedExecutionViewModelTests: XCTestCase {
                 instructions: "Run at moderate pace",
                 experienceLevel: .beginner
             )
-            TestDataManager.shared.exercises[cardioExercise.id] = cardioExercise
+            LocalDataStore.shared.exercises[cardioExercise.id] = cardioExercise
             cardioExerciseId = cardioExercise.id
         }
 
         // Find a cardio protocol
-        let cardioProtocolId = TestDataManager.shared.protocolConfigs.values
+        let cardioProtocolId = LocalDataStore.shared.protocolConfigs.values
             .first { $0.duration != nil }?.id ?? "cardio_30min_steady"
 
         // Create workout
@@ -1077,7 +1077,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
             protocolCustomizations: nil
         )
 
-        TestDataManager.shared.workouts[workout.id] = workout
+        LocalDataStore.shared.workouts[workout.id] = workout
 
         // Create exercise instance and sets for cardio
         let instanceId = "\(workoutId)_ex0"
@@ -1090,7 +1090,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
             targetDuration: 1800, // 30 minutes
             completion: .scheduled
         )
-        TestDataManager.shared.exerciseSets[setId] = cardioSet
+        LocalDataStore.shared.exerciseSets[setId] = cardioSet
 
         let instance = ExerciseInstance(
             id: instanceId,
@@ -1100,7 +1100,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
             setIds: [setId],
             status: .scheduled
         )
-        TestDataManager.shared.exerciseInstances[instanceId] = instance
+        LocalDataStore.shared.exerciseInstances[instanceId] = instance
 
         return workout
     }
@@ -1113,7 +1113,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
         let endDate = Calendar.current.date(byAdding: .day, value: 28, to: Date())!
 
         var plan = createMinimalPlan(id: planId, memberId: userId, startDate: startDate, endDate: endDate)
-        TestDataManager.shared.plans[plan.id] = plan
+        LocalDataStore.shared.plans[plan.id] = plan
 
         let program = Program(
             id: "test_superset_program_\(UUID().uuidString.prefix(8))",
@@ -1128,10 +1128,10 @@ class FocusedExecutionViewModelTests: XCTestCase {
             progressionType: .linear,
             status: .active
         )
-        TestDataManager.shared.programs[program.id] = program
+        LocalDataStore.shared.programs[program.id] = program
 
         // Get 4 exercises
-        let availableExercises = Array(TestDataManager.shared.exercises.values)
+        let availableExercises = Array(LocalDataStore.shared.exercises.values)
             .filter { $0.type == .compound || $0.type == .isolation }
             .prefix(4)
 
@@ -1144,7 +1144,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
         let exerciseIds = availableExercises.map { $0.id }
 
         // Get protocol ID
-        let protocolId = TestDataManager.shared.protocolConfigs.values
+        let protocolId = LocalDataStore.shared.protocolConfigs.values
             .first { $0.reps.count >= 3 }?.id ?? "strength_3x5_moderate"
 
         // Build protocolVariantIds
@@ -1179,7 +1179,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
             protocolCustomizations: nil
         )
 
-        TestDataManager.shared.workouts[workout.id] = workout
+        LocalDataStore.shared.workouts[workout.id] = workout
 
         // Create exercise instances and sets
         for (index, exerciseId) in exerciseIds.enumerated() {
@@ -1197,7 +1197,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
                     targetReps: 10,
                     completion: .scheduled
                 )
-                TestDataManager.shared.exerciseSets[setId] = exerciseSet
+                LocalDataStore.shared.exerciseSets[setId] = exerciseSet
                 setIds.append(setId)
             }
 
@@ -1213,7 +1213,7 @@ class FocusedExecutionViewModelTests: XCTestCase {
                 status: .scheduled,
                 supersetLabel: supersetLabel
             )
-            TestDataManager.shared.exerciseInstances[instanceId] = instance
+            LocalDataStore.shared.exerciseInstances[instanceId] = instance
         }
 
         return workout

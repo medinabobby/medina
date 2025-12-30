@@ -52,9 +52,9 @@ enum EntityListFormatters {
                 parts.append("\(exerciseCount) exercise\(exerciseCount == 1 ? "" : "s")")
 
                 // Calculate duration from instances if available
-                let instances = TestDataManager.shared.exerciseInstances.values.filter { $0.workoutId == workout.id }
+                let instances = LocalDataStore.shared.exerciseInstances.values.filter { $0.workoutId == workout.id }
                 let protocolConfigs = instances.compactMap { instance in
-                    TestDataManager.shared.protocolConfigs[instance.protocolVariantId]
+                    LocalDataStore.shared.protocolConfigs[instance.protocolVariantId]
                 }
                 if !protocolConfigs.isEmpty {
                     // v132: Include transition time (90s) to match DurationAwareWorkoutBuilder
@@ -77,7 +77,7 @@ enum EntityListFormatters {
         // v158: Check for active session - if this workout has an active session, show blue
         let statusColor: Color = {
             // Check if there's an active session for this workout
-            let hasActiveSession = TestDataManager.shared.sessions.values.contains { session in
+            let hasActiveSession = LocalDataStore.shared.sessions.values.contains { session in
                 session.workoutId == workout.id && session.status == .active
             }
 
@@ -296,7 +296,7 @@ enum EntityListFormatters {
 
             // Trainer assignment for members
             if user.hasRole(.member), let trainerId = user.memberProfile?.trainerId,
-               let trainer = TestDataManager.shared.users[trainerId] {
+               let trainer = LocalDataStore.shared.users[trainerId] {
                 parts.append("w/ \(trainer.name)")
             }
 
@@ -357,7 +357,7 @@ enum EntityListFormatters {
         let metadata: String? = {
             guard let lastMessage = thread.messages.last else { return nil }
             if lastMessage.senderId != userId {
-                if let sender = TestDataManager.shared.users[lastMessage.senderId] {
+                if let sender = LocalDataStore.shared.users[lastMessage.senderId] {
                     return "From \(sender.name.components(separatedBy: " ").first ?? sender.name)"
                 }
             }

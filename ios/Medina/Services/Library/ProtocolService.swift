@@ -19,7 +19,7 @@ enum ProtocolService {
     ///   - protocolVariantId: Protocol variant ID from ExerciseInstance
     /// - Returns: Intensity adjustment (e.g., -0.20 for 80% of 1RM), or nil if not found
     static func intensityAdjustment(forSet setNumber: Int, protocolVariantId: String) -> Double? {
-        guard let protocolConfig = TestDataManager.shared.protocolConfigs[protocolVariantId] else {
+        guard let protocolConfig = LocalDataStore.shared.protocolConfigs[protocolVariantId] else {
             Logger.log(.debug, component: "ProtocolService",
                       message: "Protocol config not found: \(protocolVariantId)")
             return nil
@@ -42,7 +42,7 @@ enum ProtocolService {
     ///   - protocolVariantId: Protocol variant ID from ExerciseInstance
     /// - Returns: Target reps for this set, or nil if not found
     static func targetReps(forSet setNumber: Int, protocolVariantId: String) -> Int? {
-        guard let protocolConfig = TestDataManager.shared.protocolConfigs[protocolVariantId] else {
+        guard let protocolConfig = LocalDataStore.shared.protocolConfigs[protocolVariantId] else {
             return nil
         }
 
@@ -60,7 +60,7 @@ enum ProtocolService {
     ///   - protocolVariantId: Protocol variant ID from ExerciseInstance
     /// - Returns: Target RPE for this set, or nil if not found
     static func targetRPE(forSet setNumber: Int, protocolVariantId: String) -> Double? {
-        guard let protocolConfig = TestDataManager.shared.protocolConfigs[protocolVariantId] else {
+        guard let protocolConfig = LocalDataStore.shared.protocolConfigs[protocolVariantId] else {
             return nil
         }
 
@@ -82,7 +82,7 @@ enum ProtocolService {
     ///   - protocolVariantId: Protocol variant ID from ExerciseInstance
     /// - Returns: Rest time in seconds for this set, or nil if not found
     static func restTime(forSet setNumber: Int, protocolVariantId: String) -> Int? {
-        guard let protocolConfig = TestDataManager.shared.protocolConfigs[protocolVariantId] else {
+        guard let protocolConfig = LocalDataStore.shared.protocolConfigs[protocolVariantId] else {
             return nil
         }
 
@@ -102,7 +102,7 @@ enum ProtocolService {
     ///   - protocolVariantId: Protocol variant ID from ExerciseInstance
     /// - Returns: Formatted string (e.g., "RPE 9.0  •  Tempo: 20X0  •  15s between sets")
     static func buildSubtitle(setNumber: Int, protocolVariantId: String) -> String? {
-        guard let protocolConfig = TestDataManager.shared.protocolConfigs[protocolVariantId] else {
+        guard let protocolConfig = LocalDataStore.shared.protocolConfigs[protocolVariantId] else {
             return nil
         }
 
@@ -131,7 +131,7 @@ enum ProtocolService {
     /// - Parameter instance: Exercise instance with protocol variant ID
     /// - Returns: Formatted string for instance subtitle
     static func buildInstanceSubtitle(for instance: ExerciseInstance) -> String {
-        guard let config = TestDataManager.shared.protocolConfigs[instance.protocolVariantId] else {
+        guard let config = LocalDataStore.shared.protocolConfigs[instance.protocolVariantId] else {
             // Fallback to old format if config not found
             let setCount = instance.setIds.count
             let setText = setCount == 1 ? "set" : "sets"

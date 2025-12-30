@@ -21,7 +21,7 @@ import Foundation
 /// - Checks if exercises need selection (empty or stale)
 /// - Uses ExerciseSelectionService for actual selection logic
 /// - Updates workout with selected exercises and timestamp
-/// - Persists changes to TestDataManager and disk
+/// - Persists changes to LocalDataStore and disk
 ///
 /// **Caching Strategy:**
 /// - If `exercisesSelectedAt` is today → use cached exercises
@@ -131,7 +131,7 @@ enum RuntimeExerciseSelector {
         userId: String
     ) -> Workout {
         // Use ExerciseSelectionService for selection logic
-        let library = TestDataManager.shared.libraries[userId]
+        let library = LocalDataStore.shared.libraries[userId]
         let exerciseIds = selectExercisesForWorkout(workout: workout, plan: plan, library: library)
 
         // Update workout with selected exercises
@@ -140,10 +140,10 @@ enum RuntimeExerciseSelector {
         updatedWorkout.exercisesSelectedAt = Date()
 
         // v78.3: Get program for protocol assignment
-        guard let program = TestDataManager.shared.programs[workout.programId] else {
+        guard let program = LocalDataStore.shared.programs[workout.programId] else {
             Logger.log(.warning, component: "RuntimeExerciseSelector",
                       message: "Cannot assign protocols - missing program for workout \(workout.id)")
-            TestDataManager.shared.workouts[workout.id] = updatedWorkout
+            LocalDataStore.shared.workouts[workout.id] = updatedWorkout
             persistWorkout(updatedWorkout, userId: userId)
             return updatedWorkout
         }
@@ -167,8 +167,8 @@ enum RuntimeExerciseSelector {
             weeklyIntensities: workoutIntensities
         )
 
-        // Persist to TestDataManager
-        TestDataManager.shared.workouts[workout.id] = updatedWorkout
+        // Persist to LocalDataStore
+        LocalDataStore.shared.workouts[workout.id] = updatedWorkout
 
         // v78.3: Persist workout, instances, and sets to disk
         persistWorkoutWithInstances(updatedWorkout, userId: userId)
@@ -196,7 +196,7 @@ enum RuntimeExerciseSelector {
         }
 
         // Build selection criteria (same logic as ExerciseSelectionService)
-        let user = TestDataManager.shared.users[plan.memberId]
+        let user = LocalDataStore.shared.users[plan.memberId]
         let memberProfile = user?.memberProfile
         let splitDay = workout.splitDay ?? .fullBody
 
@@ -250,7 +250,7 @@ enum RuntimeExerciseSelector {
             // ATTEMPT 2: Build expanded criteria with ALL exercises (no experience filter)
             // This matches ARCHITECTURE.md: "expand to all experience-appropriate exercises"
             // We go even further - ALL exercises regardless of experience level
-            let allExerciseIds = Set(TestDataManager.shared.exercises.keys)
+            let allExerciseIds = Set(LocalDataStore.shared.exercises.keys)
                 .subtracting(criteria.excludedExerciseIds)
 
             let expandedCriteria = LibrarySelectionCriteria(
@@ -343,7 +343,7 @@ enum RuntimeExerciseSelector {
 
     private static func exercisesTargetingMuscles(_ muscles: Set<MuscleGroup>) -> Set<String> {
         return Set(
-            TestDataManager.shared.exercises.values
+            LocalDataStore.shared.exercises.values
                 .filter { exercise in
                     !Set(exercise.muscleGroups).intersection(muscles).isEmpty
                 }
@@ -368,9 +368,9 @@ enum RuntimeExerciseSelector {
         // v206: Sync full workout to Firestore (fire-and-forget)
         Task {
             do {
-                let instances = TestDataManager.shared.exerciseInstances.values.filter { $0.workoutId == workout.id }
+                let instances = LocalDataStore.shared.exerciseInstances.values.filter { $0.workoutId == workout.id }
                 let instanceIds = Set(instances.map { $0.id })
-                let sets = TestDataManager.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
+                let sets = LocalDataStore.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
 
                 try await FirestoreWorkoutRepository.shared.saveFullWorkout(
                     workout: workout,

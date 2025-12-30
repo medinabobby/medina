@@ -29,27 +29,27 @@ struct ExerciseDetailView: View {
 
     init(exerciseId: String, userId: String? = nil) {
         self.exerciseId = exerciseId
-        self.userId = userId ?? TestDataManager.shared.currentUserId ?? "bobby"
+        self.userId = userId ?? LocalDataStore.shared.currentUserId ?? "bobby"
     }
 
     // v72.1: Get user's ExerciseTarget for this exercise
     private var target: ExerciseTarget? {
         let targetId = "\(userId)-\(exerciseId)"
-        return TestDataManager.shared.targets[targetId]
+        return LocalDataStore.shared.targets[targetId]
     }
 
     /// v79.4: Check if exercise has equipment variants for swapping
     private var hasEquipmentVariants: Bool {
-        guard let exercise = TestDataManager.shared.exercises[exerciseId] else { return false }
+        guard let exercise = LocalDataStore.shared.exercises[exerciseId] else { return false }
         return ExerciseDataStore.alternateEquipmentVariants(for: exercise).count > 0
     }
 
     /// v91.1: Stats section label - "YOUR STATS" when viewing own data, "BOBBY'S STATS" when viewing member
     private var statsLabelText: String {
-        if userId == TestDataManager.shared.currentUserId {
+        if userId == LocalDataStore.shared.currentUserId {
             return "YOUR STATS"
         }
-        guard let user = TestDataManager.shared.users[userId] else {
+        guard let user = LocalDataStore.shared.users[userId] else {
             return "MEMBER STATS"
         }
         return "\(user.firstName.uppercased())'S STATS"
@@ -57,7 +57,7 @@ struct ExerciseDetailView: View {
 
     var body: some View {
         Group {
-            if let exercise = TestDataManager.shared.exercises[exerciseId] {
+            if let exercise = LocalDataStore.shared.exercises[exerciseId] {
                 // Scrollable content
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
@@ -100,7 +100,7 @@ struct ExerciseDetailView: View {
                 )
             }
         }
-        .navigationTitle(TestDataManager.shared.exercises[exerciseId]?.name ?? "Exercise")
+        .navigationTitle(LocalDataStore.shared.exercises[exerciseId]?.name ?? "Exercise")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -112,7 +112,7 @@ struct ExerciseDetailView: View {
         }
         .sheet(isPresented: $showOneRMEditSheet) {
             // v79.3: 1RM edit sheet
-            if let exercise = TestDataManager.shared.exercises[exerciseId] {
+            if let exercise = LocalDataStore.shared.exercises[exerciseId] {
                 OneRMEditSheet(
                     exercise: exercise,
                     userId: userId,
@@ -129,7 +129,7 @@ struct ExerciseDetailView: View {
         }
         .sheet(isPresented: $showEquipmentVariants) {
             // v79.4: Equipment variants sheet for library navigation
-            if let exercise = TestDataManager.shared.exercises[exerciseId] {
+            if let exercise = LocalDataStore.shared.exercises[exerciseId] {
                 LibraryEquipmentSheet(
                     currentExercise: exercise,
                     onSelect: { variantId in

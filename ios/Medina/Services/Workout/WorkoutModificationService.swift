@@ -121,16 +121,16 @@ enum WorkoutModificationService {
     ) async throws -> (newWorkoutId: String, plan: Plan) {
 
         // 1. Find the workout
-        guard let workout = TestDataManager.shared.workouts[modification.workoutId] else {
+        guard let workout = LocalDataStore.shared.workouts[modification.workoutId] else {
             throw WorkoutModificationError.workoutNotFound(modification.workoutId)
         }
 
         // 2. Find the program and plan
-        guard let program = TestDataManager.shared.programs[workout.programId] else {
+        guard let program = LocalDataStore.shared.programs[workout.programId] else {
             throw WorkoutModificationError.planNotFound(modification.workoutId)
         }
 
-        guard let plan = TestDataManager.shared.plans[program.planId] else {
+        guard let plan = LocalDataStore.shared.plans[program.planId] else {
             throw WorkoutModificationError.planNotFound(modification.workoutId)
         }
 
@@ -193,8 +193,8 @@ enum WorkoutModificationService {
         try deleteWorkout(workoutId: modification.workoutId, userId: userId)
 
         // 6. Also delete the plan and program since single workouts have 1:1:1 relationship
-        TestDataManager.shared.programs.removeValue(forKey: program.id)
-        TestDataManager.shared.plans.removeValue(forKey: plan.id)
+        LocalDataStore.shared.programs.removeValue(forKey: program.id)
+        LocalDataStore.shared.plans.removeValue(forKey: plan.id)
 
         // 7. Persist deletions
         try persistAfterDeletion(userId: userId)
@@ -319,18 +319,18 @@ enum WorkoutModificationService {
     /// - Throws: WorkoutModificationError if deletion fails
     static func deleteWorkout(workoutId: String, userId: String) throws {
 
-        guard let workout = TestDataManager.shared.workouts[workoutId] else {
+        guard let workout = LocalDataStore.shared.workouts[workoutId] else {
             throw WorkoutModificationError.workoutNotFound(workoutId)
         }
 
         // Find all instances for this workout
-        let instances = TestDataManager.shared.exerciseInstances.values.filter {
+        let instances = LocalDataStore.shared.exerciseInstances.values.filter {
             $0.workoutId == workoutId
         }
         let instanceIds = Set(instances.map { $0.id })
 
         // Find all sets for these instances
-        let sets = TestDataManager.shared.exerciseSets.values.filter {
+        let sets = LocalDataStore.shared.exerciseSets.values.filter {
             instanceIds.contains($0.exerciseInstanceId)
         }
 
@@ -339,12 +339,12 @@ enum WorkoutModificationService {
 
         // Delete in reverse order (sets → instances → workout)
         for set in sets {
-            TestDataManager.shared.exerciseSets.removeValue(forKey: set.id)
+            LocalDataStore.shared.exerciseSets.removeValue(forKey: set.id)
         }
         for instance in instances {
-            TestDataManager.shared.exerciseInstances.removeValue(forKey: instance.id)
+            LocalDataStore.shared.exerciseInstances.removeValue(forKey: instance.id)
         }
-        TestDataManager.shared.workouts.removeValue(forKey: workoutId)
+        LocalDataStore.shared.workouts.removeValue(forKey: workoutId)
 
         Logger.log(.info, component: "WorkoutModificationService",
                   message: "✅ Deleted workout '\(workout.name)' and \(instances.count) instances, \(sets.count) sets")

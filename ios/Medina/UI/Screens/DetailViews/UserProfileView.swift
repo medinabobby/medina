@@ -43,7 +43,7 @@ struct UserProfileView: View {
     }
 
     private var user: UnifiedUser? {
-        TestDataManager.shared.users[userId]
+        LocalDataStore.shared.users[userId]
     }
 
     private var coordinator: NavigationCoordinator {

@@ -57,21 +57,21 @@ enum PlanDeletionService {
         }
 
         // 2. Find all programs for this plan
-        let programs = TestDataManager.shared.programs.values.filter { $0.planId == plan.id }
+        let programs = LocalDataStore.shared.programs.values.filter { $0.planId == plan.id }
         let programIds = Set(programs.map { $0.id })
 
         // 3. Find all workouts for these programs
-        let workouts = TestDataManager.shared.workouts.values.filter { programIds.contains($0.programId) }
+        let workouts = LocalDataStore.shared.workouts.values.filter { programIds.contains($0.programId) }
         let workoutIds = Set(workouts.map { $0.id })
 
         // 4. Find all instances for these workouts
-        let instances = TestDataManager.shared.exerciseInstances.values.filter {
+        let instances = LocalDataStore.shared.exerciseInstances.values.filter {
             workoutIds.contains($0.workoutId)
         }
         let instanceIds = Set(instances.map { $0.id })
 
         // 5. Find all sets for these instances
-        let sets = TestDataManager.shared.exerciseSets.values.filter {
+        let sets = LocalDataStore.shared.exerciseSets.values.filter {
             instanceIds.contains($0.exerciseInstanceId)
         }
 
@@ -81,18 +81,18 @@ enum PlanDeletionService {
 
         // 6. Delete in reverse order (sets → instances → workouts → programs → plan)
         for set in sets {
-            TestDataManager.shared.exerciseSets.removeValue(forKey: set.id)
+            LocalDataStore.shared.exerciseSets.removeValue(forKey: set.id)
         }
         for instance in instances {
-            TestDataManager.shared.exerciseInstances.removeValue(forKey: instance.id)
+            LocalDataStore.shared.exerciseInstances.removeValue(forKey: instance.id)
         }
         for workout in workouts {
-            TestDataManager.shared.workouts.removeValue(forKey: workout.id)
+            LocalDataStore.shared.workouts.removeValue(forKey: workout.id)
         }
         for program in programs {
-            TestDataManager.shared.programs.removeValue(forKey: program.id)
+            LocalDataStore.shared.programs.removeValue(forKey: program.id)
         }
-        TestDataManager.shared.plans.removeValue(forKey: plan.id)
+        LocalDataStore.shared.plans.removeValue(forKey: plan.id)
 
         // v205.1: Sync deletions to Firestore (await completion, parallel for speed)
         do {
@@ -124,13 +124,13 @@ enum PlanDeletionService {
 
     /// Get deletion summary (for confirmation dialog)
     static func deletionSummary(for plan: Plan) -> DeletionSummary {
-        let programs = TestDataManager.shared.programs.values.filter { $0.planId == plan.id }
+        let programs = LocalDataStore.shared.programs.values.filter { $0.planId == plan.id }
         let programIds = Set(programs.map { $0.id })
-        let workouts = TestDataManager.shared.workouts.values.filter { programIds.contains($0.programId) }
+        let workouts = LocalDataStore.shared.workouts.values.filter { programIds.contains($0.programId) }
         let workoutIds = Set(workouts.map { $0.id })
-        let instances = TestDataManager.shared.exerciseInstances.values.filter { workoutIds.contains($0.workoutId) }
+        let instances = LocalDataStore.shared.exerciseInstances.values.filter { workoutIds.contains($0.workoutId) }
         let instanceIds = Set(instances.map { $0.id })
-        let sets = TestDataManager.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
+        let sets = LocalDataStore.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
 
         return DeletionSummary(
             planName: plan.name,

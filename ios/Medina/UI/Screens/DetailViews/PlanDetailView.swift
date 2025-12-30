@@ -30,7 +30,7 @@ struct PlanDetailView: View {
 
     var body: some View {
         Group {
-            if let plan = TestDataManager.shared.plans[planId] {
+            if let plan = LocalDataStore.shared.plans[planId] {
                 VStack(spacing: 0) {
                     // Breadcrumb navigation
                     BreadcrumbBar(items: [
@@ -89,7 +89,7 @@ struct PlanDetailView: View {
                             Divider().background(Color("BorderColor"))
 
                             // Count programs for header
-                            let programCount = TestDataManager.shared.programs.values
+                            let programCount = LocalDataStore.shared.programs.values
                                 .filter { $0.planId == planId }
                                 .count
 
@@ -113,10 +113,10 @@ struct PlanDetailView: View {
                 )
             }
         }
-        .navigationTitle(TestDataManager.shared.plans[planId]?.name ?? "")
+        .navigationTitle(LocalDataStore.shared.plans[planId]?.name ?? "")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if let plan = TestDataManager.shared.plans[planId] {
+            if let plan = LocalDataStore.shared.plans[planId] {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     planActionsMenu(for: plan)
                 }
@@ -147,7 +147,7 @@ struct PlanDetailView: View {
             }
         } message: {
             if let overlapPlan = activationOverlapPlan,
-               let plan = TestDataManager.shared.plans[planId] {
+               let plan = LocalDataStore.shared.plans[planId] {
                 Text("\"\(plan.name)\" will replace \"\(overlapPlan.name)\". \(overlapPlan.name) will be abandoned and \(activationSkippedCount) remaining \(activationSkippedCount == 1 ? "workout" : "workouts") will be marked as skipped.")
             }
         }
@@ -203,7 +203,7 @@ struct PlanDetailView: View {
         // These values still exist in Plan model for internal use
 
         // Intensity (calculated from child programs)
-        let programs = TestDataManager.shared.programs.values
+        let programs = LocalDataStore.shared.programs.values
             .filter { $0.planId == planId }
         if !programs.isEmpty {
             if let minIntensity = programs.map({ $0.startingIntensity }).min(),
@@ -234,7 +234,7 @@ struct PlanDetailView: View {
 
     @ViewBuilder
     private func programsSection(for plan: Plan) -> some View {
-        let programs = TestDataManager.shared.programs.values
+        let programs = LocalDataStore.shared.programs.values
             .filter { $0.planId == planId }
             .sorted { $0.startDate < $1.startDate }
 
@@ -251,7 +251,7 @@ struct PlanDetailView: View {
             let dateRange = "\(DateFormatters.shortMonthDayFormatter.string(from: program.startDate)) – \(DateFormatters.shortMonthDayFormatter.string(from: program.endDate))"
 
             // Count workouts in this program
-            let workoutCount = TestDataManager.shared.workouts.values
+            let workoutCount = LocalDataStore.shared.workouts.values
                 .filter { $0.programId == program.id }
                 .count
 
@@ -276,12 +276,12 @@ struct PlanDetailView: View {
     @ViewBuilder
     private func nextWorkoutChip(for plan: Plan) -> some View {
         // Get all workouts from all programs in this plan
-        let programs = TestDataManager.shared.programs.values
+        let programs = LocalDataStore.shared.programs.values
             .filter { $0.planId == planId }
 
         let programIds = Set(programs.map { $0.id })
 
-        let allWorkouts = TestDataManager.shared.workouts.values
+        let allWorkouts = LocalDataStore.shared.workouts.values
             .filter { programIds.contains($0.programId) }
             .sorted { ($0.scheduledDate ?? Date.distantPast) < ($1.scheduledDate ?? Date.distantPast) }
 
@@ -290,7 +290,7 @@ struct PlanDetailView: View {
             $0.status == .scheduled || $0.status == .inProgress
         }) {
             // v160: Check for active session to show "Continue" vs "Next"
-            let hasActiveSession = TestDataManager.shared.sessions.values.contains { session in
+            let hasActiveSession = LocalDataStore.shared.sessions.values.contains { session in
                 session.workoutId == nextWorkout.id && session.status == .active
             }
 
@@ -404,7 +404,7 @@ struct PlanDetailView: View {
 
     /// Perform plan activation
     private func performPlanActivation() async {
-        guard let plan = TestDataManager.shared.plans[planId] else {
+        guard let plan = LocalDataStore.shared.plans[planId] else {
             errorMessage = "Unable to find plan."
             showError = true
             return

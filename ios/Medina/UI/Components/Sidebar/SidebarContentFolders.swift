@@ -32,7 +32,7 @@ struct ExercisesFolder: View {
                 SidebarEmptyState(
                     "No exercises in library",
                     browseAction: {
-                        let allExercises = Array(TestDataManager.shared.exercises.values)
+                        let allExercises = Array(LocalDataStore.shared.exercises.values)
                             .sorted { $0.name < $1.name }
                         onShowAll("Browse Exercises", .exercises(allExercises))
                     },
@@ -57,7 +57,7 @@ struct ExercisesFolder: View {
                         visibleCount: sidebarItemLimit
                     ) {
                         let allExercises = library.exercises.compactMap { exerciseId in
-                            TestDataManager.shared.exercises[exerciseId]
+                            LocalDataStore.shared.exercises[exerciseId]
                         }
                         onShowAll("All Exercises", .exercises(allExercises))
                     }
@@ -107,7 +107,7 @@ struct ProtocolsFolder: View {
                 SidebarEmptyState(
                     "No protocols in library",
                     browseAction: {
-                        let allProtocols = Array(TestDataManager.shared.protocolConfigs.values)
+                        let allProtocols = Array(LocalDataStore.shared.protocolConfigs.values)
                         onShowAll("Browse Protocols", .protocols(allProtocols))
                     },
                     browseLabel: "Browse Protocols"
@@ -127,7 +127,7 @@ struct ProtocolsFolder: View {
                         visibleCount: sidebarItemLimit
                     ) {
                         let libraryProtocols = libraryProtocolIds.compactMap { id in
-                            TestDataManager.shared.protocolConfigs[id]
+                            LocalDataStore.shared.protocolConfigs[id]
                         }
                         onShowAll("My Protocols", .protocols(libraryProtocols))
                     }
@@ -152,7 +152,7 @@ struct MessagesFolder: View {
 
     /// v189: Threads filtered by selected member (if any)
     private var threads: [MessageThread] {
-        let allThreads = TestDataManager.shared.threads(for: userId)
+        let allThreads = LocalDataStore.shared.threads(for: userId)
 
         // If filtering by member, only show threads that include that member
         guard let memberId = filteredMemberId else {

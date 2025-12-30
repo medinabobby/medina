@@ -117,7 +117,7 @@ enum PlanActivationService {
 
         // 6. Persist
         // Update in-memory store
-        TestDataManager.shared.plans[updatedPlan.id] = updatedPlan
+        LocalDataStore.shared.plans[updatedPlan.id] = updatedPlan
 
         // v206: Removed legacy disk persistence - Firestore is source of truth
         // v204: Sync status to Firestore
@@ -178,7 +178,7 @@ enum PlanActivationService {
         updatedPlan.status = .active
 
         // 5. Persist plan activation
-        TestDataManager.shared.plans[updatedPlan.id] = updatedPlan
+        LocalDataStore.shared.plans[updatedPlan.id] = updatedPlan
 
         // v206: Removed legacy disk persistence - Firestore is source of truth
         // v204: Sync status to Firestore
@@ -217,9 +217,9 @@ enum PlanActivationService {
     /// Count remaining scheduled workouts for a plan (for cascade info display)
     static func countRemainingWorkouts(for plan: Plan) -> Int {
         let now = Date()
-        let programs = TestDataManager.shared.programs.values.filter { $0.planId == plan.id }
+        let programs = LocalDataStore.shared.programs.values.filter { $0.planId == plan.id }
         let programIds = Set(programs.map { $0.id })
-        let workouts = TestDataManager.shared.workouts.values.filter { programIds.contains($0.programId) }
+        let workouts = LocalDataStore.shared.workouts.values.filter { programIds.contains($0.programId) }
 
         return workouts.filter { workout in
             workout.status == .scheduled &&
@@ -248,7 +248,7 @@ enum PlanActivationService {
 
         // Persist
         // Update in-memory store
-        TestDataManager.shared.plans[updatedPlan.id] = updatedPlan
+        LocalDataStore.shared.plans[updatedPlan.id] = updatedPlan
 
         // v206: Sync to Firestore (fire-and-forget)
         let planToSync = updatedPlan
@@ -287,14 +287,14 @@ enum PlanActivationService {
         }
 
         // Validate plan has programs
-        let programs = TestDataManager.shared.programs.values.filter { $0.planId == plan.id }
+        let programs = LocalDataStore.shared.programs.values.filter { $0.planId == plan.id }
         guard !programs.isEmpty else {
             throw PlanActivationError.invalidTransition("Cannot activate plan '\(plan.name)' because it has no programs. Plans must have at least one program.")
         }
 
         // Validate programs have workouts
         let programIds = programs.map { $0.id }
-        let workouts = TestDataManager.shared.workouts.values.filter { programIds.contains($0.programId) }
+        let workouts = LocalDataStore.shared.workouts.values.filter { programIds.contains($0.programId) }
         guard !workouts.isEmpty else {
             throw PlanActivationError.invalidTransition("Cannot activate plan '\(plan.name)' because its programs have no workouts. Create workouts first.")
         }
@@ -345,9 +345,9 @@ enum PlanActivationService {
     @MainActor
     private static func autoAddExercisesToLibrary(for plan: Plan, userId: String) -> Int {
         // 1. Get all workouts from this plan's programs
-        let programs = TestDataManager.shared.programs.values.filter { $0.planId == plan.id }
+        let programs = LocalDataStore.shared.programs.values.filter { $0.planId == plan.id }
         let programIds = Set(programs.map { $0.id })
-        let workouts = TestDataManager.shared.workouts.values.filter { programIds.contains($0.programId) }
+        let workouts = LocalDataStore.shared.workouts.values.filter { programIds.contains($0.programId) }
 
         // 2. Collect all unique exercise IDs from workouts
         let allExerciseIds = Set(workouts.flatMap { $0.exerciseIds })
@@ -356,7 +356,7 @@ enum PlanActivationService {
         let allProtocolIds = Set(workouts.flatMap { $0.protocolVariantIds.values })
 
         // 4. Get current library
-        let library = TestDataManager.shared.libraries[userId]
+        let library = LocalDataStore.shared.libraries[userId]
         let existingExerciseIds = library?.exercises ?? []
         let existingProtocolIds = Set(library?.protocols.map { $0.protocolConfigId } ?? [])
 

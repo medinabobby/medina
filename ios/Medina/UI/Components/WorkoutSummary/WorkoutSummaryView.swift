@@ -366,13 +366,13 @@ struct WorkoutSummaryView: View {
     }
 
     private func protocolNamesText(for summary: CompletedWorkoutSummary) -> String {
-        guard let workout = TestDataManager.shared.workouts[summary.workoutId] else {
+        guard let workout = LocalDataStore.shared.workouts[summary.workoutId] else {
             return ""
         }
 
         let protocolIds = Set(workout.protocolVariantIds.values)
         let protocolNames = protocolIds.compactMap { id in
-            TestDataManager.shared.protocolConfigs[id]?.variantName
+            LocalDataStore.shared.protocolConfigs[id]?.variantName
         }.sorted()
 
         return protocolNames.joined(separator: " • ")

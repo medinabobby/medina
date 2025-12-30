@@ -63,7 +63,7 @@ struct Program: Identifiable, Codable {
     /// - Returns: Computed program status considering parent plan and dates
     var effectiveStatus: ProgramStatus {
         // Get parent plan
-        guard let plan = TestDataManager.shared.plans[planId] else {
+        guard let plan = LocalDataStore.shared.plans[planId] else {
             return status  // Fallback to stored status if no parent found
         }
 

@@ -42,7 +42,7 @@ final class UserProfileViewModel: ObservableObject {
     // MARK: - User Access
 
     var user: UnifiedUser? {
-        TestDataManager.shared.users[userId]
+        LocalDataStore.shared.users[userId]
     }
 
     // MARK: - Computed Properties
@@ -130,7 +130,7 @@ final class UserProfileViewModel: ObservableObject {
         profile.currentWeight = Double(currentWeight)
 
         updatedUser.memberProfile = profile
-        TestDataManager.shared.users[userId] = updatedUser
+        LocalDataStore.shared.users[userId] = updatedUser
 
         // v206: Sync to Firestore (fire-and-forget)
         Task {

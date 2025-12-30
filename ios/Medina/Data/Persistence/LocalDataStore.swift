@@ -1,18 +1,19 @@
 //
-// TestDataManager.swift
+// LocalDataStore.swift
 // Medina
 //
 // v54.7: Made ObservableObject for reactive calendar updates
-// Last reviewed: November 2025
+// v215: Renamed from LocalDataStore for clarity (this is production code)
+// Last reviewed: December 2025
 //
 
 import Foundation
 import SwiftUI
 import Combine
 
-class TestDataManager: ObservableObject {
-    static let shared = TestDataManager()
-    
+class LocalDataStore: ObservableObject {
+    static let shared = LocalDataStore()
+
     // Data Collections
     @Published var users: [String: UnifiedUser] = [:]
     @Published var exercises: [String: Exercise] = [:]
@@ -29,13 +30,13 @@ class TestDataManager: ObservableObject {
     @Published var gyms: [String: Gym] = [:]
 
     // v51.0: User Libraries
-    @Published var libraries: [String: UserLibrary] = [:]  // userId → UserLibrary
+    @Published var libraries: [String: UserLibrary] = [:]  // userId -> UserLibrary
 
     // v81.0: User Exercise Preferences (AI-first selection)
-    @Published var exercisePreferences: [String: UserExercisePreferences] = [:]  // userId → preferences
+    @Published var exercisePreferences: [String: UserExercisePreferences] = [:]  // userId -> preferences
 
     // v74.6: Imported Workout Data
-    @Published var importedData: [String: [ImportedWorkoutData]] = [:]  // userId → [imports]
+    @Published var importedData: [String: [ImportedWorkoutData]] = [:]  // userId -> [imports]
 
     // v186: Removed class booking properties (deferred for beta)
 
@@ -51,9 +52,9 @@ class TestDataManager: ObservableObject {
 
     // v54.7: Change tracker for triggering UI updates
     @Published var workoutsVersion: Int = 0
-    
+
     private init() {}
-    
+
     func reset() {
         users.removeAll()
         exercises.removeAll()
@@ -81,7 +82,7 @@ class TestDataManager: ObservableObject {
         do {
             try LocalDataLoader.loadAll()
         } catch {
-            print("❌ FATAL: Failed to reload test data after reset: \(error)")
+            print("FATAL: Failed to reload test data after reset: \(error)")
         }
     }
 
@@ -101,7 +102,7 @@ class TestDataManager: ObservableObject {
     func getOrCreateUser(firebaseUID: String, email: String, displayName: String?) -> UnifiedUser {
         // Check if user already exists by firebaseUID
         if let existing = users.values.first(where: { $0.firebaseUID == firebaseUID }) {
-            Logger.log(.info, component: "TestDataManager", message: "Found existing user for Firebase UID: \(firebaseUID)")
+            Logger.log(.info, component: "LocalDataStore", message: "Found existing user for Firebase UID: \(firebaseUID)")
             return existing
         }
 
@@ -133,13 +134,13 @@ class TestDataManager: ObservableObject {
         Task {
             do {
                 try await FirestoreUserRepository.shared.saveUser(newUser)
-                Logger.log(.info, component: "TestDataManager", message: "Saved new user to Firestore")
+                Logger.log(.info, component: "LocalDataStore", message: "Saved new user to Firestore")
             } catch {
-                Logger.log(.warning, component: "TestDataManager", message: "Failed to save user to Firestore: \(error)")
+                Logger.log(.warning, component: "LocalDataStore", message: "Failed to save user to Firestore: \(error)")
             }
         }
 
-        Logger.log(.info, component: "TestDataManager", message: "Created new user from Firebase: \(userName) (\(firebaseUID))")
+        Logger.log(.info, component: "LocalDataStore", message: "Created new user from Firebase: \(userName) (\(firebaseUID))")
         return newUser
     }
 

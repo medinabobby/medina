@@ -118,7 +118,7 @@ enum LibraryPersistenceService {
     /// Add an exercise to user's library
     @MainActor
     static func addExercise(_ exerciseId: String, userId: String) throws {
-        var library = TestDataManager.shared.libraries[userId] ?? UserLibrary(userId: userId)
+        var library = LocalDataStore.shared.libraries[userId] ?? UserLibrary(userId: userId)
 
         // Check if already in library
         guard !library.exercises.contains(exerciseId) else {
@@ -131,7 +131,7 @@ enum LibraryPersistenceService {
         library.lastModified = Date()
 
         // Update in-memory
-        TestDataManager.shared.libraries[userId] = library
+        LocalDataStore.shared.libraries[userId] = library
 
         // Persist to disk
         try save(library)
@@ -143,7 +143,7 @@ enum LibraryPersistenceService {
     /// Remove an exercise from user's library
     @MainActor
     static func removeExercise(_ exerciseId: String, userId: String) throws {
-        guard var library = TestDataManager.shared.libraries[userId] else {
+        guard var library = LocalDataStore.shared.libraries[userId] else {
             Logger.log(.warning, component: "LibraryPersistenceService",
                        message: "No library found for user \(userId)")
             return
@@ -159,7 +159,7 @@ enum LibraryPersistenceService {
         library.lastModified = Date()
 
         // Update in-memory
-        TestDataManager.shared.libraries[userId] = library
+        LocalDataStore.shared.libraries[userId] = library
 
         // Persist to disk
         try save(library)
@@ -171,7 +171,7 @@ enum LibraryPersistenceService {
     /// Add multiple exercises to user's library (batch operation for plan activation)
     @MainActor
     static func addExercises(_ exerciseIds: [String], userId: String) throws {
-        var library = TestDataManager.shared.libraries[userId] ?? UserLibrary(userId: userId)
+        var library = LocalDataStore.shared.libraries[userId] ?? UserLibrary(userId: userId)
 
         let previousCount = library.exercises.count
         for exerciseId in exerciseIds {
@@ -182,7 +182,7 @@ enum LibraryPersistenceService {
         let addedCount = library.exercises.count - previousCount
 
         // Update in-memory
-        TestDataManager.shared.libraries[userId] = library
+        LocalDataStore.shared.libraries[userId] = library
 
         // Persist to disk
         try save(library)
@@ -194,7 +194,7 @@ enum LibraryPersistenceService {
     /// Check if an exercise is in user's library
     @MainActor
     static func isExerciseInLibrary(_ exerciseId: String, userId: String) -> Bool {
-        guard let library = TestDataManager.shared.libraries[userId] else {
+        guard let library = LocalDataStore.shared.libraries[userId] else {
             return false
         }
         return library.exercises.contains(exerciseId)
@@ -205,7 +205,7 @@ enum LibraryPersistenceService {
     /// Add multiple protocols to user's library (batch operation for plan activation)
     @MainActor
     static func addProtocols(_ protocolIds: [String], userId: String) throws {
-        var library = TestDataManager.shared.libraries[userId] ?? UserLibrary(userId: userId)
+        var library = LocalDataStore.shared.libraries[userId] ?? UserLibrary(userId: userId)
 
         let existingProtocolIds = Set(library.protocols.map { $0.protocolConfigId })
         let newProtocolIds = protocolIds.filter { !existingProtocolIds.contains($0) }
@@ -230,7 +230,7 @@ enum LibraryPersistenceService {
         library.lastModified = Date()
 
         // Update in-memory
-        TestDataManager.shared.libraries[userId] = library
+        LocalDataStore.shared.libraries[userId] = library
 
         // Persist to disk
         try save(library)
@@ -242,7 +242,7 @@ enum LibraryPersistenceService {
     /// Check if a protocol is in user's library
     @MainActor
     static func isProtocolInLibrary(_ protocolId: String, userId: String) -> Bool {
-        guard let library = TestDataManager.shared.libraries[userId] else {
+        guard let library = LocalDataStore.shared.libraries[userId] else {
             return false
         }
         return library.protocols.contains { $0.protocolConfigId == protocolId }
@@ -288,7 +288,7 @@ enum LibraryPersistenceService {
     /// Add a single protocol to user's library (for starring)
     @MainActor
     static func addProtocol(_ protocolId: String, userId: String) throws {
-        var library = TestDataManager.shared.libraries[userId] ?? UserLibrary(userId: userId)
+        var library = LocalDataStore.shared.libraries[userId] ?? UserLibrary(userId: userId)
 
         // Check if already in library
         guard !library.protocols.contains(where: { $0.protocolConfigId == protocolId }) else {
@@ -309,7 +309,7 @@ enum LibraryPersistenceService {
         library.lastModified = Date()
 
         // Update in-memory
-        TestDataManager.shared.libraries[userId] = library
+        LocalDataStore.shared.libraries[userId] = library
 
         // Persist to disk
         try save(library)
@@ -321,7 +321,7 @@ enum LibraryPersistenceService {
     /// Remove a single protocol from user's library (for un-starring)
     @MainActor
     static func removeProtocol(_ protocolId: String, userId: String) throws {
-        guard var library = TestDataManager.shared.libraries[userId] else {
+        guard var library = LocalDataStore.shared.libraries[userId] else {
             Logger.log(.warning, component: "LibraryPersistenceService",
                        message: "No library found for user \(userId)")
             return
@@ -339,7 +339,7 @@ enum LibraryPersistenceService {
         library.lastModified = Date()
 
         // Update in-memory
-        TestDataManager.shared.libraries[userId] = library
+        LocalDataStore.shared.libraries[userId] = library
 
         // Persist to disk
         try save(library)

@@ -135,7 +135,7 @@ struct ExerciseHeaderView: View {
 
 #Preview("Large - FocusedExecution Style") {
     VStack(spacing: 32) {
-        if let exercise = TestDataManager.shared.exercises["barbell_bench_press"] {
+        if let exercise = LocalDataStore.shared.exercises["barbell_bench_press"] {
             ExerciseHeaderView(
                 exercise: exercise,
                 size: .large,
@@ -144,7 +144,7 @@ struct ExerciseHeaderView: View {
             )
         }
 
-        if let exercise = TestDataManager.shared.exercises["bodyweight_pushups"] ?? TestDataManager.shared.exercises.values.first(where: { $0.equipment == .bodyweight }) {
+        if let exercise = LocalDataStore.shared.exercises["bodyweight_pushups"] ?? LocalDataStore.shared.exercises.values.first(where: { $0.equipment == .bodyweight }) {
             ExerciseHeaderView(
                 exercise: exercise,
                 size: .large
@@ -157,7 +157,7 @@ struct ExerciseHeaderView: View {
 
 #Preview("Medium - ExerciseCard Style") {
     VStack(alignment: .leading, spacing: 16) {
-        if let exercise = TestDataManager.shared.exercises["barbell_bench_press"] {
+        if let exercise = LocalDataStore.shared.exercises["barbell_bench_press"] {
             ExerciseHeaderView(
                 exercise: exercise,
                 size: .medium,
@@ -165,7 +165,7 @@ struct ExerciseHeaderView: View {
             )
         }
 
-        if let exercise = TestDataManager.shared.exercises["dumbbell_row"] ?? TestDataManager.shared.exercises.values.first(where: { $0.equipment == .dumbbells }) {
+        if let exercise = LocalDataStore.shared.exercises["dumbbell_row"] ?? LocalDataStore.shared.exercises.values.first(where: { $0.equipment == .dumbbells }) {
             ExerciseHeaderView(
                 exercise: exercise,
                 size: .medium,
@@ -179,7 +179,7 @@ struct ExerciseHeaderView: View {
 
 #Preview("Compact - List Row Style") {
     VStack(alignment: .leading, spacing: 12) {
-        if let exercise = TestDataManager.shared.exercises["barbell_bench_press"] {
+        if let exercise = LocalDataStore.shared.exercises["barbell_bench_press"] {
             ExerciseHeaderView(
                 exercise: exercise,
                 size: .compact,

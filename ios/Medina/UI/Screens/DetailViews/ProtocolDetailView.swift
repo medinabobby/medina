@@ -61,7 +61,7 @@ struct ProtocolDetailView: View {
     }
 
     private func toggleLibrary() {
-        guard var library = TestDataManager.shared.libraries[userId] else {
+        guard var library = LocalDataStore.shared.libraries[userId] else {
             // No library exists, create one and add protocol
             var newLibrary = UserLibrary(userId: userId)
             let newEntry = ProtocolLibraryEntry(
@@ -73,7 +73,7 @@ struct ProtocolDetailView: View {
             )
             newLibrary.protocols.append(newEntry)
             newLibrary.lastModified = Date()
-            TestDataManager.shared.libraries[userId] = newLibrary
+            LocalDataStore.shared.libraries[userId] = newLibrary
             do {
                 try LibraryPersistenceService.save(newLibrary)
                 isInLibrary = true
@@ -91,7 +91,7 @@ struct ProtocolDetailView: View {
                 var updatedLibrary = library
                 updatedLibrary.protocols.removeAll { $0.protocolConfigId == protocolConfigId }
                 updatedLibrary.lastModified = Date()
-                TestDataManager.shared.libraries[userId] = updatedLibrary
+                LocalDataStore.shared.libraries[userId] = updatedLibrary
                 try LibraryPersistenceService.save(updatedLibrary)
                 isInLibrary = false
                 entry = nil
@@ -109,7 +109,7 @@ struct ProtocolDetailView: View {
                 )
                 updatedLibrary.protocols.append(newEntry)
                 updatedLibrary.lastModified = Date()
-                TestDataManager.shared.libraries[userId] = updatedLibrary
+                LocalDataStore.shared.libraries[userId] = updatedLibrary
                 try LibraryPersistenceService.save(updatedLibrary)
                 isInLibrary = true
                 entry = newEntry
@@ -181,7 +181,7 @@ struct ProtocolDetailView: View {
 
     private func loadProtocol() {
         // Load from library
-        if let library = TestDataManager.shared.libraries[userId] {
+        if let library = LocalDataStore.shared.libraries[userId] {
             entry = library.protocols.first { $0.protocolConfigId == protocolConfigId }
             isInLibrary = entry != nil
         } else {
@@ -189,6 +189,6 @@ struct ProtocolDetailView: View {
         }
 
         // Load protocol config
-        config = TestDataManager.shared.protocolConfigs[protocolConfigId]
+        config = LocalDataStore.shared.protocolConfigs[protocolConfigId]
     }
 }

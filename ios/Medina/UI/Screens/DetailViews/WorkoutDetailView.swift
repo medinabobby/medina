@@ -24,7 +24,7 @@ struct WorkoutDetailView: View {
 
     // Session coordinator for workout execution
     @StateObject private var sessionCoordinator: WorkoutSessionCoordinator = {
-        let userId = TestDataManager.shared.currentUserId ?? "bobby"
+        let userId = LocalDataStore.shared.currentUserId ?? "bobby"
         let voiceService = VoiceService()
         return WorkoutSessionCoordinator(memberId: userId, voiceService: voiceService)
     }()
@@ -46,7 +46,7 @@ struct WorkoutDetailView: View {
     var body: some View {
         Group {
             let _ = viewModel.applyDeltas()
-            if let workout = TestDataManager.shared.workouts[workoutId] {
+            if let workout = LocalDataStore.shared.workouts[workoutId] {
                 VStack(spacing: 0) {
                     WorkoutBreadcrumbBar(workout: workout, coordinator: coordinator)
                     WorkoutHeroSection(workout: workout, isSessionActive: sessionCoordinator.isWorkoutActive)
@@ -83,7 +83,7 @@ struct WorkoutDetailView: View {
         .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if let workout = TestDataManager.shared.workouts[workoutId] {
+            if let workout = LocalDataStore.shared.workouts[workoutId] {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     workoutActionsMenu(for: workout)
                 }
@@ -126,7 +126,7 @@ struct WorkoutDetailView: View {
             Text(activeSessionConflictMessage)
         }
         .sheet(isPresented: $viewModel.showSummarySheet) {
-            let userId = TestDataManager.shared.currentUserId ?? "bobby"
+            let userId = LocalDataStore.shared.currentUserId ?? "bobby"
             WorkoutSummaryView(workoutId: workoutId, memberId: userId)
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowWorkoutSummary"))) { notification in
@@ -155,7 +155,7 @@ struct WorkoutDetailView: View {
     // MARK: - Navigation Title
 
     private var navigationTitle: String {
-        if let workout = TestDataManager.shared.workouts[workoutId],
+        if let workout = LocalDataStore.shared.workouts[workoutId],
            let date = workout.scheduledDate {
             let calendar = Calendar.current
             let dayOfWeekIndex = calendar.component(.weekday, from: date)
@@ -188,13 +188,13 @@ struct WorkoutDetailView: View {
                             }
                         } else if !instances.isEmpty {
                             ForEach(Array(instances.enumerated()), id: \.element.id) { index, instance in
-                                if let exercise = TestDataManager.shared.exercises[instance.exerciseId] {
+                                if let exercise = LocalDataStore.shared.exercises[instance.exerciseId] {
                                     exerciseRow(exercise: exercise, instance: instance, index: index)
                                 }
                             }
                         } else if !workout.exerciseIds.isEmpty {
                             ForEach(Array(workout.exerciseIds.enumerated()), id: \.offset) { index, exerciseId in
-                                if let exercise = TestDataManager.shared.exercises[exerciseId] {
+                                if let exercise = LocalDataStore.shared.exercises[exerciseId] {
                                     WorkoutPlannedExerciseRow(
                                         exercise: exercise,
                                         position: index,
@@ -257,10 +257,10 @@ struct WorkoutDetailView: View {
 
     /// Check for active session on a DIFFERENT workout before starting
     private func handleStartWorkout(workoutId: String) {
-        let userId = TestDataManager.shared.currentUserId ?? "bobby"
+        let userId = LocalDataStore.shared.currentUserId ?? "bobby"
 
         // Check for active session on a DIFFERENT workout
-        if let existingSession = TestDataManager.shared.activeSession(for: userId),
+        if let existingSession = LocalDataStore.shared.activeSession(for: userId),
            existingSession.workoutId != workoutId {
             // Store the workout we want to start and show conflict alert
             pendingWorkoutId = workoutId
@@ -278,7 +278,7 @@ struct WorkoutDetailView: View {
     /// Message for active session conflict alert
     private var activeSessionConflictMessage: String {
         guard let session = activeSessionConflict,
-              let activeWorkout = TestDataManager.shared.workouts[session.workoutId] else {
+              let activeWorkout = LocalDataStore.shared.workouts[session.workoutId] else {
             return "Another workout is in progress."
         }
         return "'\(activeWorkout.displayName)' is still in progress. End it first or continue that workout."
@@ -311,7 +311,7 @@ struct WorkoutDetailView: View {
         let (statusText, _) = workout.status.statusInfo()
 
         let parentContext: ParentContext? = {
-            if let program = TestDataManager.shared.programs[workout.programId] {
+            if let program = LocalDataStore.shared.programs[workout.programId] {
                 return ParentContext(planId: program.planId, programId: program.id, workoutId: workout.id)
             }
             return nil
@@ -367,11 +367,11 @@ struct WorkoutDetailView: View {
             DeltaStore.shared.saveWorkoutDelta(delta)
             viewModel.applyDeltas()
             // v206: Sync to Firestore
-            if let program = TestDataManager.shared.programs[workout.programId],
-               let plan = TestDataManager.shared.plans[program.planId] {
+            if let program = LocalDataStore.shared.programs[workout.programId],
+               let plan = LocalDataStore.shared.plans[program.planId] {
                 var skippedWorkout = workout
                 skippedWorkout.status = .skipped
-                TestDataManager.shared.workouts[workout.id] = skippedWorkout
+                LocalDataStore.shared.workouts[workout.id] = skippedWorkout
                 Task {
                     do {
                         try await FirestoreWorkoutRepository.shared.saveWorkout(skippedWorkout, memberId: plan.memberId)

@@ -51,9 +51,9 @@ struct UploadModal: View {
         self.user = user
         self.onFilesSelected = onFilesSelected
         self.onImportComplete = onImportComplete
-        // v85.1: Fetch fresh user from TestDataManager to get latest settings
+        // v85.1: Fetch fresh user from LocalDataStore to get latest settings
         // (voiceSettings may have been changed and saved)
-        let freshUser = TestDataManager.shared.users[user.id] ?? user
+        let freshUser = LocalDataStore.shared.users[user.id] ?? user
         _currentUser = State(initialValue: freshUser)
     }
 

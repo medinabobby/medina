@@ -55,7 +55,7 @@ enum ProtocolFuzzyMatcher {
     /// Try to match an AI-provided ID to an actual protocol
     /// Returns the ProtocolConfig if found, nil otherwise
     static func match(_ aiId: String) -> ProtocolConfig? {
-        let protocols = TestDataManager.shared.protocolConfigs
+        let protocols = LocalDataStore.shared.protocolConfigs
 
         // 1. Exact match (most common case - fast path)
         if let config = protocols[aiId] {

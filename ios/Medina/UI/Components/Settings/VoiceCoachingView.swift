@@ -90,10 +90,10 @@ struct VoiceCoachingView: View {
         var updatedUser = user
         updatedUser.memberProfile = profile
 
-        // v85.1: Save to TestDataManager FIRST (in-memory source of truth for AI)
-        TestDataManager.shared.users[user.id] = updatedUser
+        // v85.1: Save to LocalDataStore FIRST (in-memory source of truth for AI)
+        LocalDataStore.shared.users[user.id] = updatedUser
         Logger.log(.debug, component: "VoiceCoachingView",
-                  message: "Saved to TestDataManager: id=\(user.id), brief=\(voiceSettings.briefAnnouncements)")
+                  message: "Saved to LocalDataStore: id=\(user.id), brief=\(voiceSettings.briefAnnouncements)")
 
         // Update binding (for UI consistency)
         user.memberProfile = profile

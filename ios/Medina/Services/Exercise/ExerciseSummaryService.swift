@@ -47,22 +47,22 @@ enum ExerciseSummaryService {
         ) ?? Date()
 
         // Step 1: Get all plans for this member
-        let memberPlans = TestDataManager.shared.plans.values
+        let memberPlans = LocalDataStore.shared.plans.values
             .filter { $0.memberId == memberId }
         let memberPlanIds = Set(memberPlans.map { $0.id })
 
         // Step 2: Get programs for those plans
-        let memberPrograms = TestDataManager.shared.programs.values
+        let memberPrograms = LocalDataStore.shared.programs.values
             .filter { memberPlanIds.contains($0.planId) }
         let memberProgramIds = Set(memberPrograms.map { $0.id })
 
         // Step 3: Get workouts for those programs
-        let memberWorkouts = TestDataManager.shared.workouts.values
+        let memberWorkouts = LocalDataStore.shared.workouts.values
             .filter { memberProgramIds.contains($0.programId) }
         let workoutIds = Set(memberWorkouts.map { $0.id })
 
         // Step 4: Get completed instances within window
-        let completedInstances = TestDataManager.shared.exerciseInstances.values
+        let completedInstances = LocalDataStore.shared.exerciseInstances.values
             .filter {
                 $0.status == .completed &&
                 workoutIds.contains($0.workoutId)
@@ -72,7 +72,7 @@ enum ExerciseSummaryService {
         var exerciseActivity: [String: (date: Date, count: Int)] = [:]
 
         for instance in completedInstances {
-            guard let workout = TestDataManager.shared.workouts[instance.workoutId],
+            guard let workout = LocalDataStore.shared.workouts[instance.workoutId],
                   let scheduledDate = workout.scheduledDate,
                   scheduledDate >= cutoffDate else { continue }
 
@@ -88,11 +88,11 @@ enum ExerciseSummaryService {
 
         // Build summaries
         let summaries = exerciseActivity.compactMap { exerciseId, activity -> ExerciseSummary? in
-            guard let exercise = TestDataManager.shared.exercises[exerciseId] else { return nil }
+            guard let exercise = LocalDataStore.shared.exercises[exerciseId] else { return nil }
 
             // Find 1RM target for this member + exercise
             let targetKey = "\(memberId)-\(exerciseId)"
-            let target = TestDataManager.shared.targets[targetKey]
+            let target = LocalDataStore.shared.targets[targetKey]
 
             return ExerciseSummary(
                 exerciseId: exerciseId,
@@ -118,22 +118,22 @@ enum ExerciseSummaryService {
     static func getAllTrackedExercises(memberId: String) -> [ExerciseSummary] {
 
         // Step 1: Get all plans for this member
-        let memberPlans = TestDataManager.shared.plans.values
+        let memberPlans = LocalDataStore.shared.plans.values
             .filter { $0.memberId == memberId }
         let memberPlanIds = Set(memberPlans.map { $0.id })
 
         // Step 2: Get programs for those plans
-        let memberPrograms = TestDataManager.shared.programs.values
+        let memberPrograms = LocalDataStore.shared.programs.values
             .filter { memberPlanIds.contains($0.planId) }
         let memberProgramIds = Set(memberPrograms.map { $0.id })
 
         // Step 3: Get workouts for those programs
-        let memberWorkouts = TestDataManager.shared.workouts.values
+        let memberWorkouts = LocalDataStore.shared.workouts.values
             .filter { memberProgramIds.contains($0.programId) }
         let workoutIds = Set(memberWorkouts.map { $0.id })
 
         // Step 4: Get ALL completed instances (no date filter)
-        let completedInstances = TestDataManager.shared.exerciseInstances.values
+        let completedInstances = LocalDataStore.shared.exerciseInstances.values
             .filter {
                 $0.status == .completed &&
                 workoutIds.contains($0.workoutId)
@@ -143,7 +143,7 @@ enum ExerciseSummaryService {
         var exerciseActivity: [String: (date: Date, count: Int)] = [:]
 
         for instance in completedInstances {
-            guard let workout = TestDataManager.shared.workouts[instance.workoutId],
+            guard let workout = LocalDataStore.shared.workouts[instance.workoutId],
                   let scheduledDate = workout.scheduledDate else { continue }
 
             if let existing = exerciseActivity[instance.exerciseId] {
@@ -158,11 +158,11 @@ enum ExerciseSummaryService {
 
         // Build summaries
         let summaries = exerciseActivity.compactMap { exerciseId, activity -> ExerciseSummary? in
-            guard let exercise = TestDataManager.shared.exercises[exerciseId] else { return nil }
+            guard let exercise = LocalDataStore.shared.exercises[exerciseId] else { return nil }
 
             // Find 1RM target for this member + exercise
             let targetKey = "\(memberId)-\(exerciseId)"
-            let target = TestDataManager.shared.targets[targetKey]
+            let target = LocalDataStore.shared.targets[targetKey]
 
             return ExerciseSummary(
                 exerciseId: exerciseId,
@@ -186,23 +186,23 @@ enum ExerciseSummaryService {
     static func getTotalTrackedCount(memberId: String) -> Int {
 
         // Step 1: Get all plans for this member
-        let memberPlans = TestDataManager.shared.plans.values
+        let memberPlans = LocalDataStore.shared.plans.values
             .filter { $0.memberId == memberId }
         let memberPlanIds = Set(memberPlans.map { $0.id })
 
         // Step 2: Get programs for those plans
-        let memberPrograms = TestDataManager.shared.programs.values
+        let memberPrograms = LocalDataStore.shared.programs.values
             .filter { memberPlanIds.contains($0.planId) }
         let memberProgramIds = Set(memberPrograms.map { $0.id })
 
         // Step 3: Get workouts for those programs
-        let memberWorkouts = TestDataManager.shared.workouts.values
+        let memberWorkouts = LocalDataStore.shared.workouts.values
             .filter { memberProgramIds.contains($0.programId) }
         let workoutIds = Set(memberWorkouts.map { $0.id })
 
         // Step 4: Count unique exercises in completed instances
         let uniqueExercises = Set(
-            TestDataManager.shared.exerciseInstances.values
+            LocalDataStore.shared.exerciseInstances.values
                 .filter {
                     $0.status == .completed &&
                     workoutIds.contains($0.workoutId)
@@ -228,17 +228,17 @@ enum ExerciseSummaryService {
     ) -> [ExerciseSummary] {
 
         // Step 1: Get active plans for this member
-        let activePlans = TestDataManager.shared.plans.values
+        let activePlans = LocalDataStore.shared.plans.values
             .filter { $0.memberId == memberId && $0.status == .active }
         let activePlanIds = Set(activePlans.map { $0.id })
 
         // Step 2: Get programs for those plans
-        let activePrograms = TestDataManager.shared.programs.values
+        let activePrograms = LocalDataStore.shared.programs.values
             .filter { activePlanIds.contains($0.planId) }
         let activeProgramIds = Set(activePrograms.map { $0.id })
 
         // Step 3: Get workouts for those programs
-        let activeWorkouts = TestDataManager.shared.workouts.values
+        let activeWorkouts = LocalDataStore.shared.workouts.values
             .filter { activeProgramIds.contains($0.programId) }
 
         // Step 4: Collect unique exercises from all active workouts
@@ -252,11 +252,11 @@ enum ExerciseSummaryService {
 
         // Build summaries
         let summaries = exerciseUsage.compactMap { exerciseId, count -> ExerciseSummary? in
-            guard let exercise = TestDataManager.shared.exercises[exerciseId] else { return nil }
+            guard let exercise = LocalDataStore.shared.exercises[exerciseId] else { return nil }
 
             // Find 1RM target for this member + exercise
             let targetKey = "\(memberId)-\(exerciseId)"
-            let target = TestDataManager.shared.targets[targetKey]
+            let target = LocalDataStore.shared.targets[targetKey]
 
             return ExerciseSummary(
                 exerciseId: exerciseId,

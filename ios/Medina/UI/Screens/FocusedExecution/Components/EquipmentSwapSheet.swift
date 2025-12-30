@@ -131,7 +131,7 @@ struct EquipmentSwapSheet: View {
 
     private func loadVariants() {
         // Find all exercises with same baseExercise but different equipment
-        let allExercises = TestDataManager.shared.exercises.values
+        let allExercises = LocalDataStore.shared.exercises.values
 
         availableVariants = allExercises.filter { exercise in
             exercise.baseExercise == currentExercise.baseExercise &&
@@ -166,7 +166,7 @@ struct EquipmentSwapSheet: View {
 // MARK: - Preview
 
 #Preview("Equipment Swap Sheet") {
-    if let exercise = TestDataManager.shared.exercises["bench_press"] {
+    if let exercise = LocalDataStore.shared.exercises["bench_press"] {
         EquipmentSwapSheet(
             currentExercise: exercise,
             workoutId: "test_workout",

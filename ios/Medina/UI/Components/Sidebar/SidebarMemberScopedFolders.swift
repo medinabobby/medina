@@ -20,12 +20,12 @@ struct MemberScopedExercisesFolder: View {
     let onDismiss: () -> Void
 
     private var memberLibrary: UserLibrary? {
-        TestDataManager.shared.libraries[memberId]
+        LocalDataStore.shared.libraries[memberId]
     }
 
     private var memberExercises: [Exercise] {
         memberLibrary?.exercises.compactMap { exerciseId in
-            TestDataManager.shared.exercises[exerciseId]
+            LocalDataStore.shared.exercises[exerciseId]
         } ?? []
     }
 
@@ -75,7 +75,7 @@ struct MemberScopedProtocolsFolder: View {
     let onDismiss: () -> Void
 
     private var memberLibrary: UserLibrary? {
-        TestDataManager.shared.libraries[memberId]
+        LocalDataStore.shared.libraries[memberId]
     }
 
     private var libraryProtocolIds: Set<String> {
@@ -121,7 +121,7 @@ struct MemberScopedProtocolsFolder: View {
                         visibleCount: sidebarItemLimit
                     ) {
                         let libraryProtocols = libraryProtocolIds.compactMap { id in
-                            TestDataManager.shared.protocolConfigs[id]
+                            LocalDataStore.shared.protocolConfigs[id]
                         }
                         onShowAll("All Protocols", .protocols(libraryProtocols))
                     }
@@ -148,7 +148,7 @@ struct MemberScopedLibrarySection: View {
     let onDismiss: () -> Void
 
     private var memberLibrary: UserLibrary? {
-        TestDataManager.shared.libraries[memberId]
+        LocalDataStore.shared.libraries[memberId]
     }
 
     var body: some View {
@@ -211,7 +211,7 @@ struct AllMembersLibrarySection: View {
     private var allExerciseIds: Set<String> {
         var ids = Set<String>()
         for member in assignedMembers {
-            if let library = TestDataManager.shared.libraries[member.id] {
+            if let library = LocalDataStore.shared.libraries[member.id] {
                 ids.formUnion(library.exercises)
             }
         }
@@ -222,7 +222,7 @@ struct AllMembersLibrarySection: View {
     private var allProtocolIds: Set<String> {
         var ids = Set<String>()
         for member in assignedMembers {
-            if let library = TestDataManager.shared.libraries[member.id] {
+            if let library = LocalDataStore.shared.libraries[member.id] {
                 ids.formUnion(library.protocols.map { $0.protocolConfigId })
             }
         }
@@ -231,7 +231,7 @@ struct AllMembersLibrarySection: View {
 
     /// Exercise objects for display
     private var allExercises: [Exercise] {
-        allExerciseIds.compactMap { TestDataManager.shared.exercises[$0] }
+        allExerciseIds.compactMap { LocalDataStore.shared.exercises[$0] }
             .sorted { $0.name < $1.name }
     }
 
@@ -363,7 +363,7 @@ struct AllMembersProtocolsFolder: View {
                         visibleCount: sidebarItemLimit
                     ) {
                         let libraryProtocols = protocolIds.compactMap { id in
-                            TestDataManager.shared.protocolConfigs[id]
+                            LocalDataStore.shared.protocolConfigs[id]
                         }
                         onShowAll("All Members' Protocols", .protocols(libraryProtocols))
                     }

@@ -166,8 +166,8 @@ struct LoginView: View {
                 }
             }
             .fullScreenCover(isPresented: $showChat) {
-                if let userId = TestDataManager.shared.currentUserId,
-                   let user = TestDataManager.shared.users[userId] {
+                if let userId = LocalDataStore.shared.currentUserId,
+                   let user = LocalDataStore.shared.users[userId] {
                     ChatView(user: user)
                 }
             }
@@ -271,13 +271,13 @@ struct LoginView: View {
         }
 
         // Get or create local user
-        let user = TestDataManager.shared.getOrCreateUser(
+        let user = LocalDataStore.shared.getOrCreateUser(
             firebaseUID: firebaseUser.uid,
             email: firebaseUser.email ?? "",
             displayName: firebaseUser.displayName
         )
 
-        TestDataManager.shared.currentUserId = user.id
+        LocalDataStore.shared.currentUserId = user.id
 
         // Load data from Firestore
         await LocalDataLoader.loadReferenceDataFromFirestore()

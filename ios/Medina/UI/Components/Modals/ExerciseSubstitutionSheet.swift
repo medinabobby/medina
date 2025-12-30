@@ -20,11 +20,11 @@ struct ExerciseSubstitutionSheet: View {
 
     // Get current exercise for display (may have been substituted)
     private var currentExercise: Exercise? {
-        // v79.2: Get fresh instance from TestDataManager in case it was substituted
-        if let freshInstance = TestDataManager.shared.exerciseInstances[exerciseInstance.id] {
-            return TestDataManager.shared.exercises[freshInstance.exerciseId]
+        // v79.2: Get fresh instance from LocalDataStore in case it was substituted
+        if let freshInstance = LocalDataStore.shared.exerciseInstances[exerciseInstance.id] {
+            return LocalDataStore.shared.exercises[freshInstance.exerciseId]
         }
-        return TestDataManager.shared.exercises[exerciseInstance.exerciseId]
+        return LocalDataStore.shared.exercises[exerciseInstance.exerciseId]
     }
 
     var body: some View {
@@ -93,16 +93,16 @@ struct ExerciseSubstitutionSheet: View {
 
     private func loadAlternatives() {
         // Get user info
-        let userId = TestDataManager.shared.currentUserId ?? "bobby"
-        guard let user = TestDataManager.shared.users[userId] else {
+        let userId = LocalDataStore.shared.currentUserId ?? "bobby"
+        guard let user = LocalDataStore.shared.users[userId] else {
             isLoading = false
             return
         }
 
-        // v79.2: Get CURRENT exercise ID from TestDataManager (may have been substituted)
+        // v79.2: Get CURRENT exercise ID from LocalDataStore (may have been substituted)
         // The passed-in exerciseInstance could be stale after a substitution
         let currentExerciseId: String
-        if let freshInstance = TestDataManager.shared.exerciseInstances[exerciseInstance.id] {
+        if let freshInstance = LocalDataStore.shared.exerciseInstances[exerciseInstance.id] {
             currentExerciseId = freshInstance.exerciseId
         } else {
             currentExerciseId = exerciseInstance.exerciseId
@@ -111,9 +111,9 @@ struct ExerciseSubstitutionSheet: View {
         // Get available equipment based on workout location
         let availableEquipment: Set<Equipment> = {
             // Check workout location
-            if let workout = TestDataManager.shared.workouts[workoutId],
-               let program = TestDataManager.shared.programs[workout.programId],
-               let plan = TestDataManager.shared.plans[program.planId],
+            if let workout = LocalDataStore.shared.workouts[workoutId],
+               let program = LocalDataStore.shared.programs[workout.programId],
+               let plan = LocalDataStore.shared.plans[program.planId],
                let memberProfile = user.memberProfile {
                 // Use location from workout context if available
                 if memberProfile.trainingLocation == .home {
@@ -125,7 +125,7 @@ struct ExerciseSubstitutionSheet: View {
         }()
 
         // Get user library
-        let userLibrary = TestDataManager.shared.libraries[userId]
+        let userLibrary = LocalDataStore.shared.libraries[userId]
 
         // Get experience level
         let experienceLevel = user.memberProfile?.experienceLevel ?? .intermediate

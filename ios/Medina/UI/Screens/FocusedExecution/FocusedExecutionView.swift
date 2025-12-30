@@ -33,7 +33,7 @@ struct FocusedExecutionView: View {
         self.workoutId = workoutId
 
         // Create session coordinator with voice service
-        let userId = TestDataManager.shared.currentUserId ?? "bobby"
+        let userId = LocalDataStore.shared.currentUserId ?? "bobby"
         let voiceService = VoiceService()
         let coordinator = WorkoutSessionCoordinator(memberId: userId, voiceService: voiceService)
 
@@ -116,7 +116,7 @@ struct FocusedExecutionView: View {
             )
         }
         .sheet(isPresented: $showCompletionSummary) {
-            let userId = TestDataManager.shared.currentUserId ?? "bobby"
+            let userId = LocalDataStore.shared.currentUserId ?? "bobby"
             WorkoutSummaryView(workoutId: workoutId, memberId: userId)
         }
         .sheet(isPresented: $showRPEInfo) {

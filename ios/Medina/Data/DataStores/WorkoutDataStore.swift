@@ -9,7 +9,7 @@ import Foundation
 
 enum WorkoutDataStore {
 
-    private static var manager: TestDataManager { TestDataManager.shared }
+    private static var manager: LocalDataStore { LocalDataStore.shared }
     private static var calendar: Calendar { Calendar.current }
 
     static func nextWorkout(

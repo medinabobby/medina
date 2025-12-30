@@ -42,13 +42,13 @@ final class WorkoutDetailViewModel: ObservableObject {
     // MARK: - Computed Properties
 
     var workout: Workout? {
-        TestDataManager.shared.workouts[workoutId]
+        LocalDataStore.shared.workouts[workoutId]
     }
 
     var isWorkoutInDraftPlan: Bool {
         guard let workout = workout,
-              let program = TestDataManager.shared.programs[workout.programId],
-              let plan = TestDataManager.shared.plans[program.planId] else {
+              let program = LocalDataStore.shared.programs[workout.programId],
+              let plan = LocalDataStore.shared.plans[program.planId] else {
             return false
         }
         return plan.status == .draft
@@ -56,8 +56,8 @@ final class WorkoutDetailViewModel: ObservableObject {
 
     var parentPlan: Plan? {
         guard let workout = workout,
-              let program = TestDataManager.shared.programs[workout.programId],
-              let plan = TestDataManager.shared.plans[program.planId] else {
+              let program = LocalDataStore.shared.programs[workout.programId],
+              let plan = LocalDataStore.shared.plans[program.planId] else {
             return nil
         }
         return plan
@@ -66,14 +66,14 @@ final class WorkoutDetailViewModel: ObservableObject {
     // MARK: - Instance Helpers
 
     func getInstances(for workout: Workout) -> [ExerciseInstance] {
-        let allInstances = Array(TestDataManager.shared.exerciseInstances.values)
+        let allInstances = Array(LocalDataStore.shared.exerciseInstances.values)
         let filtered = allInstances.filter { $0.workoutId == workout.id }
         let sorted = filtered.sorted { $0.id < $1.id }
         return sorted
     }
 
     func hasLoggedData(instance: ExerciseInstance) -> Bool {
-        let sets = instance.setIds.compactMap { TestDataManager.shared.exerciseSets[$0] }
+        let sets = instance.setIds.compactMap { LocalDataStore.shared.exerciseSets[$0] }
         let dict = Dictionary(uniqueKeysWithValues: sets.map { ($0.id, $0) })
         let updated = DeltaStore.shared.applySetDeltas(to: dict)
         return updated.values.contains { $0.completion != nil }
@@ -93,7 +93,7 @@ final class WorkoutDetailViewModel: ObservableObject {
         guard let workout = workout else { return }
 
         for exerciseId in workout.exerciseIds {
-            if let instance = TestDataManager.shared.exerciseInstances.values.first(where: {
+            if let instance = LocalDataStore.shared.exerciseInstances.values.first(where: {
                 $0.workoutId == workout.id && $0.exerciseId == exerciseId
             }) {
                 expandedExercises.insert(instance.id)
@@ -139,7 +139,7 @@ final class WorkoutDetailViewModel: ObservableObject {
 
     func handleUnskipSet(setId: String, sessionCoordinator: WorkoutSessionCoordinator) {
         Task {
-            guard let instance = TestDataManager.shared.exerciseInstances.values.first(where: {
+            guard let instance = LocalDataStore.shared.exerciseInstances.values.first(where: {
                 $0.setIds.contains(setId)
             }) else {
                 Logger.log(.warning, component: "WorkoutDetailView", message: "No instance found for set \(setId)")
@@ -174,7 +174,7 @@ final class WorkoutDetailViewModel: ObservableObject {
 
     func performSubstitution(instanceId: String, newExerciseId: String) {
         do {
-            let userId = TestDataManager.shared.currentUserId ?? "bobby"
+            let userId = LocalDataStore.shared.currentUserId ?? "bobby"
             try ExerciseSubstitutionService.performSubstitution(
                 instanceId: instanceId,
                 newExerciseId: newExerciseId,
@@ -199,14 +199,14 @@ final class WorkoutDetailViewModel: ObservableObject {
     func ensureExercisesSelectedAsync(for workout: Workout) async {
         guard workout.exerciseIds.isEmpty else { return }
 
-        guard let program = TestDataManager.shared.programs[workout.programId],
-              let plan = TestDataManager.shared.plans[program.planId] else {
+        guard let program = LocalDataStore.shared.programs[workout.programId],
+              let plan = LocalDataStore.shared.plans[program.planId] else {
             Logger.log(.warning, component: "WorkoutDetailView",
                       message: "Cannot select exercises - missing program or plan for workout \(workout.id)")
             return
         }
 
-        let userId = TestDataManager.shared.currentUserId ?? "bobby"
+        let userId = LocalDataStore.shared.currentUserId ?? "bobby"
 
         await Task.yield()
 
@@ -272,7 +272,7 @@ final class WorkoutDetailViewModel: ObservableObject {
     // MARK: - Delta Application
 
     func applyDeltas() {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
         manager.workouts = DeltaStore.shared.applyWorkoutDeltas(to: manager.workouts)
         manager.exerciseInstances = DeltaStore.shared.applyInstanceDeltas(to: manager.exerciseInstances)
         manager.exerciseSets = DeltaStore.shared.applySetDeltas(to: manager.exerciseSets)
@@ -287,7 +287,7 @@ final class WorkoutDetailViewModel: ObservableObject {
         guard !hasLoadedDetails, !isLoadingDetails else { return }
 
         // Check if instances already exist in memory (from previous load or local cache)
-        let existingInstances = TestDataManager.shared.exerciseInstances.values.filter { $0.workoutId == workoutId }
+        let existingInstances = LocalDataStore.shared.exerciseInstances.values.filter { $0.workoutId == workoutId }
         if !existingInstances.isEmpty {
             hasLoadedDetails = true
             return
@@ -296,7 +296,7 @@ final class WorkoutDetailViewModel: ObservableObject {
         isLoadingDetails = true
         defer { isLoadingDetails = false }
 
-        let userId = TestDataManager.shared.currentUserId ?? "bobby"
+        let userId = LocalDataStore.shared.currentUserId ?? "bobby"
         await LocalDataLoader.loadWorkoutDetails(workoutId: workoutId, userId: userId)
 
         hasLoadedDetails = true

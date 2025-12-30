@@ -17,7 +17,7 @@ class UserRoleService {
     // MARK: - Data Access
 
     private static var allUsers: [String: UnifiedUser] {
-        return TestDataManager.shared.users
+        return LocalDataStore.shared.users
     }
 
     // MARK: - Role Detection
@@ -170,14 +170,14 @@ class UserRoleService {
     /// Get all gyms visible to a given user based on their roles
     static func getVisibleGyms(forUserId userId: String) -> [Gym] {
         let role = getHighestRole(userId: userId)
-        let allGyms = Array(TestDataManager.shared.gyms.values)
+        let allGyms = Array(LocalDataStore.shared.gyms.values)
 
         switch role {
         case .member, .trainer, .admin:
             // Members, trainers, and admins can see their gym
             if let user = allUsers[userId],
                let gymId = user.gymId,
-               let gym = TestDataManager.shared.gyms[gymId] {
+               let gym = LocalDataStore.shared.gyms[gymId] {
                 return [gym]
             }
             return allGyms // Fallback to all gyms

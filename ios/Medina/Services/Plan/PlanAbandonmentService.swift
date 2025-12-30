@@ -51,9 +51,9 @@ enum PlanAbandonmentService {
 
         // 3. Cancel remaining scheduled workouts (mark as skipped)
         let now = Date()
-        let programs = TestDataManager.shared.programs.values.filter { $0.planId == plan.id }
+        let programs = LocalDataStore.shared.programs.values.filter { $0.planId == plan.id }
         let programIds = Set(programs.map { $0.id })
-        let workouts = Array(TestDataManager.shared.workouts.values.filter { programIds.contains($0.programId) })
+        let workouts = Array(LocalDataStore.shared.workouts.values.filter { programIds.contains($0.programId) })
 
         var cancelledCount = 0
         for workout in workouts {
@@ -63,13 +63,13 @@ enum PlanAbandonmentService {
                scheduledDate > now {
                 var updatedWorkout = workout
                 updatedWorkout.status = .skipped
-                TestDataManager.shared.workouts[workout.id] = updatedWorkout
+                LocalDataStore.shared.workouts[workout.id] = updatedWorkout
                 cancelledCount += 1
             }
         }
 
         // 4. Persist
-        TestDataManager.shared.plans[updatedPlan.id] = updatedPlan
+        LocalDataStore.shared.plans[updatedPlan.id] = updatedPlan
 
         // v206: Sync to Firestore (fire-and-forget)
         let planToSync = updatedPlan

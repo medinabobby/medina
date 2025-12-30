@@ -77,7 +77,7 @@ final class VoiceSequencer: ObservableObject {
         voiceGender: VoiceGender = .female
     ) async -> Bool {
         // Check if voice is enabled
-        guard let user = TestDataManager.shared.users[userId],
+        guard let user = LocalDataStore.shared.users[userId],
               let voiceSettings = user.memberProfile?.voiceSettings,
               voiceSettings.isEnabled else {
             Logger.log(.debug, component: "VoiceSequencer", message: "Voice disabled, skipping \(trigger.rawValue)")
@@ -123,7 +123,7 @@ final class VoiceSequencer: ObservableObject {
         userId: String,
         voiceGender: VoiceGender = .female
     ) async -> Bool {
-        guard let user = TestDataManager.shared.users[userId],
+        guard let user = LocalDataStore.shared.users[userId],
               let voiceSettings = user.memberProfile?.voiceSettings,
               voiceSettings.isEnabled else {
             return false

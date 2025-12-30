@@ -20,7 +20,7 @@ struct ProtocolFamilyDetailView: View {
 
     init(family: ProtocolFamily, userId: String? = nil) {
         self.family = family
-        self.userId = userId ?? TestDataManager.shared.currentUserId ?? "bobby"
+        self.userId = userId ?? LocalDataStore.shared.currentUserId ?? "bobby"
         self._selectedVariant = State(initialValue: family.defaultVariant)
     }
 
@@ -179,7 +179,7 @@ struct ProtocolFamilyDetailView: View {
 
     private func updateLibraryStatus() {
         guard let variant = selectedVariant else { return }
-        if let library = TestDataManager.shared.libraries[userId] {
+        if let library = LocalDataStore.shared.libraries[userId] {
             isInLibrary = library.protocols.contains { $0.protocolConfigId == variant.id }
         } else {
             isInLibrary = false

@@ -180,7 +180,7 @@ struct ManualPREntryView: View {
         for entry in entries where entry.isValid {
             let targetId = "\(user.id)-\(entry.exerciseId)"
 
-            var target = TestDataManager.shared.targets[targetId] ?? ExerciseTarget(
+            var target = LocalDataStore.shared.targets[targetId] ?? ExerciseTarget(
                 id: targetId,
                 exerciseId: entry.exerciseId,
                 memberId: user.id,
@@ -203,8 +203,8 @@ struct ManualPREntryView: View {
             )
             target.targetHistory.append(historyEntry)
 
-            // Save to TestDataManager
-            TestDataManager.shared.targets[targetId] = target
+            // Save to LocalDataStore
+            LocalDataStore.shared.targets[targetId] = target
 
             Logger.log(.info, component: "ManualPREntryView",
                       message: "Saved PR for \(entry.exerciseName): \(effectiveMax ?? 0) lbs")
@@ -385,7 +385,7 @@ private struct ExerciseSearchSheet: View {
     @State private var searchText = ""
 
     private var allExercises: [(id: String, name: String)] {
-        TestDataManager.shared.exercises.values
+        LocalDataStore.shared.exercises.values
             .map { ($0.id, $0.name) }
             .sorted { $0.1 < $1.1 }
     }

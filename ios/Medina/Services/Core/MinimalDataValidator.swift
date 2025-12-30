@@ -15,7 +15,7 @@ enum MinimalDataValidator {
     /// Validates critical data relationships and crashes with helpful error if broken.
     /// Call this during app startup in DEBUG builds only.
     static func validateDataOrCrash() {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
 
         // Rule 1: All workout exerciseIds must exist in exercises.json
         for (workoutId, workout) in manager.workouts {

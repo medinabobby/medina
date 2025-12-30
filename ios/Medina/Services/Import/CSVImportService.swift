@@ -295,7 +295,7 @@ struct CSVImportService {
             .trimmingCharacters(in: .whitespaces)
 
         // Check exact matches first
-        for (id, exercise) in TestDataManager.shared.exercises {
+        for (id, exercise) in LocalDataStore.shared.exercises {
             let exerciseName = exercise.name.lowercased()
             if exerciseName == normalizedName {
                 return id
@@ -303,7 +303,7 @@ struct CSVImportService {
         }
 
         // Check partial matches
-        for (id, exercise) in TestDataManager.shared.exercises {
+        for (id, exercise) in LocalDataStore.shared.exercises {
             let exerciseName = exercise.name.lowercased()
 
             // "Squats" → "squat", "Deadlifts" → "deadlift"

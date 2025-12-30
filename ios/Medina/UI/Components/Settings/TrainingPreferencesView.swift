@@ -234,7 +234,7 @@ struct TrainingPreferencesView: View {
     }
 
     private func saveUser() {
-        TestDataManager.shared.users[user.id] = user
+        LocalDataStore.shared.users[user.id] = user
 
         // v206: Sync to Firestore (fire-and-forget)
         Task {
@@ -316,8 +316,8 @@ struct SchedulePickerView: View {
         profile.preferredWorkoutDays = selectedDays
         user.memberProfile = profile
 
-        // Persist to TestDataManager
-        TestDataManager.shared.users[user.id] = user
+        // Persist to LocalDataStore
+        LocalDataStore.shared.users[user.id] = user
 
         // v206: Sync to Firestore (fire-and-forget)
         Task {

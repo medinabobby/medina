@@ -17,7 +17,7 @@ import Foundation
 /// Test fixtures for tool handler tests
 enum TestFixtures {
 
-    // MARK: - Test User IDs (static for TestDataManager registration)
+    // MARK: - Test User IDs (static for LocalDataStore registration)
 
     private static let testUserId = "test_handler_user"
     private static let beginnerUserId = "test_beginner_user"
@@ -26,7 +26,7 @@ enum TestFixtures {
     // MARK: - Test Users
 
     /// Standard test user with complete profile (intermediate, 5 days/week, 60 min sessions)
-    /// Automatically registered in TestDataManager when accessed
+    /// Automatically registered in LocalDataStore when accessed
     /// v89: Also sets up a library with common exercises and protocols
     static var testUser: UnifiedUser {
         let user = UnifiedUser(
@@ -47,8 +47,8 @@ enum TestFixtures {
                 memberSince: Date()
             )
         )
-        // Register in TestDataManager so WorkoutCreationService can find it
-        TestDataManager.shared.users[user.id] = user
+        // Register in LocalDataStore so WorkoutCreationService can find it
+        LocalDataStore.shared.users[user.id] = user
 
         // v89: Set up library with common exercises and protocols for tests
         setupTestLibrary(for: user.id)
@@ -62,7 +62,7 @@ enum TestFixtures {
     private static func setupTestLibrary(for userId: String) {
         // Include ALL exercises to ensure variety for all test scenarios
         // (home/gym, upper/lower/push/pull splits, supersets, etc.)
-        let exerciseIds = Array(TestDataManager.shared.exercises.keys)
+        let exerciseIds = Array(LocalDataStore.shared.exercises.keys)
 
         // Get common protocol IDs
         let protocolIds = [
@@ -76,7 +76,7 @@ enum TestFixtures {
         var library = UserLibrary(userId: userId)
         library.exercises = Set(exerciseIds)
         library.protocols = protocolIds.compactMap { protocolId in
-            guard TestDataManager.shared.protocolConfigs[protocolId] != nil else { return nil }
+            guard LocalDataStore.shared.protocolConfigs[protocolId] != nil else { return nil }
             return ProtocolLibraryEntry(
                 protocolConfigId: protocolId,
                 isEnabled: true,
@@ -87,11 +87,11 @@ enum TestFixtures {
         }
         library.lastModified = Date()
 
-        TestDataManager.shared.libraries[userId] = library
+        LocalDataStore.shared.libraries[userId] = library
     }
 
     /// Beginner test user (for testing experience-appropriate protocols)
-    /// Automatically registered in TestDataManager when accessed
+    /// Automatically registered in LocalDataStore when accessed
     static var beginnerUser: UnifiedUser {
         let user = UnifiedUser(
             id: beginnerUserId,
@@ -111,13 +111,13 @@ enum TestFixtures {
                 memberSince: Date()
             )
         )
-        TestDataManager.shared.users[user.id] = user
+        LocalDataStore.shared.users[user.id] = user
         setupTestLibrary(for: user.id)  // v89: Set up library
         return user
     }
 
     /// Advanced test user (for testing high-intensity protocols)
-    /// Automatically registered in TestDataManager when accessed
+    /// Automatically registered in LocalDataStore when accessed
     static var advancedUser: UnifiedUser {
         let user = UnifiedUser(
             id: advancedUserId,
@@ -137,7 +137,7 @@ enum TestFixtures {
                 memberSince: Date()
             )
         )
-        TestDataManager.shared.users[user.id] = user
+        LocalDataStore.shared.users[user.id] = user
         setupTestLibrary(for: user.id)  // v89: Set up library
         return user
     }
@@ -148,7 +148,7 @@ enum TestFixtures {
         library.exercises = []
         library.protocols = []
         library.lastModified = Date()
-        TestDataManager.shared.libraries[userId] = library
+        LocalDataStore.shared.libraries[userId] = library
     }
 
     // MARK: - Output Parsing Helpers

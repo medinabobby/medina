@@ -139,7 +139,7 @@ class WorkoutSummaryService {
     /// Generate summary for a completed workout
     static func generateSummary(for workoutId: String, memberId: String) -> CompletedWorkoutSummary? {
         // Get workout
-        guard let workout = TestDataManager.shared.workouts[workoutId] else {
+        guard let workout = LocalDataStore.shared.workouts[workoutId] else {
             return nil
         }
 
@@ -147,7 +147,7 @@ class WorkoutSummaryService {
         let metrics = MetricsCalculator.workoutProgress(for: workout, memberId: memberId)
 
         // Get session to calculate actual duration
-        let session = TestDataManager.shared.sessions.values.first { session in
+        let session = LocalDataStore.shared.sessions.values.first { session in
             session.workoutId == workoutId && session.status == .completed
         }
         let actualDuration = session?.activeDuration ?? 0
@@ -185,7 +185,7 @@ class WorkoutSummaryService {
 
         for (index, _) in workout.exerciseIds.enumerated() {
             let protocolVariantId = workout.protocolVariantIds[index] ?? "strength_3x8_moderate"
-            if let protocolConfig = TestDataManager.shared.protocolConfigs[protocolVariantId] {
+            if let protocolConfig = LocalDataStore.shared.protocolConfigs[protocolVariantId] {
                 protocolConfigs.append(protocolConfig)
             }
         }
@@ -205,8 +205,8 @@ class WorkoutSummaryService {
 
     private static func calculateVolumeBreakdown(for workout: Workout, memberId: String) -> VolumeBreakdown {
         // Apply deltas to get latest set data
-        let updatedSets = DeltaStore.shared.applySetDeltas(to: TestDataManager.shared.exerciseSets)
-        let updatedInstances = DeltaStore.shared.applyInstanceDeltas(to: TestDataManager.shared.exerciseInstances)
+        let updatedSets = DeltaStore.shared.applySetDeltas(to: LocalDataStore.shared.exerciseSets)
+        let updatedInstances = DeltaStore.shared.applyInstanceDeltas(to: LocalDataStore.shared.exerciseInstances)
 
         // Build lookup of instances by exerciseId
         let instancesByExercise: [String: ExerciseInstance] = updatedInstances.values
@@ -220,7 +220,7 @@ class WorkoutSummaryService {
         for (index, exerciseId) in workout.exerciseIds.enumerated() {
             // Get protocol config for target volume calculation
             let protocolVariantId = workout.protocolVariantIds[index] ?? "strength_3x8_moderate"
-            let protocolConfig = TestDataManager.shared.protocolConfigs[protocolVariantId]
+            let protocolConfig = LocalDataStore.shared.protocolConfigs[protocolVariantId]
 
             if let instance = instancesByExercise[exerciseId] {
                 // Exercise has instance - use actual set data
@@ -253,8 +253,8 @@ class WorkoutSummaryService {
     // MARK: - Exercise Details
 
     private static func buildExerciseDetails(for workout: Workout) -> [ExerciseSummary] {
-        let updatedSets = DeltaStore.shared.applySetDeltas(to: TestDataManager.shared.exerciseSets)
-        var updatedInstances = TestDataManager.shared.exerciseInstances
+        let updatedSets = DeltaStore.shared.applySetDeltas(to: LocalDataStore.shared.exerciseSets)
+        var updatedInstances = LocalDataStore.shared.exerciseInstances
         updatedInstances = DeltaStore.shared.applyInstanceDeltas(to: updatedInstances)
 
         let instances = updatedInstances.values.filter {
@@ -268,7 +268,7 @@ class WorkoutSummaryService {
         var details: [ExerciseSummary] = []
 
         for instance in instances {
-            guard let exercise = TestDataManager.shared.exercises[instance.exerciseId] else {
+            guard let exercise = LocalDataStore.shared.exercises[instance.exerciseId] else {
                 continue
             }
 

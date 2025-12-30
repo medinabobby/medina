@@ -12,7 +12,7 @@
 import Foundation
 
 /// Protocol resolution service - mirrors ExerciseResolver pattern
-/// Looks up protocols from TestDataManager.shared.protocolConfigs
+/// Looks up protocols from LocalDataStore.shared.protocolConfigs
 enum ProtocolResolver {
 
     // MARK: - Common Name Aliases
@@ -80,26 +80,26 @@ enum ProtocolResolver {
         let lowercased = nameOrId.lowercased().trimmingCharacters(in: .whitespaces)
 
         // 1. Try direct ID lookup first
-        if let config = TestDataManager.shared.protocolConfigs[lowercased] {
+        if let config = LocalDataStore.shared.protocolConfigs[lowercased] {
             return config
         }
 
         // 2. Try alias lookup
         if let protocolId = aliases[lowercased],
-           let config = TestDataManager.shared.protocolConfigs[protocolId] {
+           let config = LocalDataStore.shared.protocolConfigs[protocolId] {
             return config
         }
 
         // 3. Try partial match on protocol IDs
-        let matchingId = TestDataManager.shared.protocolConfigs.keys.first { id in
+        let matchingId = LocalDataStore.shared.protocolConfigs.keys.first { id in
             id.lowercased().contains(lowercased) || lowercased.contains(id.lowercased())
         }
-        if let id = matchingId, let config = TestDataManager.shared.protocolConfigs[id] {
+        if let id = matchingId, let config = LocalDataStore.shared.protocolConfigs[id] {
             return config
         }
 
         // 4. Try matching variant name
-        let matchingConfig = TestDataManager.shared.protocolConfigs.values.first { config in
+        let matchingConfig = LocalDataStore.shared.protocolConfigs.values.first { config in
             config.variantName.lowercased().contains(lowercased)
         }
         if let config = matchingConfig {
@@ -114,18 +114,18 @@ enum ProtocolResolver {
         let lowercased = nameOrId.lowercased().trimmingCharacters(in: .whitespaces)
 
         // 1. Direct ID exists
-        if TestDataManager.shared.protocolConfigs[lowercased] != nil {
+        if LocalDataStore.shared.protocolConfigs[lowercased] != nil {
             return lowercased
         }
 
         // 2. Alias lookup
         if let protocolId = aliases[lowercased],
-           TestDataManager.shared.protocolConfigs[protocolId] != nil {
+           LocalDataStore.shared.protocolConfigs[protocolId] != nil {
             return protocolId
         }
 
         // 3. Partial match
-        if let matchingId = TestDataManager.shared.protocolConfigs.keys.first(where: { id in
+        if let matchingId = LocalDataStore.shared.protocolConfigs.keys.first(where: { id in
             id.lowercased().contains(lowercased) || lowercased.contains(id.lowercased())
         }) {
             return matchingId
@@ -142,7 +142,7 @@ enum ProtocolResolver {
     static func search(query: String) -> [(id: String, config: ProtocolConfig)] {
         let lowercased = query.lowercased()
 
-        return TestDataManager.shared.protocolConfigs.compactMap { (id, config) in
+        return LocalDataStore.shared.protocolConfigs.compactMap { (id, config) in
             // Match on ID
             if id.lowercased().contains(lowercased) {
                 return (id, config)
@@ -167,7 +167,7 @@ enum ProtocolResolver {
     static func byFamily(_ family: String) -> [(id: String, config: ProtocolConfig)] {
         let lowercased = family.lowercased()
 
-        return TestDataManager.shared.protocolConfigs.compactMap { (id, config) in
+        return LocalDataStore.shared.protocolConfigs.compactMap { (id, config) in
             if let protocolFamily = config.protocolFamily,
                protocolFamily.lowercased().contains(lowercased) {
                 return (id, config)
@@ -184,7 +184,7 @@ enum ProtocolResolver {
 
     /// Get all available protocol IDs
     static var allProtocolIds: [String] {
-        Array(TestDataManager.shared.protocolConfigs.keys).sorted()
+        Array(LocalDataStore.shared.protocolConfigs.keys).sorted()
     }
 
     /// Get all aliases (for AI prompt)
@@ -194,7 +194,7 @@ enum ProtocolResolver {
 
     /// Get protocol families
     static var families: [String] {
-        let families = Set(TestDataManager.shared.protocolConfigs.values.compactMap { $0.protocolFamily })
+        let families = Set(LocalDataStore.shared.protocolConfigs.values.compactMap { $0.protocolFamily })
         return Array(families).sorted()
     }
 }

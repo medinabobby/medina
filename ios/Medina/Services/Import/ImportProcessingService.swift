@@ -161,7 +161,7 @@ struct ImportProcessingService {
 
         // 3. Save targets to storage
         for target in targets {
-            TestDataManager.shared.targets[target.id] = target
+            LocalDataStore.shared.targets[target.id] = target
         }
 
         // 4. Add exercises to user's library
@@ -173,7 +173,7 @@ struct ImportProcessingService {
         storeImportData(importData, userId: userId)
 
         // 6. v75.0: Extract intelligence from import data
-        let userWeight = TestDataManager.shared.users[userId]?.memberProfile?.currentWeight
+        let userWeight = LocalDataStore.shared.users[userId]?.memberProfile?.currentWeight
         let intelligence = ImportIntelligenceService.analyze(
             importData: importData,
             userWeight: userWeight
@@ -216,7 +216,7 @@ struct ImportProcessingService {
             .trimmingCharacters(in: .whitespaces)
 
         // Check exact matches first
-        for (id, exercise) in TestDataManager.shared.exercises {
+        for (id, exercise) in LocalDataStore.shared.exercises {
             let exerciseName = exercise.name.lowercased()
             if exerciseName == normalizedName {
                 return id
@@ -224,7 +224,7 @@ struct ImportProcessingService {
         }
 
         // Check partial matches
-        for (id, exercise) in TestDataManager.shared.exercises {
+        for (id, exercise) in LocalDataStore.shared.exercises {
             let exerciseName = exercise.name.lowercased()
 
             // "Squats" → "squat", "Deadlifts" → "deadlift"
@@ -300,11 +300,11 @@ struct ImportProcessingService {
     /// Store import data for historical lookup
     @MainActor
     private static func storeImportData(_ importData: ImportedWorkoutData, userId: String) {
-        // Add to TestDataManager's import storage
-        if TestDataManager.shared.importedData[userId] == nil {
-            TestDataManager.shared.importedData[userId] = []
+        // Add to LocalDataStore's import storage
+        if LocalDataStore.shared.importedData[userId] == nil {
+            LocalDataStore.shared.importedData[userId] = []
         }
-        TestDataManager.shared.importedData[userId]?.append(importData)
+        LocalDataStore.shared.importedData[userId]?.append(importData)
 
         Logger.log(.info, component: "ImportProcessingService",
                    message: "Stored import data: \(importData.id) for user \(userId)")
@@ -315,7 +315,7 @@ struct ImportProcessingService {
     /// Get all sessions for a specific exercise across all imports
     @MainActor
     static func getSessionsForExercise(_ exerciseId: String, userId: String) -> [ImportedSessionExercise] {
-        guard let imports = TestDataManager.shared.importedData[userId] else { return [] }
+        guard let imports = LocalDataStore.shared.importedData[userId] else { return [] }
 
         var results: [ImportedSessionExercise] = []
 
@@ -335,7 +335,7 @@ struct ImportProcessingService {
     /// Only updates if confidence is high enough and field is at default/nil
     @MainActor
     private static func updateProfileFromIntelligence(_ intelligence: ImportIntelligence, userId: String) {
-        guard var user = TestDataManager.shared.users[userId] else {
+        guard var user = LocalDataStore.shared.users[userId] else {
             Logger.log(.warning, component: "ImportProcessingService",
                        message: "Cannot update profile: user not found")
             return
@@ -390,7 +390,7 @@ struct ImportProcessingService {
         // Save if anything changed
         if updated {
             user.memberProfile = profile
-            TestDataManager.shared.users[userId] = user
+            LocalDataStore.shared.users[userId] = user
 
             // v206: Sync to Firestore (fire-and-forget)
             Task {

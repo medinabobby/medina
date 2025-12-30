@@ -83,8 +83,8 @@ class WorkoutSessionCoordinator: ObservableObject {
 
     /// Check if there's an active session and restore state
     func checkForActiveSession() {
-        if let session = TestDataManager.shared.activeSession(for: memberId),
-           let workout = TestDataManager.shared.workouts[session.workoutId] {
+        if let session = LocalDataStore.shared.activeSession(for: memberId),
+           let workout = LocalDataStore.shared.workouts[session.workoutId] {
             self.activeSession = session
             self.workout = workout
             self.isWorkoutActive = true
@@ -98,7 +98,7 @@ class WorkoutSessionCoordinator: ObservableObject {
 
     /// Check if a specific workout has an active session
     func hasActiveSession(for workoutId: String) -> Bool {
-        if let session = TestDataManager.shared.activeSession(for: memberId) {
+        if let session = LocalDataStore.shared.activeSession(for: memberId) {
             return session.workoutId == workoutId
         }
         return false
@@ -107,9 +107,9 @@ class WorkoutSessionCoordinator: ObservableObject {
     /// Restore active session for a specific workout
     /// v57.7: Made synchronous to prevent race conditions in view rendering
     func restoreSession(for workoutId: String) {
-        if let session = TestDataManager.shared.activeSession(for: memberId),
+        if let session = LocalDataStore.shared.activeSession(for: memberId),
            session.workoutId == workoutId,
-           let workout = TestDataManager.shared.workouts[session.workoutId] {
+           let workout = LocalDataStore.shared.workouts[session.workoutId] {
             self.activeSession = session
             self.workout = workout
             self.isWorkoutActive = true
@@ -124,12 +124,12 @@ class WorkoutSessionCoordinator: ObservableObject {
         }
     }
 
-    /// v61.1: Reload workout data from TestDataManager after exercise substitution
-    /// This updates the stored workout reference to reflect changes made directly to TestDataManager
+    /// v61.1: Reload workout data from LocalDataStore after exercise substitution
+    /// This updates the stored workout reference to reflect changes made directly to LocalDataStore
     func reloadWorkout() {
         guard let currentWorkout = workout else { return }
 
-        if let updatedWorkout = TestDataManager.shared.workouts[currentWorkout.id] {
+        if let updatedWorkout = LocalDataStore.shared.workouts[currentWorkout.id] {
             self.workout = updatedWorkout
 
             Logger.log(.info, component: "WorkoutSessionCoordinator",
@@ -141,7 +141,7 @@ class WorkoutSessionCoordinator: ObservableObject {
     /// v55.0: Guided-only mode (removed mode parameter)
     /// v68.0: Added explicit single-workout enforcement
     func startWorkout(workoutId: String) async {
-        guard let workout = TestDataManager.shared.workouts[workoutId] else {
+        guard let workout = LocalDataStore.shared.workouts[workoutId] else {
             Logger.log(.error, component: "WorkoutSessionCoordinator",
                        message: "Cannot start workout: Workout not found")
             return
@@ -149,7 +149,7 @@ class WorkoutSessionCoordinator: ObservableObject {
 
         // v68.0: Explicit single-workout enforcement
         // Prevent starting a second workout while one is already active
-        if let existingSession = TestDataManager.shared.activeSession(for: memberId) {
+        if let existingSession = LocalDataStore.shared.activeSession(for: memberId) {
             Logger.log(.warning, component: "WorkoutSessionCoordinator",
                        message: "Cannot start workout '\(workout.displayName)': Active session already exists for workout '\(existingSession.workoutId)'")
             return
@@ -172,7 +172,7 @@ class WorkoutSessionCoordinator: ObservableObject {
         )
 
         // Save session
-        TestDataManager.shared.sessions[session.id] = session
+        LocalDataStore.shared.sessions[session.id] = session
 
         // v96.1: Update workout status to inProgress
         // This makes the sidebar dot turn blue (active) instead of grey (scheduled)
@@ -185,7 +185,7 @@ class WorkoutSessionCoordinator: ObservableObject {
 
         var updatedWorkout = workout
         updatedWorkout.status = .inProgress
-        TestDataManager.shared.workouts[workout.id] = updatedWorkout
+        LocalDataStore.shared.workouts[workout.id] = updatedWorkout
 
         // Update state
         self.activeSession = session
@@ -219,7 +219,7 @@ class WorkoutSessionCoordinator: ObservableObject {
         }
 
         // Get user for training style
-        guard let user = TestDataManager.shared.users[memberId] else {
+        guard let user = LocalDataStore.shared.users[memberId] else {
             // Fall back to template if no user
             if let voiceService = voiceService {
                 let intro = VoiceTemplateService.workoutIntro(
@@ -329,7 +329,7 @@ class WorkoutSessionCoordinator: ObservableObject {
         updatedSet.actualWeight = weight
         updatedSet.actualReps = reps
         updatedSet.completion = .completed
-        TestDataManager.shared.exerciseSets[set.id] = updatedSet
+        LocalDataStore.shared.exerciseSets[set.id] = updatedSet
 
         // v202: Sync set to Firestore in real-time (fire-and-forget)
         let setToSync = updatedSet
@@ -420,7 +420,7 @@ class WorkoutSessionCoordinator: ObservableObject {
                 // v98: Announce superset rotation (different exercise in same group)
                 if didRotateInSuperset {
                     let nextExerciseId = workout.exerciseIds[nextExerciseIndex]
-                    if let nextExercise = TestDataManager.shared.exercises[nextExerciseId] {
+                    if let nextExercise = LocalDataStore.shared.exercises[nextExerciseId] {
                         let rotationAnnouncement = VoiceTemplateService.supersetRotation(
                             exerciseName: nextExercise.name,
                             setNumber: updatedSession.currentSetIndex + 1,
@@ -439,10 +439,10 @@ class WorkoutSessionCoordinator: ObservableObject {
                 // v97: Announce next exercise if we advanced to a new one (not in same superset)
                 if didAdvanceExercise {
                     let nextExerciseId = workout.exerciseIds[nextExerciseIndex]
-                    if let nextExercise = TestDataManager.shared.exercises[nextExerciseId] {
+                    if let nextExercise = LocalDataStore.shared.exercises[nextExerciseId] {
                         // Get set count for next exercise
                         let instanceId = "\(workout.id)_ex\(nextExerciseIndex)"
-                        let setCount = TestDataManager.shared.exerciseInstances[instanceId]?.setIds.count ?? 3
+                        let setCount = LocalDataStore.shared.exerciseInstances[instanceId]?.setIds.count ?? 3
 
                         let transitionAnnouncement = VoiceTemplateService.exerciseTransition(
                             exerciseName: nextExercise.name,
@@ -514,7 +514,7 @@ class WorkoutSessionCoordinator: ObservableObject {
         updatedSet.actualDuration = durationSeconds
         updatedSet.actualDistance = distance
         updatedSet.completion = .completed
-        TestDataManager.shared.exerciseSets[set.id] = updatedSet
+        LocalDataStore.shared.exerciseSets[set.id] = updatedSet
 
         // v202: Sync cardio set to Firestore in real-time (fire-and-forget)
         let setToSync = updatedSet
@@ -585,7 +585,7 @@ class WorkoutSessionCoordinator: ObservableObject {
 
         // Update session with new rest timer
         session.activeRestTimer = restTimer
-        TestDataManager.shared.sessions[session.id] = session
+        LocalDataStore.shared.sessions[session.id] = session
         self.activeSession = session
 
         // Update local countdown state
@@ -608,7 +608,7 @@ class WorkoutSessionCoordinator: ObservableObject {
         // Clear rest timer
         var updatedSession = session
         updatedSession.activeRestTimer = nil
-        TestDataManager.shared.sessions[session.id] = updatedSession
+        LocalDataStore.shared.sessions[session.id] = updatedSession
 
         self.activeSession = updatedSession
         self.restTimeRemaining = nil
@@ -685,7 +685,7 @@ class WorkoutSessionCoordinator: ObservableObject {
     /// Reset exercise - clear data, back to Set 1 if active
     /// v56.0: Delegates to service
     func resetExercise(instanceId: String) async {
-        guard let instance = TestDataManager.shared.exerciseInstances[instanceId] else { return }
+        guard let instance = LocalDataStore.shared.exerciseInstances[instanceId] else { return }
 
         // Use service to reset exercise
         _ = progressionService.resetExercise(instanceId: instanceId)
@@ -726,8 +726,8 @@ class WorkoutSessionCoordinator: ObservableObject {
         // If all sets are skipped/unlogged, mark workout as skipped instead of completed
         let allWorkoutSets = workout.exerciseIds.enumerated().flatMap { (index, _) -> [ExerciseSet] in
             let instanceId = "\(workout.id)_ex\(index)"
-            guard let instance = TestDataManager.shared.exerciseInstances[instanceId] else { return [] }
-            return instance.setIds.compactMap { TestDataManager.shared.exerciseSets[$0] }
+            guard let instance = LocalDataStore.shared.exerciseInstances[instanceId] else { return [] }
+            return instance.setIds.compactMap { LocalDataStore.shared.exerciseSets[$0] }
         }
         let hasAnyCompletedSet = allWorkoutSets.contains { $0.completion == .completed }
         let finalStatus: ExecutionStatus = hasAnyCompletedSet ? .completed : .skipped
@@ -750,7 +750,7 @@ class WorkoutSessionCoordinator: ObservableObject {
         var updatedWorkout = workout
         updatedWorkout.status = finalStatus == .completed ? .completed : .skipped
         updatedWorkout.completedDate = finalStatus == .completed ? Date() : nil
-        TestDataManager.shared.workouts[workout.id] = updatedWorkout
+        LocalDataStore.shared.workouts[workout.id] = updatedWorkout
 
         Logger.log(.info, component: "WorkoutSessionCoordinator",
                    message: "v165: Workout final status: \(finalStatus.rawValue) (hasAnyCompletedSet=\(hasAnyCompletedSet))")
@@ -758,14 +758,14 @@ class WorkoutSessionCoordinator: ObservableObject {
         // v52.3: Mark instances completed/skipped based on execution mode
         // Process ALL instances (not just remaining) to handle both modes correctly
         for (exerciseIndex, exerciseId) in workout.exerciseIds.enumerated() {
-            if let instance = TestDataManager.shared.exerciseInstances.values.first(where: {
+            if let instance = LocalDataStore.shared.exerciseInstances.values.first(where: {
                 $0.workoutId == workout.id && $0.exerciseId == exerciseId
             }) {
                 // v57.0: Check actual set completion status, not just progression
                 let instanceStatus: ExecutionStatus
                 if exerciseIndex < session.currentExerciseIndex {
                     // Progressed past this exercise - check if ANY set was completed
-                    let allSets = TestDataManager.shared.exerciseSets.values.filter {
+                    let allSets = LocalDataStore.shared.exerciseSets.values.filter {
                         $0.exerciseInstanceId == instance.id
                     }
                     let hasCompletedSet = allSets.contains { $0.completion == .completed }
@@ -784,7 +784,7 @@ class WorkoutSessionCoordinator: ObservableObject {
 
                 // Mark unlogged sets as skipped (leave completed sets alone)
                 for setId in instance.setIds {
-                    if let set = TestDataManager.shared.exerciseSets[setId],
+                    if let set = LocalDataStore.shared.exerciseSets[setId],
                        set.actualWeight == nil && set.actualReps == nil {
                         let setDelta = DeltaStore.SetDelta(
                             setId: setId,
@@ -795,19 +795,19 @@ class WorkoutSessionCoordinator: ObservableObject {
                 }
 
                 // v82.3: Record exercise usage for AI learning
-                let allSetsForUsage = TestDataManager.shared.exerciseSets.values.filter {
+                let allSetsForUsage = LocalDataStore.shared.exerciseSets.values.filter {
                     $0.exerciseInstanceId == instance.id
                 }
                 let completedSetsCount = allSetsForUsage.filter { $0.completion == .completed }.count
                 let totalSetsCount = allSetsForUsage.count
 
-                var prefs = TestDataManager.shared.userExercisePreferences(for: memberId)
+                var prefs = LocalDataStore.shared.userExercisePreferences(for: memberId)
                 prefs.recordUsage(
                     exerciseId: exerciseId,
                     completedSets: completedSetsCount,
                     totalSets: totalSetsCount
                 )
-                TestDataManager.shared.exercisePreferences[memberId] = prefs
+                LocalDataStore.shared.exercisePreferences[memberId] = prefs
             }
         }
 
@@ -820,19 +820,19 @@ class WorkoutSessionCoordinator: ObservableObject {
         var updatedSession = session
         updatedSession.status = .completed
         updatedSession.endTime = Date()
-        TestDataManager.shared.sessions[session.id] = updatedSession
+        LocalDataStore.shared.sessions[session.id] = updatedSession
 
         // v206: Sync completed workout to Firestore
-        if let program = TestDataManager.shared.programs[updatedWorkout.programId],
-           let plan = TestDataManager.shared.plans[program.planId] {
+        if let program = LocalDataStore.shared.programs[updatedWorkout.programId],
+           let plan = LocalDataStore.shared.plans[program.planId] {
 
             // Sync to Firestore (fire-and-forget)
             let completedWorkout = updatedWorkout
             Task {
                 do {
-                    let instances = TestDataManager.shared.exerciseInstances.values.filter { $0.workoutId == completedWorkout.id }
+                    let instances = LocalDataStore.shared.exerciseInstances.values.filter { $0.workoutId == completedWorkout.id }
                     let instanceIds = Set(instances.map { $0.id })
-                    let sets = TestDataManager.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
+                    let sets = LocalDataStore.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
 
                     try await FirestoreWorkoutRepository.shared.saveFullWorkout(
                         workout: completedWorkout,
@@ -870,7 +870,7 @@ class WorkoutSessionCoordinator: ObservableObject {
             Task {
                 // Get user for voice settings
                 // v182: Removed trainingStyle - using default Medina personality
-                if let user = TestDataManager.shared.users[memberId] {
+                if let user = LocalDataStore.shared.users[memberId] {
                     let voiceGender = user.memberProfile?.voiceSettings?.voiceGender ?? .female
                     let voiceSettings = user.memberProfile?.voiceSettings ?? .default
 
@@ -962,10 +962,10 @@ class WorkoutSessionCoordinator: ObservableObject {
 
     // MARK: - Helper Methods (v56.0)
 
-    /// Persist updated session to TestDataManager and update activeSession
+    /// Persist updated session to LocalDataStore and update activeSession
     /// - Parameter session: Session to persist
     private func updateSession(_ session: Session) {
-        TestDataManager.shared.sessions[session.id] = session
+        LocalDataStore.shared.sessions[session.id] = session
         activeSession = session
     }
 
@@ -980,7 +980,7 @@ class WorkoutSessionCoordinator: ObservableObject {
 
     /// v95.1: Get user's verbosity level for template-based announcements
     private func getUserVerbosity() -> Int {
-        guard let user = TestDataManager.shared.users[memberId],
+        guard let user = LocalDataStore.shared.users[memberId],
               let profile = user.memberProfile else {
             return 3 // Default moderate verbosity
         }
@@ -989,7 +989,7 @@ class WorkoutSessionCoordinator: ObservableObject {
 
     /// v95.1: Check if voice is enabled for this user
     private func isVoiceEnabled() -> Bool {
-        guard let user = TestDataManager.shared.users[memberId],
+        guard let user = LocalDataStore.shared.users[memberId],
               let profile = user.memberProfile else {
             return true // Default to enabled
         }
@@ -1015,7 +1015,7 @@ class WorkoutSessionCoordinator: ObservableObject {
 
         // Get exercise name
         let exerciseId = workout.exerciseIds[session.currentExerciseIndex]
-        let exercise = TestDataManager.shared.exercises[exerciseId]
+        let exercise = LocalDataStore.shared.exercises[exerciseId]
 
         let announcement = VoiceTemplateService.setTarget(
             setNumber: session.currentSetIndex + 1,
@@ -1039,7 +1039,7 @@ class WorkoutSessionCoordinator: ObservableObject {
     /// Called after each workout completion
     private func checkProgramCompletionAndCascade(program: Program, plan: Plan) {
         // Get all workouts in this program
-        let programWorkouts = TestDataManager.shared.workouts.values.filter {
+        let programWorkouts = LocalDataStore.shared.workouts.values.filter {
             $0.programId == program.id
         }
 
@@ -1056,13 +1056,13 @@ class WorkoutSessionCoordinator: ObservableObject {
         // Mark current program as completed
         var updatedProgram = program
         updatedProgram.status = .completed
-        TestDataManager.shared.programs[program.id] = updatedProgram
+        LocalDataStore.shared.programs[program.id] = updatedProgram
 
         Logger.log(.info, component: "WorkoutSessionCoordinator",
                    message: "Program completed: \(program.name)")
 
         // Find next program in the plan (sorted by start date)
-        let allPlanPrograms = TestDataManager.shared.programs.values
+        let allPlanPrograms = LocalDataStore.shared.programs.values
             .filter { $0.planId == plan.id }
             .sorted { $0.startDate < $1.startDate }
 
@@ -1072,7 +1072,7 @@ class WorkoutSessionCoordinator: ObservableObject {
             // Mark the plan as completed
             var updatedPlan = plan
             updatedPlan.status = .completed
-            TestDataManager.shared.plans[plan.id] = updatedPlan
+            LocalDataStore.shared.plans[plan.id] = updatedPlan
 
             Logger.log(.info, component: "WorkoutSessionCoordinator",
                        message: "Plan completed: \(plan.name) - all programs finished!")
@@ -1093,7 +1093,7 @@ class WorkoutSessionCoordinator: ObservableObject {
         let nextProgram = allPlanPrograms[currentIndex + 1]
         var activatedProgram = nextProgram
         activatedProgram.status = .active
-        TestDataManager.shared.programs[nextProgram.id] = activatedProgram
+        LocalDataStore.shared.programs[nextProgram.id] = activatedProgram
 
         Logger.log(.info, component: "WorkoutSessionCoordinator",
                    message: "Auto-activated next phase: \(nextProgram.name) (focus: \(nextProgram.focus.displayName))")
@@ -1121,7 +1121,7 @@ class WorkoutSessionCoordinator: ObservableObject {
         restDuration: TimeInterval?
     ) async -> String {
         // Get user settings
-        guard let user = TestDataManager.shared.users[memberId] else {
+        guard let user = LocalDataStore.shared.users[memberId] else {
             return getFallbackAnnouncement(trigger: trigger, workout: workout)
         }
 

@@ -117,7 +117,7 @@ enum UserResolver {
         let users = self.users(for: userContext, withRole: .trainer)
 
         // Log permission filtering results
-        let totalTrainers = Array(TestDataManager.shared.users.values).filter { $0.hasRole(.trainer) }
+        let totalTrainers = Array(LocalDataStore.shared.users.values).filter { $0.hasRole(.trainer) }
         Logger.log(.debug, component: "UserResolver", userContext: userContext,
                    message: "Permission filtering: \(users.count) of \(totalTrainers.count) trainers visible")
 

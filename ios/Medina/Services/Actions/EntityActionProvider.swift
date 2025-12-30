@@ -92,8 +92,8 @@ enum EntityActionProvider {
     private static func workoutActions(for descriptor: EntityDescriptor) -> [EntityAction] {
         var actions: [EntityAction] = []
 
-        // Get workout from TestDataManager
-        guard let workout = TestDataManager.shared.workouts[descriptor.entityId] else {
+        // Get workout from LocalDataStore
+        guard let workout = LocalDataStore.shared.workouts[descriptor.entityId] else {
             return actions
         }
 
@@ -167,9 +167,9 @@ enum EntityActionProvider {
 
     /// Check if workout belongs to a draft plan
     private static func isWorkoutInDraftPlan(workoutId: String) -> Bool {
-        guard let workout = TestDataManager.shared.workouts[workoutId],
-              let program = TestDataManager.shared.programs[workout.programId],
-              let plan = TestDataManager.shared.plans[program.planId] else {
+        guard let workout = LocalDataStore.shared.workouts[workoutId],
+              let program = LocalDataStore.shared.programs[workout.programId],
+              let plan = LocalDataStore.shared.plans[program.planId] else {
             return false
         }
 
@@ -178,7 +178,7 @@ enum EntityActionProvider {
 
     /// Check if workout has at least one completed set
     private static func hasCompletedSets(workout: Workout) -> Bool {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
 
         // Check all exercise instances for this workout
         for (index, _) in workout.exerciseIds.enumerated() {

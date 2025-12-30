@@ -52,7 +52,7 @@ enum PlanResolver {
             if plan.trainerId == userId { return true }
 
             // Trainer's assigned member owns this plan
-            if let member = TestDataManager.shared.users[plan.memberId],
+            if let member = LocalDataStore.shared.users[plan.memberId],
                member.memberProfile?.trainerId == userId {
                 return true
             }
@@ -60,8 +60,8 @@ enum PlanResolver {
 
         case .admin, .gymOwner:
             // Admin/GymOwner can access plans for users in their gym
-            guard let viewer = TestDataManager.shared.users[userId],
-                  let member = TestDataManager.shared.users[plan.memberId] else {
+            guard let viewer = LocalDataStore.shared.users[userId],
+                  let member = LocalDataStore.shared.users[plan.memberId] else {
                 return false
             }
             return viewer.gymId == member.gymId

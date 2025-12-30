@@ -42,7 +42,7 @@ enum ProtocolGroupingService {
     /// Get all protocol families for sidebar display
     /// Returns families sorted alphabetically by display name
     static func getProtocolFamilies() -> [ProtocolFamily] {
-        let allConfigs = Array(TestDataManager.shared.protocolConfigs.values)
+        let allConfigs = Array(LocalDataStore.shared.protocolConfigs.values)
 
         // Group by protocolFamily
         var grouped: [String: [ProtocolConfig]] = [:]
@@ -73,7 +73,7 @@ enum ProtocolGroupingService {
 
     /// Get all variants for a given protocol family
     static func getVariants(for familyId: String) -> [ProtocolConfig] {
-        TestDataManager.shared.protocolConfigs.values
+        LocalDataStore.shared.protocolConfigs.values
             .filter { $0.protocolFamily == familyId }
             .sorted { $0.variantName < $1.variantName }
     }

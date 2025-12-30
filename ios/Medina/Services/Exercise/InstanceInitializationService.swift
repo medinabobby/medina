@@ -71,7 +71,7 @@ enum InstanceInitializationService {
         }
 
         // Get protocol config to determine set count
-        guard let baseProtocolConfig = TestDataManager.shared.protocolConfigs[protocolVariantId] else {
+        guard let baseProtocolConfig = LocalDataStore.shared.protocolConfigs[protocolVariantId] else {
             Logger.log(.warning, component: "InstanceInitializationService",
                       message: "Protocol config not found: \(protocolVariantId)")
             return
@@ -111,8 +111,8 @@ enum InstanceInitializationService {
             supersetLabel: supersetLabel
         )
 
-        // Store in TestDataManager
-        TestDataManager.shared.exerciseInstances[instanceId] = instance
+        // Store in LocalDataStore
+        LocalDataStore.shared.exerciseInstances[instanceId] = instance
 
         // Create sets
         createSets(
@@ -133,7 +133,7 @@ enum InstanceInitializationService {
     ///   - programIntensity: Program's weekly intensity (e.g., 0.65 for week 2 of 60%-70% progression)
     private static func createSets(for instance: ExerciseInstance, protocolConfig: ProtocolConfig, memberId: String, exerciseId: String, programIntensity: Double) {
         // Get exercise to determine type (compound vs isolation)
-        guard let exercise = TestDataManager.shared.exercises[exerciseId] else {
+        guard let exercise = LocalDataStore.shared.exercises[exerciseId] else {
             Logger.log(.warning, component: "InstanceInitializationService",
                       message: "Exercise not found: \(exerciseId)")
             return
@@ -232,8 +232,8 @@ enum InstanceInitializationService {
                 recordedDate: nil
             )
 
-            // Store in TestDataManager
-            TestDataManager.shared.exerciseSets[setId] = set
+            // Store in LocalDataStore
+            LocalDataStore.shared.exerciseSets[setId] = set
         }
         // v63.0: Removed per-instance logging (was causing 6000+ lines for plan creation)
         // Summary log at initializeInstances() level is sufficient
@@ -250,7 +250,7 @@ enum InstanceInitializationService {
     /// - Returns: ProtocolConfig with customizations applied, or nil if base not found
     static func effectiveProtocolConfig(for instance: ExerciseInstance, in workout: Workout) -> ProtocolConfig? {
         // Get base protocol config
-        guard let baseConfig = TestDataManager.shared.protocolConfigs[instance.protocolVariantId] else {
+        guard let baseConfig = LocalDataStore.shared.protocolConfigs[instance.protocolVariantId] else {
             return nil
         }
 

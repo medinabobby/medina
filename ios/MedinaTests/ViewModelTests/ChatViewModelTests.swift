@@ -75,13 +75,13 @@ final class ChatViewModelTests: XCTestCase {
     func testIsNewUser_WithWorkoutHistory_ReturnsFalse() {
         // Given: User with workout history (need full plan -> program -> workout chain)
         let plan = createTestPlan(userId: testUser.id)
-        TestDataManager.shared.plans[plan.id] = plan
+        LocalDataStore.shared.plans[plan.id] = plan
 
         let program = createTestProgram(userId: testUser.id, planId: plan.id)
-        TestDataManager.shared.programs[program.id] = program
+        LocalDataStore.shared.programs[program.id] = program
 
         let workout = createTestWorkout(userId: testUser.id, programId: program.id, daysFromToday: -1, status: .completed)
-        TestDataManager.shared.workouts[workout.id] = workout
+        LocalDataStore.shared.workouts[workout.id] = workout
 
         // Recreate view model
         viewModel = ChatViewModel(user: testUser)
@@ -113,13 +113,13 @@ final class ChatViewModelTests: XCTestCase {
     func testFallbackChips_ActiveSession_ShouldNotShowStartChips() {
         // Given: User with an active session
         let workout = createTestWorkout(userId: testUser.id, daysFromToday: 0, status: .inProgress)
-        TestDataManager.shared.workouts[workout.id] = workout
+        LocalDataStore.shared.workouts[workout.id] = workout
 
         let session = createActiveSession(workoutId: workout.id, userId: testUser.id)
-        TestDataManager.shared.sessions[session.id] = session
+        LocalDataStore.shared.sessions[session.id] = session
 
         // When: Check active session
-        let activeSession = TestDataManager.shared.activeSession(for: testUser.id)
+        let activeSession = LocalDataStore.shared.activeSession(for: testUser.id)
 
         // Then: Active session should exist (this would prevent fallback chips)
         XCTAssertNotNil(activeSession, "Active session should exist")
@@ -131,13 +131,13 @@ final class ChatViewModelTests: XCTestCase {
         // This simulates app restart where session is lost but status persisted
         // Need full plan -> program -> workout chain for WorkoutResolver
         let plan = createTestPlan(userId: testUser.id)
-        TestDataManager.shared.plans[plan.id] = plan
+        LocalDataStore.shared.plans[plan.id] = plan
 
         let program = createTestProgram(userId: testUser.id, planId: plan.id)
-        TestDataManager.shared.programs[program.id] = program
+        LocalDataStore.shared.programs[program.id] = program
 
         let workout = createTestWorkout(userId: testUser.id, programId: program.id, daysFromToday: 0, status: .inProgress)
-        TestDataManager.shared.workouts[workout.id] = workout
+        LocalDataStore.shared.workouts[workout.id] = workout
 
         // When: Query workouts
         let allWorkouts = WorkoutDataStore.workouts(for: testUser.id, temporal: .unspecified, dateInterval: nil)
@@ -151,13 +151,13 @@ final class ChatViewModelTests: XCTestCase {
         // Given: User with a workout scheduled for today
         // Need full plan -> program -> workout chain for WorkoutResolver
         let plan = createTestPlan(userId: testUser.id)
-        TestDataManager.shared.plans[plan.id] = plan
+        LocalDataStore.shared.plans[plan.id] = plan
 
         let program = createTestProgram(userId: testUser.id, planId: plan.id)
-        TestDataManager.shared.programs[program.id] = program
+        LocalDataStore.shared.programs[program.id] = program
 
         let todayWorkout = createTestWorkout(userId: testUser.id, programId: program.id, daysFromToday: 0, status: .scheduled)
-        TestDataManager.shared.workouts[todayWorkout.id] = todayWorkout
+        LocalDataStore.shared.workouts[todayWorkout.id] = todayWorkout
 
         // When: Query today's workouts
         let calendar = Calendar.current
@@ -184,13 +184,13 @@ final class ChatViewModelTests: XCTestCase {
         // Given: User with a missed workout (past date, still scheduled)
         // Need full plan -> program -> workout chain for WorkoutResolver
         let plan = createTestPlan(userId: testUser.id)
-        TestDataManager.shared.plans[plan.id] = plan
+        LocalDataStore.shared.plans[plan.id] = plan
 
         let program = createTestProgram(userId: testUser.id, planId: plan.id)
-        TestDataManager.shared.programs[program.id] = program
+        LocalDataStore.shared.programs[program.id] = program
 
         let missedWorkout = createTestWorkout(userId: testUser.id, programId: program.id, daysFromToday: -3, status: .scheduled)
-        TestDataManager.shared.workouts[missedWorkout.id] = missedWorkout
+        LocalDataStore.shared.workouts[missedWorkout.id] = missedWorkout
 
         // When: Query missed workouts
         let calendar = Calendar.current
@@ -217,13 +217,13 @@ final class ChatViewModelTests: XCTestCase {
         // Given: User with a future workout (no today workout)
         // Need full plan -> program -> workout chain for WorkoutResolver
         let plan = createTestPlan(userId: testUser.id)
-        TestDataManager.shared.plans[plan.id] = plan
+        LocalDataStore.shared.plans[plan.id] = plan
 
         let program = createTestProgram(userId: testUser.id, planId: plan.id)
-        TestDataManager.shared.programs[program.id] = program
+        LocalDataStore.shared.programs[program.id] = program
 
         let futureWorkout = createTestWorkout(userId: testUser.id, programId: program.id, daysFromToday: 2, status: .scheduled)
-        TestDataManager.shared.workouts[futureWorkout.id] = futureWorkout
+        LocalDataStore.shared.workouts[futureWorkout.id] = futureWorkout
 
         // When: Query upcoming workouts
         let calendar = Calendar.current
@@ -295,7 +295,7 @@ final class ChatViewModelTests: XCTestCase {
                 memberSince: Date()
             )
         )
-        TestDataManager.shared.users[user.id] = user
+        LocalDataStore.shared.users[user.id] = user
         return user
     }
 
@@ -391,10 +391,10 @@ final class ChatViewModelTests: XCTestCase {
 
     private func clearUserData(userId: String) {
         // Clear workouts for this user
-        let workoutIds = TestDataManager.shared.workouts.values
+        let workoutIds = LocalDataStore.shared.workouts.values
             .filter { workout in
-                if let program = TestDataManager.shared.programs[workout.programId],
-                   let plan = TestDataManager.shared.plans[program.planId] {
+                if let program = LocalDataStore.shared.programs[workout.programId],
+                   let plan = LocalDataStore.shared.plans[program.planId] {
                     return plan.memberId == userId
                 }
                 return workout.programId.contains(userId)
@@ -402,24 +402,24 @@ final class ChatViewModelTests: XCTestCase {
             .map { $0.id }
 
         for id in workoutIds {
-            TestDataManager.shared.workouts.removeValue(forKey: id)
+            LocalDataStore.shared.workouts.removeValue(forKey: id)
         }
 
         // Clear programs for this user
-        let programIds = TestDataManager.shared.programs.values
+        let programIds = LocalDataStore.shared.programs.values
             .filter { $0.id.contains(userId) }
             .map { $0.id }
 
         for id in programIds {
-            TestDataManager.shared.programs.removeValue(forKey: id)
+            LocalDataStore.shared.programs.removeValue(forKey: id)
         }
 
         // Clear active sessions for this user
-        let sessionIds = TestDataManager.shared.sessions.values
+        let sessionIds = LocalDataStore.shared.sessions.values
             .filter { $0.memberId == userId }
             .map { $0.id }
         for id in sessionIds {
-            TestDataManager.shared.sessions.removeValue(forKey: id)
+            LocalDataStore.shared.sessions.removeValue(forKey: id)
         }
 
         // Clear onboarding state

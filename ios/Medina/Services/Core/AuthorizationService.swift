@@ -16,7 +16,7 @@ enum AuthorizationService {
     /// Check if trainer can access member's data
     /// Returns true if the member is assigned to this trainer
     static func canTrainerAccessMember(trainerId: String, memberId: String) -> Bool {
-        guard let member = TestDataManager.shared.users[memberId] else {
+        guard let member = LocalDataStore.shared.users[memberId] else {
             return false
         }
         return member.memberProfile?.trainerId == trainerId
@@ -31,7 +31,7 @@ enum AuthorizationService {
         if actorId == ownerId { return true }
 
         // Trainer can modify assigned member's entities
-        guard let actor = TestDataManager.shared.users[actorId],
+        guard let actor = LocalDataStore.shared.users[actorId],
               actor.hasRole(.trainer) else {
             return false
         }
@@ -58,7 +58,7 @@ enum AuthorizationService {
     ) -> (user: UnifiedUser, authorized: Bool) {
         // No forMemberId specified - use actor (current user)
         guard let memberId = forMemberId,
-              let member = TestDataManager.shared.users[memberId] else {
+              let member = LocalDataStore.shared.users[memberId] else {
             return (actorUser, true)
         }
 

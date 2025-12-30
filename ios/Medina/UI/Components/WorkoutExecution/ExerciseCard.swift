@@ -52,7 +52,7 @@ struct ExerciseCard: View {
 
                             // Line 2: Equipment + Weight/Intensity info
                             // v83.3: Use effective protocol config (applies customizations)
-                            if let workout = TestDataManager.shared.workouts[instance.workoutId],
+                            if let workout = LocalDataStore.shared.workouts[instance.workoutId],
                                let protocolConfig = InstanceInitializationService.effectiveProtocolConfig(for: instance, in: workout) {
                                 Text(equipmentAndWeightInfo(protocolConfig: protocolConfig))
                                     .font(.system(size: 13))
@@ -151,9 +151,9 @@ struct ExerciseCard: View {
 
         // Get memberId from instance → workout → program → plan hierarchy
         let memberId: String = {
-            guard let workout = TestDataManager.shared.workouts[instance.workoutId],
-                  let program = TestDataManager.shared.programs[workout.programId],
-                  let plan = TestDataManager.shared.plans[program.planId] else {
+            guard let workout = LocalDataStore.shared.workouts[instance.workoutId],
+                  let program = LocalDataStore.shared.programs[workout.programId],
+                  let plan = LocalDataStore.shared.plans[program.planId] else {
                 return "bobby"  // Fallback
             }
             return plan.memberId
@@ -170,7 +170,7 @@ struct ExerciseCard: View {
                 parts.append("\(prefix)\(valueStr) lb")
 
                 // Calculate intensity from actual target weights in sets
-                let sets = instance.setIds.compactMap { TestDataManager.shared.exerciseSets[$0] }
+                let sets = instance.setIds.compactMap { LocalDataStore.shared.exerciseSets[$0] }
                 let targetWeights = sets.compactMap { $0.targetWeight }
 
                 if !targetWeights.isEmpty {
@@ -242,9 +242,9 @@ struct ExerciseCard: View {
     /// Render inline sets with InteractiveSetCard
     @ViewBuilder
     private func exerciseInlineSets() -> some View {
-        if let memberId = TestDataManager.shared.currentUserId {
+        if let memberId = LocalDataStore.shared.currentUserId {
             // Apply deltas to get latest set data
-            let baseSets = instance.setIds.compactMap { TestDataManager.shared.exerciseSets[$0] }
+            let baseSets = instance.setIds.compactMap { LocalDataStore.shared.exerciseSets[$0] }
             let setsDict = Dictionary(uniqueKeysWithValues: baseSets.map { ($0.id, $0) })
             let updatedSetsDict = DeltaStore.shared.applySetDeltas(to: setsDict)
             let sets = instance.setIds.compactMap { updatedSetsDict[$0] }
@@ -254,16 +254,16 @@ struct ExerciseCard: View {
                 // Get protocol config for per-set data
                 // v83.3: Use effective protocol config (applies customizations)
                 let protocolConfig: ProtocolConfig? = {
-                    guard let workout = TestDataManager.shared.workouts[instance.workoutId] else {
-                        return TestDataManager.shared.protocolConfigs[instance.protocolVariantId]
+                    guard let workout = LocalDataStore.shared.workouts[instance.workoutId] else {
+                        return LocalDataStore.shared.protocolConfigs[instance.protocolVariantId]
                     }
                     return InstanceInitializationService.effectiveProtocolConfig(for: instance, in: workout)
                 }()
 
                 // Get program to calculate base intensity
                 let program: Program? = {
-                    guard let workout = TestDataManager.shared.workouts[instance.workoutId],
-                          let prog = TestDataManager.shared.programs[workout.programId] else {
+                    guard let workout = LocalDataStore.shared.workouts[instance.workoutId],
+                          let prog = LocalDataStore.shared.programs[workout.programId] else {
                         return nil
                     }
                     return prog
@@ -271,7 +271,7 @@ struct ExerciseCard: View {
 
                 // Calculate base intensity for this workout
                 let baseIntensity: Double = {
-                    guard let workout = TestDataManager.shared.workouts[instance.workoutId],
+                    guard let workout = LocalDataStore.shared.workouts[instance.workoutId],
                           let prog = program else {
                         return 1.0  // Default to 100% if no program
                     }

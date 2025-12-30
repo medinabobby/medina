@@ -344,7 +344,7 @@ struct ExerciseInfoCard: View {
 
 #Preview("Exercise Info Card - Sheet Mode") {
     ScrollView {
-        if let exercise = TestDataManager.shared.exercises["bench_press"] {
+        if let exercise = LocalDataStore.shared.exercises["bench_press"] {
             ExerciseInfoCard(
                 exercise: exercise,
                 showMuscleHero: true,
@@ -359,7 +359,7 @@ struct ExerciseInfoCard: View {
 
 #Preview("Exercise Info Card - Sidebar Mode") {
     ScrollView {
-        if let exercise = TestDataManager.shared.exercises["bench_press"] {
+        if let exercise = LocalDataStore.shared.exercises["bench_press"] {
             ExerciseInfoCard(
                 exercise: exercise,
                 showMuscleHero: false,

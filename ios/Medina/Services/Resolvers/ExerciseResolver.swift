@@ -78,7 +78,7 @@ enum ExerciseResolver {
     /// Check if user has permission to view a specific exercise
     private static func hasPermission(toView exercise: Exercise, userContext: UserContext) -> Bool {
         // Get current user
-        guard let currentUser = TestDataManager.shared.users[userContext.userId] else {
+        guard let currentUser = LocalDataStore.shared.users[userContext.userId] else {
             return false
         }
 

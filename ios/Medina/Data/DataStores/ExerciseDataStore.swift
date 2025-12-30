@@ -10,7 +10,7 @@ import Foundation
 
 enum ExerciseDataStore {
 
-    private static var manager: TestDataManager { TestDataManager.shared }
+    private static var manager: LocalDataStore { LocalDataStore.shared }
 
     // MARK: - Basic Retrieval
 

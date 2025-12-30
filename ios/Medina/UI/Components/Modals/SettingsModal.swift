@@ -33,7 +33,7 @@ struct SettingsModal: View {
         self.onDeleteAccount = onDeleteAccount
         self.onProfileCompleted = onProfileCompleted
 
-        let freshUser = TestDataManager.shared.users[user.id] ?? user
+        let freshUser = LocalDataStore.shared.users[user.id] ?? user
         _currentUser = State(initialValue: freshUser)
         _wasIncomplete = State(initialValue: !freshUser.hasCompletedOnboarding)
     }
@@ -203,14 +203,14 @@ struct SettingsModal: View {
 
     private var gymName: String? {
         guard let gymId = currentUser.gymId,
-              let gym = TestDataManager.shared.gyms[gymId] else { return nil }
+              let gym = LocalDataStore.shared.gyms[gymId] else { return nil }
         return gym.name
     }
 
     /// v80.2: Get assigned trainer for member
     private var assignedTrainer: UnifiedUser? {
         guard let trainerId = currentUser.memberProfile?.trainerId else { return nil }
-        return TestDataManager.shared.users[trainerId]
+        return LocalDataStore.shared.users[trainerId]
     }
 
     /// v80.2: Get current plan name from gym membership tiers
@@ -218,10 +218,10 @@ struct SettingsModal: View {
         // Get the user's subscribed tier
         guard let tierIdRaw = currentUser.memberProfile?.subscriptionTierId,
               let gymId = currentUser.gymId,
-              let gym = TestDataManager.shared.gyms[gymId] else {
+              let gym = LocalDataStore.shared.gyms[gymId] else {
             // Default to first tier name if no subscription set
             if let gymId = currentUser.gymId,
-               let gym = TestDataManager.shared.gyms[gymId],
+               let gym = LocalDataStore.shared.gyms[gymId],
                let firstTier = gym.membershipTiers.first {
                 return firstTier.name
             }
@@ -286,7 +286,7 @@ struct SettingsModal: View {
 
         guard let tierIdRaw = currentUser.memberProfile?.subscriptionTierId,
               let gymId = currentUser.gymId,
-              let gym = TestDataManager.shared.gyms[gymId],
+              let gym = LocalDataStore.shared.gyms[gymId],
               let tier = gym.membershipTiers.first(where: { $0.id == tierIdRaw }) else {
             return "Free"
         }

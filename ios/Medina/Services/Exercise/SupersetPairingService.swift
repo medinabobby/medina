@@ -174,7 +174,7 @@ enum SupersetPairingService {
 
         // Get exercise objects
         let exercises: [(position: Int, exercise: Exercise)] = exerciseIds.enumerated().compactMap { index, id in
-            guard let exercise = TestDataManager.shared.exercises[id] else { return nil }
+            guard let exercise = LocalDataStore.shared.exercises[id] else { return nil }
             return (index, exercise)
         }
 

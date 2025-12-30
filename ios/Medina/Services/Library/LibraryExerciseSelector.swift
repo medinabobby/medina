@@ -238,7 +238,7 @@ struct LibraryExerciseSelector {
         // First, try library exercises only
         let libraryExercises = criteria.libraryExerciseIds
             .subtracting(criteria.excludedExerciseIds)
-            .compactMap { TestDataManager.shared.exercises[$0] }
+            .compactMap { LocalDataStore.shared.exercises[$0] }
 
         Logger.log(.debug, component: "LibraryExerciseSelector",
                   message: "📚 STEP 1a: Library has \(criteria.libraryExerciseIds.count) IDs, resolved \(libraryExercises.count) exercises")
@@ -265,7 +265,7 @@ struct LibraryExerciseSelector {
         Logger.log(.debug, component: "LibraryExerciseSelector",
                   message: "📚 STEP 1b: Library insufficient (\(libraryCompounds)/\(criteria.compoundCount) compounds, \(libraryIsolations)/\(criteria.isolationCount) isolations) - expanding to experience level")
 
-        let allExercises = TestDataManager.shared.exercises.values.filter { exercise in
+        let allExercises = LocalDataStore.shared.exercises.values.filter { exercise in
             // Filter by experience level (user can do exercises at their level or below)
             exercise.experienceLevel.rawValue <= criteria.userExperienceLevel.rawValue &&
             // Exclude user's excluded exercises

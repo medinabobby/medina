@@ -25,7 +25,7 @@ import AVFoundation
 @MainActor
 class VoiceService: ObservableObject {
     private var audioPlayer: AVAudioPlayer?
-    private let dataManager: TestDataManager
+    private let dataManager: LocalDataStore
 
     @Published var isSpeaking = false
 
@@ -36,7 +36,7 @@ class VoiceService: ObservableObject {
 
     /// Initialize voice service
     /// - Parameter dataManager: Data manager for accessing user voice settings
-    init(dataManager: TestDataManager = .shared) {
+    init(dataManager: LocalDataStore = .shared) {
         self.dataManager = dataManager
 
         // Configure audio session for playback on iOS devices
@@ -54,7 +54,7 @@ class VoiceService: ObservableObject {
     /// - Parameter apiKey: Ignored - API key now on server
     /// - Parameter dataManager: Data manager for accessing user voice settings
     @available(*, deprecated, message: "API key no longer needed - stored on server")
-    convenience init(apiKey: String, dataManager: TestDataManager = .shared) {
+    convenience init(apiKey: String, dataManager: LocalDataStore = .shared) {
         self.init(dataManager: dataManager)
     }
 

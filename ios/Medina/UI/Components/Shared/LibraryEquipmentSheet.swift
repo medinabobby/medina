@@ -176,7 +176,7 @@ struct LibraryEquipmentSheet: View {
 // MARK: - Preview
 
 #Preview("Library Equipment Sheet") {
-    if let exercise = TestDataManager.shared.exercises["bench_press"] ?? TestDataManager.shared.exercises.values.first {
+    if let exercise = LocalDataStore.shared.exercises["bench_press"] ?? LocalDataStore.shared.exercises.values.first {
         LibraryEquipmentSheet(
             currentExercise: exercise,
             onSelect: { id in print("Selected: \(id)") }

@@ -30,11 +30,11 @@ class WorkoutCreationServiceTests: XCTestCase {
 
     override func setUp() async throws {
         try await super.setUp()
-        TestDataManager.shared.resetAndReload()
+        LocalDataStore.shared.resetAndReload()
         DeltaStore.shared.clearAllDeltas()
 
         testUser = TestFixtures.testUser
-        TestDataManager.shared.currentUserId = testUser.id
+        LocalDataStore.shared.currentUserId = testUser.id
     }
 
     override func tearDown() async throws {
@@ -71,12 +71,12 @@ class WorkoutCreationServiceTests: XCTestCase {
         let result = try await WorkoutCreationService.createFromIntent(intent, userId: testUser.id)
 
         // Then: Plan exists
-        XCTAssertNotNil(TestDataManager.shared.plans[result.plan.id], "Plan should be persisted")
+        XCTAssertNotNil(LocalDataStore.shared.plans[result.plan.id], "Plan should be persisted")
         XCTAssertEqual(result.plan.memberId, testUser.id, "Plan should belong to test user")
 
         // And: Workout exists with exercises
         let workout = result.workout
-        XCTAssertNotNil(TestDataManager.shared.workouts[workout.id], "Workout should be persisted")
+        XCTAssertNotNil(LocalDataStore.shared.workouts[workout.id], "Workout should be persisted")
         XCTAssertGreaterThan(workout.exerciseIds.count, 0, "Workout should have exercises")
         XCTAssertEqual(workout.type, .strength, "Workout type should be strength")
 
@@ -85,7 +85,7 @@ class WorkoutCreationServiceTests: XCTestCase {
                       "Each exercise should have a protocol")
 
         // And: Instances created
-        let instances = TestDataManager.shared.exerciseInstances.values.filter {
+        let instances = LocalDataStore.shared.exerciseInstances.values.filter {
             $0.workoutId == workout.id
         }
         XCTAssertEqual(instances.count, workout.exerciseIds.count,
@@ -95,7 +95,7 @@ class WorkoutCreationServiceTests: XCTestCase {
         for instance in instances {
             XCTAssertGreaterThan(instance.setIds.count, 0, "Instance should have sets")
             for setId in instance.setIds {
-                XCTAssertNotNil(TestDataManager.shared.exerciseSets[setId],
+                XCTAssertNotNil(LocalDataStore.shared.exerciseSets[setId],
                               "Set \(setId) should exist")
             }
         }
@@ -176,7 +176,7 @@ class WorkoutCreationServiceTests: XCTestCase {
                 memberSince: Date()
             )
         )
-        TestDataManager.shared.users[emptyUserId] = emptyUser
+        LocalDataStore.shared.users[emptyUserId] = emptyUser
         TestFixtures.setupEmptyLibrary(for: emptyUserId)
 
         let intent = createMinimalIntent()
@@ -244,7 +244,7 @@ class WorkoutCreationServiceTests: XCTestCase {
 
         for testCase in testCases {
             // Reset for each test
-            TestDataManager.shared.resetAndReload()
+            LocalDataStore.shared.resetAndReload()
             testUser = TestFixtures.testUser
 
             let intent = WorkoutIntentData(
@@ -306,7 +306,7 @@ class WorkoutCreationServiceTests: XCTestCase {
         let allowedEquipment: Set<Equipment> = [.bodyweight, .none]
 
         for exerciseId in result.workout.exerciseIds {
-            guard let exercise = TestDataManager.shared.exercises[exerciseId] else {
+            guard let exercise = LocalDataStore.shared.exercises[exerciseId] else {
                 continue
             }
             XCTAssertTrue(allowedEquipment.contains(exercise.equipment),
@@ -344,7 +344,7 @@ class WorkoutCreationServiceTests: XCTestCase {
 
         // And: Should likely include barbell/dumbbell exercises
         let usedEquipment = Set(result.workout.exerciseIds.compactMap { exerciseId -> Equipment? in
-            TestDataManager.shared.exercises[exerciseId]?.equipment
+            LocalDataStore.shared.exercises[exerciseId]?.equipment
         })
 
         // Gym workouts typically include barbells or dumbbells
@@ -396,7 +396,7 @@ class WorkoutCreationServiceTests: XCTestCase {
     /// Test: Single workout creates new plan when no active plan exists
     func testCreateFromIntent_CreatesNewPlan_WhenNoActivePlan() async throws {
         // Given: No active plan (just test user, no plans)
-        let initialPlanCount = TestDataManager.shared.plans.values.filter {
+        let initialPlanCount = LocalDataStore.shared.plans.values.filter {
             $0.memberId == testUser.id
         }.count
 
@@ -406,7 +406,7 @@ class WorkoutCreationServiceTests: XCTestCase {
         let result = try await WorkoutCreationService.createFromIntent(intent, userId: testUser.id)
 
         // Then: New plan created
-        let finalPlanCount = TestDataManager.shared.plans.values.filter {
+        let finalPlanCount = LocalDataStore.shared.plans.values.filter {
             $0.memberId == testUser.id
         }.count
 
@@ -508,7 +508,7 @@ class WorkoutCreationServiceTests: XCTestCase {
         let gymEquipment: Set<Equipment> = [.barbell, .dumbbells, .cableMachine, .machine, .smith, .pullupBar]
 
         for exerciseId in result.workout.exerciseIds {
-            guard let exercise = TestDataManager.shared.exercises[exerciseId] else {
+            guard let exercise = LocalDataStore.shared.exercises[exerciseId] else {
                 continue
             }
             XCTAssertFalse(gymEquipment.contains(exercise.equipment),
@@ -520,7 +520,7 @@ class WorkoutCreationServiceTests: XCTestCase {
     func testCreateFromIntent_HomeWorkout_UsesFullCatalog() async throws {
         // Given: User with library containing ONLY gym exercises
         let gymOnlyLibraryUser = "gym_only_library_user"
-        TestDataManager.shared.users[gymOnlyLibraryUser] = UnifiedUser(
+        LocalDataStore.shared.users[gymOnlyLibraryUser] = UnifiedUser(
             id: gymOnlyLibraryUser,
             firebaseUID: "gym_only",
             authProvider: .email,
@@ -541,7 +541,7 @@ class WorkoutCreationServiceTests: XCTestCase {
         // Set up library with only barbell exercises
         var gymLibrary = UserLibrary(userId: gymOnlyLibraryUser)
         gymLibrary.exercises = ["barbell_bench_press", "barbell_squat", "conventional_deadlift"]
-        TestDataManager.shared.libraries[gymOnlyLibraryUser] = gymLibrary
+        LocalDataStore.shared.libraries[gymOnlyLibraryUser] = gymLibrary
 
         // When: Creating home workout
         let intent = WorkoutIntentData(
@@ -571,7 +571,7 @@ class WorkoutCreationServiceTests: XCTestCase {
 
         // And: All exercises should be bodyweight
         for exerciseId in result.workout.exerciseIds {
-            if let exercise = TestDataManager.shared.exercises[exerciseId] {
+            if let exercise = LocalDataStore.shared.exercises[exerciseId] {
                 let isBodyweight = exercise.equipment == .bodyweight || exercise.equipment == .none
                 XCTAssertTrue(isBodyweight,
                     "Exercise '\(exercise.name)' should be bodyweight, got \(exercise.equipment)")
@@ -605,11 +605,11 @@ class WorkoutCreationServiceTests: XCTestCase {
         let result = try await WorkoutCreationService.createFromIntent(intent, userId: testUser.id)
 
         // Then: Get instances and calculate duration same way UI does
-        let instances = TestDataManager.shared.exerciseInstances.values.filter {
+        let instances = LocalDataStore.shared.exerciseInstances.values.filter {
             $0.workoutId == result.workout.id
         }
         let protocolConfigs = instances.compactMap { instance in
-            TestDataManager.shared.protocolConfigs[instance.protocolVariantId]
+            LocalDataStore.shared.protocolConfigs[instance.protocolVariantId]
         }
 
         // Calculate duration with v132 transition time (matching UI)
@@ -744,20 +744,20 @@ class WorkoutCreationServiceTests: XCTestCase {
             protocolCustomizations: nil
         )
 
-        TestDataManager.shared.plans[planId] = plan
-        TestDataManager.shared.programs[programId] = program
-        TestDataManager.shared.workouts[workoutId] = workout
+        LocalDataStore.shared.plans[planId] = plan
+        LocalDataStore.shared.programs[programId] = program
+        LocalDataStore.shared.workouts[workoutId] = workout
 
         return plan
     }
 
     /// Count workouts in a plan
     private func countWorkoutsInPlan(_ plan: Plan) -> Int {
-        let programIds = Set(TestDataManager.shared.programs.values
+        let programIds = Set(LocalDataStore.shared.programs.values
             .filter { $0.planId == plan.id }
             .map { $0.id })
 
-        return TestDataManager.shared.workouts.values
+        return LocalDataStore.shared.workouts.values
             .filter { programIds.contains($0.programId) }
             .count
     }

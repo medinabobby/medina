@@ -28,7 +28,7 @@ class AuthenticationService {
     ///   - password: User's password (beta: plain text comparison)
     /// - Returns: UnifiedUser if credentials valid, nil if invalid
     func login(username: String, password: String) -> UnifiedUser? {
-        let allUsers = Array(TestDataManager.shared.users.values)
+        let allUsers = Array(LocalDataStore.shared.users.values)
 
         // Find user by email OR name (flexible for better UX)
         guard let user = allUsers.first(where: { user in
@@ -55,7 +55,7 @@ class AuthenticationService {
 
     /// Logout current user and clear session
     func logout() {
-        TestDataManager.shared.currentUserId = nil
+        LocalDataStore.shared.currentUserId = nil
         clearSession()
         Logger.log(.info, component: "Auth", message: "User logged out")
     }
@@ -105,7 +105,7 @@ class AuthenticationService {
     /// - Parameter username: Email or name to check
     /// - Returns: true if username exists, false if available
     func usernameExists(_ username: String) -> Bool {
-        let allUsers = Array(TestDataManager.shared.users.values)
+        let allUsers = Array(LocalDataStore.shared.users.values)
         let exists = allUsers.contains { user in
             user.email?.lowercased() == username.lowercased() ||
             user.name.lowercased() == username.lowercased()

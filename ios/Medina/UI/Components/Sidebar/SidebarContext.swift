@@ -120,13 +120,13 @@ final class SidebarContext: ObservableObject {
     /// The currently selected plan (if any)
     var selectedPlan: Plan? {
         guard let planId = selectedPlanId else { return nil }
-        return TestDataManager.shared.plans[planId]
+        return LocalDataStore.shared.plans[planId]
     }
 
     /// The currently selected program (if any)
     var selectedProgram: Program? {
         guard let programId = selectedProgramId else { return nil }
-        return TestDataManager.shared.programs[programId]
+        return LocalDataStore.shared.programs[programId]
     }
 
     /// Effective member ID for data queries
@@ -333,15 +333,15 @@ final class SidebarContext: ObservableObject {
     // MARK: - Helpers
 
     private func memberName(_ id: String) -> String {
-        TestDataManager.shared.users[id]?.name ?? "Member"
+        LocalDataStore.shared.users[id]?.name ?? "Member"
     }
 
     private func trainerName(_ id: String) -> String {
-        TestDataManager.shared.users[id]?.name ?? "Trainer"
+        LocalDataStore.shared.users[id]?.name ?? "Trainer"
     }
 
     private func firstName(_ id: String) -> String {
-        guard let name = TestDataManager.shared.users[id]?.name else { return "Member" }
+        guard let name = LocalDataStore.shared.users[id]?.name else { return "Member" }
         return name.components(separatedBy: " ").first ?? name
     }
 }

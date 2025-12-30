@@ -431,7 +431,7 @@ enum JSONValidator {
         var protocolId: String?
         if let rawProtocolId = json["protocolId"] as? String, !rawProtocolId.isEmpty {
             // Check if this protocol exists
-            if TestDataManager.shared.protocolConfigs[rawProtocolId] != nil {
+            if LocalDataStore.shared.protocolConfigs[rawProtocolId] != nil {
                 protocolId = rawProtocolId
                 Logger.log(.info, component: "JSONValidator",
                     message: "v87.1: Parsed protocolId for all exercises: \(rawProtocolId)")

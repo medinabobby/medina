@@ -71,8 +71,8 @@ struct ExerciseDetailsSheet: View {
 // MARK: - Preview
 
 #Preview("Exercise Details Sheet") {
-    // Uses existing exercise from TestDataManager
-    if let exercise = TestDataManager.shared.exercises["bench_press"] {
+    // Uses existing exercise from LocalDataStore
+    if let exercise = LocalDataStore.shared.exercises["bench_press"] {
         ExerciseDetailsSheet(
             exercise: exercise,
             instance: nil,

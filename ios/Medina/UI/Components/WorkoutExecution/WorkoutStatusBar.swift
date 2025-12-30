@@ -4,7 +4,7 @@
 //
 // v52.5: Extracted from WorkoutDetailView
 // v68.0: Added draft plan UX - shows "Activate Plan" instead of "Start Workout" for draft plans
-// v78.8: Fixed Continue Workout detection using TestDataManager.sessions (not workout.status)
+// v78.8: Fixed Continue Workout detection using LocalDataStore.sessions (not workout.status)
 // Created: November 12, 2025
 // Purpose: Workout execution status bar - shows different UI based on workout state
 //
@@ -23,9 +23,9 @@ struct WorkoutStatusBar: View {
     var isInDraftPlan: Bool = false
     var onActivatePlan: (() -> Void)?
 
-    // v78.8: Check for active session in TestDataManager (persists across coordinator instances)
+    // v78.8: Check for active session in LocalDataStore (persists across coordinator instances)
     private var hasActiveSession: Bool {
-        TestDataManager.shared.sessions.values.contains { session in
+        LocalDataStore.shared.sessions.values.contains { session in
             session.workoutId == workout.id && session.status == .active
         }
     }

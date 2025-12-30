@@ -24,7 +24,7 @@ enum WorkoutCalibrationService {
     ///   - workoutId: The completed workout ID
     ///   - memberId: User ID for target storage
     static func calibrateFromWorkout(workoutId: String, memberId: String) {
-        guard let workout = TestDataManager.shared.workouts[workoutId] else {
+        guard let workout = LocalDataStore.shared.workouts[workoutId] else {
             Logger.log(.warning, component: "WorkoutCalibrationService",
                       message: "Cannot calibrate: Workout not found")
             return
@@ -39,7 +39,7 @@ enum WorkoutCalibrationService {
         // Process each exercise in the workout
         for exerciseId in workout.exerciseIds {
             // Find the instance for this exercise
-            guard let instance = TestDataManager.shared.exerciseInstances.values.first(where: {
+            guard let instance = LocalDataStore.shared.exerciseInstances.values.first(where: {
                 $0.workoutId == workoutId && $0.exerciseId == exerciseId
             }) else {
                 continue
@@ -47,7 +47,7 @@ enum WorkoutCalibrationService {
 
             // Get completed sets for this instance
             let completedSets = instance.setIds.compactMap { setId -> SetDataForRM? in
-                guard let set = TestDataManager.shared.exerciseSets[setId],
+                guard let set = LocalDataStore.shared.exerciseSets[setId],
                       let weight = set.actualWeight,
                       let reps = set.actualReps,
                       set.completion == .completed,
@@ -73,7 +73,7 @@ enum WorkoutCalibrationService {
 
             // Check existing target
             let targetId = "\(memberId)-\(exerciseId)"
-            let existingTarget = TestDataManager.shared.targets[targetId]
+            let existingTarget = LocalDataStore.shared.targets[targetId]
             let existing1RM = existingTarget?.currentTarget
 
             // Progressive overload: only update if new estimate is higher
@@ -142,10 +142,10 @@ enum WorkoutCalibrationService {
         )
         target.targetHistory.append(historyEntry)
 
-        // Save to TestDataManager
-        TestDataManager.shared.targets[targetId] = target
+        // Save to LocalDataStore
+        LocalDataStore.shared.targets[targetId] = target
 
-        let exerciseName = TestDataManager.shared.exercises[exerciseId]?.name ?? exerciseId
+        let exerciseName = LocalDataStore.shared.exercises[exerciseId]?.name ?? exerciseId
         let changeDesc = previousValue.map { " (was \(Int($0)))" } ?? " (new)"
 
         Logger.log(.info, component: "WorkoutCalibrationService",

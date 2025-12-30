@@ -141,7 +141,7 @@ enum ProtocolChangeService {
     ) throws -> ProtocolChangeResult {
 
         // 1. Find and validate workout
-        guard var workout = TestDataManager.shared.workouts[workoutId] else {
+        guard var workout = LocalDataStore.shared.workouts[workoutId] else {
             throw ProtocolChangeError.workoutNotFound(workoutId)
         }
 
@@ -155,7 +155,7 @@ enum ProtocolChangeService {
         }
 
         // 2. Find all instances for this workout
-        let instances = TestDataManager.shared.exerciseInstances.values.filter {
+        let instances = LocalDataStore.shared.exerciseInstances.values.filter {
             $0.workoutId == workoutId
         }
 
@@ -176,7 +176,7 @@ enum ProtocolChangeService {
                 var updatedInstance = instance
                 let oldProtocolId = updatedInstance.protocolVariantId
                 updatedInstance.protocolVariantId = newProtocolId
-                TestDataManager.shared.exerciseInstances[instance.id] = updatedInstance
+                LocalDataStore.shared.exerciseInstances[instance.id] = updatedInstance
                 Logger.log(.info, component: "ProtocolChangeService",
                           message: "📝 Updated instance '\(instance.id)' protocolVariantId: '\(oldProtocolId)' → '\(newProtocolId)'")
             }
@@ -197,7 +197,7 @@ enum ProtocolChangeService {
             let shortName = name.components(separatedBy: " ").first ?? name
             if !workout.name.lowercased().contains(shortName.lowercased()) {
                 workout.name = "\(workout.name) - \(shortName)"
-                TestDataManager.shared.workouts[workoutId] = workout
+                LocalDataStore.shared.workouts[workoutId] = workout
             }
         }
 
@@ -237,7 +237,7 @@ enum ProtocolChangeService {
 
         // Get current sets for this instance
         var sets = instance.setIds.compactMap { setId in
-            TestDataManager.shared.exerciseSets[setId]
+            LocalDataStore.shared.exerciseSets[setId]
         }
 
         guard !sets.isEmpty else { return 0 }
@@ -266,7 +266,7 @@ enum ProtocolChangeService {
                         notes: nil,
                         recordedDate: nil
                     )
-                    TestDataManager.shared.exerciseSets[newSetId] = newSet
+                    LocalDataStore.shared.exerciseSets[newSetId] = newSet
                     updatedCount += 1
                 }
 
@@ -277,7 +277,7 @@ enum ProtocolChangeService {
                     newSetIds.append("\(instance.id)_s\(i + 1)")
                 }
                 updatedInstance.setIds = newSetIds
-                TestDataManager.shared.exerciseInstances[instance.id] = updatedInstance
+                LocalDataStore.shared.exerciseInstances[instance.id] = updatedInstance
 
             } else if newSetCount < currentCount {
                 // Remove sets (keep minimum 1)
@@ -287,17 +287,17 @@ enum ProtocolChangeService {
                 for i in 0..<removeCount {
                     let removeIndex = currentCount - 1 - i
                     let setId = instance.setIds[removeIndex]
-                    TestDataManager.shared.exerciseSets.removeValue(forKey: setId)
+                    LocalDataStore.shared.exerciseSets.removeValue(forKey: setId)
                 }
 
                 // Update instance setIds
                 var updatedInstance = instance
                 updatedInstance.setIds = Array(instance.setIds.prefix(keepCount))
-                TestDataManager.shared.exerciseInstances[instance.id] = updatedInstance
+                LocalDataStore.shared.exerciseInstances[instance.id] = updatedInstance
 
                 // Re-fetch sets
                 sets = updatedInstance.setIds.compactMap { setId in
-                    TestDataManager.shared.exerciseSets[setId]
+                    LocalDataStore.shared.exerciseSets[setId]
                 }
             }
         }
@@ -320,7 +320,7 @@ enum ProtocolChangeService {
             }
 
             if changed {
-                TestDataManager.shared.exerciseSets[set.id] = set
+                LocalDataStore.shared.exerciseSets[set.id] = set
                 updatedCount += 1
             }
         }
@@ -336,18 +336,18 @@ enum ProtocolChangeService {
         // Sync affected workouts to Firestore
         Task {
             do {
-                let plans = TestDataManager.shared.plans.values.filter { $0.memberId == userId }
+                let plans = LocalDataStore.shared.plans.values.filter { $0.memberId == userId }
                 let planIds = Set(plans.map { $0.id })
 
-                let programs = TestDataManager.shared.programs.values.filter { planIds.contains($0.planId) }
+                let programs = LocalDataStore.shared.programs.values.filter { planIds.contains($0.planId) }
                 let programIds = Set(programs.map { $0.id })
 
-                let workouts = TestDataManager.shared.workouts.values.filter { programIds.contains($0.programId) }
+                let workouts = LocalDataStore.shared.workouts.values.filter { programIds.contains($0.programId) }
 
                 for workout in workouts {
-                    let instances = TestDataManager.shared.exerciseInstances.values.filter { $0.workoutId == workout.id }
+                    let instances = LocalDataStore.shared.exerciseInstances.values.filter { $0.workoutId == workout.id }
                     let instanceIds = Set(instances.map { $0.id })
-                    let sets = TestDataManager.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
+                    let sets = LocalDataStore.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
 
                     try await FirestoreWorkoutRepository.shared.saveFullWorkout(
                         workout: workout,

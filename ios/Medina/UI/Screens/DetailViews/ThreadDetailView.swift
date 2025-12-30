@@ -21,7 +21,7 @@ struct ThreadDetailView: View {
 
     init(threadId: String) {
         self.threadId = threadId
-        self.currentUserId = TestDataManager.shared.currentUserId ?? "unknown"
+        self.currentUserId = LocalDataStore.shared.currentUserId ?? "unknown"
     }
 
     var body: some View {
@@ -179,7 +179,7 @@ struct ThreadDetailView: View {
     }
 
     private func participantBadge(for userId: String) -> some View {
-        let user = TestDataManager.shared.users[userId]
+        let user = LocalDataStore.shared.users[userId]
         let name = user?.name ?? userId
         let isTrainer = user?.hasRole(.trainer) ?? false
 
@@ -200,7 +200,7 @@ struct ThreadDetailView: View {
     // MARK: - Helpers
 
     private func loadThread() {
-        thread = TestDataManager.shared.thread(id: threadId)
+        thread = LocalDataStore.shared.thread(id: threadId)
     }
 
     private func truncatedSubject(_ subject: String) -> String {
@@ -218,7 +218,7 @@ struct ThreadDetailView: View {
     }
 
     private func markThreadAsRead() {
-        TestDataManager.shared.markThreadAsRead(threadId, for: currentUserId)
+        LocalDataStore.shared.markThreadAsRead(threadId, for: currentUserId)
         Logger.log(.info, component: "ThreadDetailView",
                   message: "Marked thread \(threadId) as read for \(currentUserId)")
     }
@@ -241,10 +241,10 @@ struct ThreadDetailView: View {
         )
 
         // Add to thread
-        TestDataManager.shared.addMessageToThread(message)
+        LocalDataStore.shared.addMessageToThread(message)
 
         // Refresh local thread state
-        self.thread = TestDataManager.shared.thread(id: threadId)
+        self.thread = LocalDataStore.shared.thread(id: threadId)
 
         // Clear text field
         replyText = ""
@@ -254,7 +254,7 @@ struct ThreadDetailView: View {
     }
 
     private func deleteThread() {
-        TestDataManager.shared.deleteThread(threadId)
+        LocalDataStore.shared.deleteThread(threadId)
         navigationModel.pop()
         Logger.log(.info, component: "ThreadDetailView",
                   message: "Deleted thread \(threadId)")
@@ -268,7 +268,7 @@ private struct ThreadMessageBubble: View {
     let isFromCurrentUser: Bool
 
     private var senderName: String {
-        TestDataManager.shared.users[message.senderId]?.name ?? message.senderId
+        LocalDataStore.shared.users[message.senderId]?.name ?? message.senderId
     }
 
     var body: some View {
@@ -358,8 +358,8 @@ private struct ThreadMessageBubble: View {
         messages: sampleMessages
     )
 
-    TestDataManager.shared.messageThreads["thread_preview"] = thread
-    TestDataManager.shared.currentUserId = "bobby"
+    LocalDataStore.shared.messageThreads["thread_preview"] = thread
+    LocalDataStore.shared.currentUserId = "bobby"
 
     return NavigationStack {
         ThreadDetailView(threadId: "thread_preview")

@@ -9,7 +9,7 @@ import Foundation
 
 enum UserDataStore {
 
-    private static var manager: TestDataManager { TestDataManager.shared }
+    private static var manager: LocalDataStore { LocalDataStore.shared }
 
     /// Get all users in the system (no permission filtering - handled in resolver)
     static func allUsers() -> [UnifiedUser] {

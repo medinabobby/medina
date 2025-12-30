@@ -215,7 +215,7 @@ enum WeightCalculationService {
     /// Get member's 1RM for an exercise from targets.json
     /// Returns nil if no direct target exists (does NOT use estimation)
     static func get1RM(memberId: String, exerciseId: String) -> Double? {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
         let targetKey = "\(memberId)-\(exerciseId)"
 
         guard let target = manager.targets[targetKey] else {
@@ -252,7 +252,7 @@ enum WeightCalculationService {
 
     /// Get member's working weight for an isolation exercise
     private static func getWorkingWeight(memberId: String, exerciseId: String) -> Double? {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
         let targetKey = "\(memberId)-\(exerciseId)"
 
         guard let target = manager.targets[targetKey] else {

@@ -3,7 +3,7 @@
 // Medina
 //
 // Created: October 2025
-// Purpose: JSON data loading service for TestDataManager
+// Purpose: JSON data loading service for LocalDataStore
 //
 // v196: Zero local JSONs
 // - Protocols, gyms, exercises all loaded from Firestore
@@ -13,14 +13,14 @@
 
 import Foundation
 
-/// Loads JSON data files from the main bundle into TestDataManager
+/// Loads JSON data files from the main bundle into LocalDataStore
 /// Used by both the app (LoginView) and test suite
 enum LocalDataLoader {
 
     /// Initialize data manager for Firestore loading
     /// v196: Zero local JSONs - all reference data loaded from Firestore
     static func loadAll() throws {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
 
         Logger.log(.info, component: "DataLoader", message: "v196: Zero local JSONs - Firestore is source of truth")
 
@@ -56,7 +56,7 @@ enum LocalDataLoader {
     /// v196: Firestore is sole source (no local fallback)
     @MainActor
     static func loadProtocolsFromFirestore() async {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
 
         do {
             Logger.log(.info, component: "DataLoader", message: "Loading protocols from Firestore...")
@@ -73,7 +73,7 @@ enum LocalDataLoader {
     /// v196: Firestore is sole source (no local fallback)
     @MainActor
     static func loadGymsFromFirestore() async {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
 
         do {
             Logger.log(.info, component: "DataLoader", message: "Loading gyms from Firestore...")
@@ -110,7 +110,7 @@ enum LocalDataLoader {
         await loadTargetsFromFirestore(userId: userId)
 
         // Initialize empty library if needed (library will be populated from preferences)
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
         if manager.libraries[userId] == nil {
             manager.libraries[userId] = UserLibrary(userId: userId)
         }
@@ -122,7 +122,7 @@ enum LocalDataLoader {
     /// v195.1: Merge instead of overwrite - preserve name if Firestore has empty
     @MainActor
     static func loadUserFromFirestore(userId: String) async {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
         let existingUser = manager.users[userId]  // Keep reference to existing
 
         do {
@@ -168,7 +168,7 @@ enum LocalDataLoader {
     static func loadPreferencesFromFirestore(userId: String) async {
         do {
             if let prefs = try await FirestoreExercisePreferencesRepository.shared.fetchPreferences(userId: userId) {
-                TestDataManager.shared.exercisePreferences[userId] = prefs
+                LocalDataStore.shared.exercisePreferences[userId] = prefs
                 Logger.log(.info, component: "DataLoader",
                           message: "Loaded exercise preferences from Firestore: \(prefs.favorites.count) favorites")
             } else {
@@ -186,7 +186,7 @@ enum LocalDataLoader {
         do {
             let targets = try await FirestoreTargetsRepository.shared.fetchTargets(memberId: userId)
             for target in targets {
-                TestDataManager.shared.targets[target.id] = target
+                LocalDataStore.shared.targets[target.id] = target
             }
             if !targets.isEmpty {
                 Logger.log(.info, component: "DataLoader",
@@ -208,7 +208,7 @@ enum LocalDataLoader {
     /// v196: Firestore is sole source (no local fallback)
     @MainActor
     static func loadExercisesFromFirestore() async {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
 
         do {
             Logger.log(.info, component: "DataLoader", message: "Loading exercises from Firestore...")
@@ -225,7 +225,7 @@ enum LocalDataLoader {
     /// Plans are fetched from cloud and merged with local plans
     @MainActor
     static func loadPlansFromFirestore(userId: String) async {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
 
         do {
             Logger.log(.info, component: "DataLoader", message: "Loading plans from Firestore for user \(userId)...")
@@ -260,7 +260,7 @@ enum LocalDataLoader {
     /// This reduces login time from 25s to <2s by eliminating ~800 Firestore calls
     @MainActor
     static func loadWorkoutsFromFirestore(userId: String) async {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
 
         do {
             Logger.log(.info, component: "DataLoader", message: "Loading workouts from Firestore for user \(userId)...")
@@ -287,7 +287,7 @@ enum LocalDataLoader {
     /// Called from WorkoutDetailView when user opens a workout
     @MainActor
     static func loadWorkoutDetails(workoutId: String, userId: String) async {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
 
         // Skip if already loaded (instances exist for this workout)
         let existingInstances = manager.exerciseInstances.values.filter { $0.workoutId == workoutId }

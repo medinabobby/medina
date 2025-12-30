@@ -189,7 +189,7 @@ struct MyPlansFolder: View {
     /// Plans with member names for display (sorted by recency - most recent first)
     private var plansWithMembers: [(plan: Plan, memberName: String)] {
         allPlans.compactMap { plan in
-            guard let member = TestDataManager.shared.users[plan.memberId] else {
+            guard let member = LocalDataStore.shared.users[plan.memberId] else {
                 return nil
             }
             return (plan, member.name)

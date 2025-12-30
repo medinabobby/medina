@@ -67,7 +67,7 @@ enum ExerciseSelectionService {
     /// Populate exercises for all workouts in a plan
     ///
     /// **v51.0 Process:**
-    /// 1. Load user's library from TestDataManager
+    /// 1. Load user's library from LocalDataStore
     /// 2. For each workout, use LibraryExerciseSelector to select exercises
     /// 3. Fall back to template-based selection if library unavailable
     ///
@@ -82,7 +82,7 @@ enum ExerciseSelectionService {
     /// - Returns: Workouts with exerciseIds populated (4-6 exercises per workout)
     static func populateExercises(for workouts: [Workout], plan: Plan, userId: String) -> [Workout] {
         // v51.0: Load user's library
-        let library = TestDataManager.shared.libraries[userId]
+        let library = LocalDataStore.shared.libraries[userId]
 
         return workouts.map { workout in
             var updated = workout
@@ -106,7 +106,7 @@ enum ExerciseSelectionService {
     ///   - userId: User ID to load library for
     /// - Returns: PlanExerciseSelectionResult with workouts and library breakdown
     static func populateExercisesWithResult(for workouts: [Workout], plan: Plan, userId: String) -> PlanExerciseSelectionResult {
-        let library = TestDataManager.shared.libraries[userId]
+        let library = LocalDataStore.shared.libraries[userId]
         let libraryExerciseIds = library?.exercises ?? []
 
         var updatedWorkouts: [Workout] = []
@@ -163,7 +163,7 @@ enum ExerciseSelectionService {
         library: UserLibrary?
     ) -> Result<ExerciseSelectionResult, SelectionError> {
         // Build selection criteria (same as selectFromLibrary)
-        let user = TestDataManager.shared.users[plan.memberId]
+        let user = LocalDataStore.shared.users[plan.memberId]
         let memberProfile = user?.memberProfile
         let splitDay = workout.splitDay ?? .fullBody
 
@@ -248,7 +248,7 @@ enum ExerciseSelectionService {
     /// Select exercises using library-first approach with experience level fallback
     private static func selectFromLibrary(workout: Workout, plan: Plan, library: UserLibrary?) -> [String] {
         // Build selection criteria
-        let user = TestDataManager.shared.users[plan.memberId]
+        let user = LocalDataStore.shared.users[plan.memberId]
         let memberProfile = user?.memberProfile
 
         // Unwrap splitDay or use fullBody as default
@@ -341,7 +341,7 @@ enum ExerciseSelectionService {
             exercises = filterByEquipment(exercises, allowedEquipment: planEquipment)
         } else if plan.trainingLocation == .home {
             // v58.4: Use home equipment from profile, fallback to bodyweight
-            let user = TestDataManager.shared.users[plan.memberId]
+            let user = LocalDataStore.shared.users[plan.memberId]
             let homeEquipment = user?.memberProfile?.availableEquipment ?? []
             let allowedEquipment = homeEquipment.isEmpty ? [Equipment.bodyweight] : homeEquipment
             exercises = filterByEquipment(exercises, allowedEquipment: allowedEquipment)
@@ -478,7 +478,7 @@ enum ExerciseSelectionService {
     /// Get exercises that target specific muscle groups
     private static func exercisesTargetingMuscles(_ muscles: Set<MuscleGroup>) -> Set<String> {
         return Set(
-            TestDataManager.shared.exercises.values
+            LocalDataStore.shared.exercises.values
                 .filter { exercise in
                     !Set(exercise.muscleGroups).intersection(muscles).isEmpty
                 }
@@ -503,7 +503,7 @@ enum ExerciseSelectionService {
     /// - Returns: Filtered array of exercise IDs
     private static func filterByEquipment(_ exercises: [String], allowedEquipment: Set<Equipment>) -> [String] {
         return exercises.filter { exerciseId in
-            guard let exercise = TestDataManager.shared.exercises[exerciseId] else {
+            guard let exercise = LocalDataStore.shared.exercises[exerciseId] else {
                 return false  // Remove if exercise not found
             }
 
@@ -531,7 +531,7 @@ enum ExerciseSelectionService {
     /// - Returns: Filtered array of exercise IDs
     private static func filterExcludedMuscles(_ exercises: [String], excluded: Set<MuscleGroup>) -> [String] {
         return exercises.filter { exerciseId in
-            guard let exercise = TestDataManager.shared.exercises[exerciseId] else {
+            guard let exercise = LocalDataStore.shared.exercises[exerciseId] else {
                 return true  // Keep if exercise not found (defensive)
             }
 
@@ -567,7 +567,7 @@ enum ExerciseSelectionService {
     ///   - location: Training location (filters equipment, v51.3)
     /// - Returns: Exercise ID for bonus exercise, or nil if none found
     private static func findBonusExercise(for muscleGroup: MuscleGroup, excluding currentExercises: [String], location: TrainingLocation) -> String? {
-        let allExercises = TestDataManager.shared.exercises
+        let allExercises = LocalDataStore.shared.exercises
 
         // Find exercises that:
         // 1. Target the emphasized muscle (primary muscle)

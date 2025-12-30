@@ -225,9 +225,9 @@ class EntitySearchService {
         var addedIds: Set<String> = []
 
         // 1. Search user's library first (if they have one)
-        if let library = TestDataManager.shared.libraries[memberId] {
+        if let library = LocalDataStore.shared.libraries[memberId] {
             for protocolEntry in library.protocols {
-                guard let config = TestDataManager.shared.protocolConfigs[protocolEntry.protocolConfigId] else {
+                guard let config = LocalDataStore.shared.protocolConfigs[protocolEntry.protocolConfigId] else {
                     continue
                 }
 
@@ -244,7 +244,7 @@ class EntitySearchService {
         }
 
         // 2. Also search ALL global protocols (v83.5)
-        for (configId, config) in TestDataManager.shared.protocolConfigs {
+        for (configId, config) in LocalDataStore.shared.protocolConfigs {
             // Skip if already added from user library
             guard !addedIds.contains(configId) else { continue }
 

@@ -9,7 +9,7 @@ import Foundation
 
 enum ProgramDataStore {
 
-    private static var manager: TestDataManager { TestDataManager.shared }
+    private static var manager: LocalDataStore { LocalDataStore.shared }
 
     static func allPrograms(for memberId: String) -> [Program] {
         let planIds = Set(PlanDataStore.allPlans(for: memberId).map { $0.id })

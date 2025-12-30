@@ -30,10 +30,10 @@ struct ProgramDetailView: View {
 
     // v68.0: Get the parent plan for this program
     private var parentPlan: Plan? {
-        guard let program = TestDataManager.shared.programs[programId] else {
+        guard let program = LocalDataStore.shared.programs[programId] else {
             return nil
         }
-        return TestDataManager.shared.plans[program.planId]
+        return LocalDataStore.shared.plans[program.planId]
     }
 
     // v68.0: Check if parent plan is draft
@@ -43,7 +43,7 @@ struct ProgramDetailView: View {
 
     var body: some View {
         Group {
-            if let program = TestDataManager.shared.programs[programId] {
+            if let program = LocalDataStore.shared.programs[programId] {
                 VStack(spacing: 0) {
                     // Breadcrumb navigation
                     breadcrumbBar(for: program)
@@ -102,7 +102,7 @@ struct ProgramDetailView: View {
                                 Divider().background(Color("BorderColor"))
 
                                 // Count workouts for header
-                                let workoutCount = TestDataManager.shared.workouts.values
+                                let workoutCount = LocalDataStore.shared.workouts.values
                                     .filter { $0.programId == programId }
                                     .count
 
@@ -127,7 +127,7 @@ struct ProgramDetailView: View {
                 )
             }
         }
-        .navigationTitle(TestDataManager.shared.programs[programId]?.name ?? "Program")
+        .navigationTitle(LocalDataStore.shared.programs[programId]?.name ?? "Program")
         .navigationBarTitleDisplayMode(.inline)
         // v68.0: Toolbar menu with "Activate Plan" action
         .toolbar {
@@ -180,7 +180,7 @@ struct ProgramDetailView: View {
         var items: [BreadcrumbItem] = []
 
         // Add plan breadcrumb (tappable if exists)
-        if let plan = TestDataManager.shared.plans[program.planId] {
+        if let plan = LocalDataStore.shared.plans[program.planId] {
             items.append(BreadcrumbItem(label: "Plan") {
                 coordinator.navigateToPlan(id: plan.id)
             })
@@ -201,7 +201,7 @@ struct ProgramDetailView: View {
 
         // Line 2: Goal + Weekly sessions + duration (from parent plan)
         let line2: String = {
-            if let plan = TestDataManager.shared.plans[program.planId] {
+            if let plan = LocalDataStore.shared.plans[program.planId] {
                 let totalSessions = plan.weightliftingDays + plan.cardioDays
                 return "\(plan.goal.displayName) • \(totalSessions) days/week • \(plan.targetSessionDuration) min"
             }
@@ -219,7 +219,7 @@ struct ProgramDetailView: View {
     @ViewBuilder
     private func programMetadataSection(for program: Program) -> some View {
         // Get parent plan for inherited fields
-        if let plan = TestDataManager.shared.plans[program.planId] {
+        if let plan = LocalDataStore.shared.plans[program.planId] {
             // Split Type
             KeyValueRow(key: "Split Type", value: plan.splitType.displayName)
 
@@ -240,7 +240,7 @@ struct ProgramDetailView: View {
         KeyValueRow(key: "Intensity", value: "\(startPct)% → \(endPct)%")
 
         // Weekly Mix and Days (from parent plan)
-        if let plan = TestDataManager.shared.plans[program.planId] {
+        if let plan = LocalDataStore.shared.plans[program.planId] {
             KeyValueRow(
                 key: "Weekly Mix",
                 value: "\(plan.weightliftingDays) strength • \(plan.cardioDays) cardio"
@@ -259,7 +259,7 @@ struct ProgramDetailView: View {
 
     @ViewBuilder
     private func workoutsSection(for program: Program) -> some View {
-        let workouts = TestDataManager.shared.workouts.values
+        let workouts = LocalDataStore.shared.workouts.values
             .filter { $0.programId == programId }
             .sorted { ($0.scheduledDate ?? Date.distantPast) < ($1.scheduledDate ?? Date.distantPast) }
 
@@ -309,7 +309,7 @@ struct ProgramDetailView: View {
     private func workoutRow(for workout: Workout, number: String, dateSuffix: String? = nil) -> some View {
         // v158: Check for active session - if this workout has an active session, show blue
         let statusColor: Color = {
-            let hasActiveSession = TestDataManager.shared.sessions.values.contains { session in
+            let hasActiveSession = LocalDataStore.shared.sessions.values.contains { session in
                 session.workoutId == workout.id && session.status == .active
             }
             if hasActiveSession {
@@ -381,7 +381,7 @@ struct ProgramDetailView: View {
     @ViewBuilder
     private func nextWorkoutChip(for program: Program) -> some View {
         // Get all workouts in this program
-        let workouts = TestDataManager.shared.workouts.values
+        let workouts = LocalDataStore.shared.workouts.values
             .filter { $0.programId == programId }
             .sorted { ($0.scheduledDate ?? Date.distantPast) < ($1.scheduledDate ?? Date.distantPast) }
 
@@ -390,7 +390,7 @@ struct ProgramDetailView: View {
             $0.status == .scheduled || $0.status == .inProgress
         }) {
             // v160: Check for active session to show "Continue" vs "Start"
-            let hasActiveSession = TestDataManager.shared.sessions.values.contains { session in
+            let hasActiveSession = LocalDataStore.shared.sessions.values.contains { session in
                 session.workoutId == nextWorkout.id && session.status == .active
             }
 

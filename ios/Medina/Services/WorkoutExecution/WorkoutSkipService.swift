@@ -49,7 +49,7 @@ struct WorkoutSkipService {
 
         // 2. Validation: Cannot skip if active session exists
         // Check if there's an active session for this workout
-        let activeSession = TestDataManager.shared.sessions.values.first { session in
+        let activeSession = LocalDataStore.shared.sessions.values.first { session in
             session.workoutId == workout.id && session.status == .active
         }
 
@@ -62,7 +62,7 @@ struct WorkoutSkipService {
         updatedWorkout.status = .skipped
 
         // 4. Persist to in-memory store
-        TestDataManager.shared.workouts[workout.id] = updatedWorkout
+        LocalDataStore.shared.workouts[workout.id] = updatedWorkout
 
         // v168: Save to DeltaStore for sync/audit consistency
         let delta = DeltaStore.WorkoutDelta(
@@ -74,10 +74,10 @@ struct WorkoutSkipService {
 
         // 5. Persist to disk (all workouts for this member)
         // Get member ID through plan → program hierarchy
-        guard let program = TestDataManager.shared.programs.values.first(where: { $0.id == workout.programId }),
-              let plan = TestDataManager.shared.plans.values.first(where: { $0.id == program.planId }) else {
+        guard let program = LocalDataStore.shared.programs.values.first(where: { $0.id == workout.programId }),
+              let plan = LocalDataStore.shared.plans.values.first(where: { $0.id == program.planId }) else {
             // Rollback if we can't find parent plan
-            TestDataManager.shared.workouts[workout.id] = workout
+            LocalDataStore.shared.workouts[workout.id] = workout
             throw WorkoutSkipError.persistenceFailed
         }
 
@@ -123,11 +123,11 @@ struct WorkoutSkipService {
 
     /// Get all workouts for member (for persistence)
     private static func getMemberWorkouts(memberId: String) -> [Workout] {
-        let allPlans = TestDataManager.shared.plans.values.filter { $0.memberId == memberId }
+        let allPlans = LocalDataStore.shared.plans.values.filter { $0.memberId == memberId }
         let planIds = Set(allPlans.map { $0.id })
-        let programs = TestDataManager.shared.programs.values.filter { planIds.contains($0.planId) }
+        let programs = LocalDataStore.shared.programs.values.filter { planIds.contains($0.planId) }
         let programIds = Set(programs.map { $0.id })
-        return Array(TestDataManager.shared.workouts.values.filter { programIds.contains($0.programId) })
+        return Array(LocalDataStore.shared.workouts.values.filter { programIds.contains($0.programId) })
     }
 }
 

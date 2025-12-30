@@ -271,9 +271,9 @@ struct CSVImportView: View {
             userId: user.id
         )
 
-        // Save to TestDataManager
+        // Save to LocalDataStore
         for target in targets {
-            TestDataManager.shared.targets[target.id] = target
+            LocalDataStore.shared.targets[target.id] = target
         }
 
         // Add matched exercises to user's library (for sidebar + 1.2x scoring boost)

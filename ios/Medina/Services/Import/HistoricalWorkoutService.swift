@@ -44,7 +44,7 @@ enum HistoricalWorkoutService {
             workouts.append(workout)
 
             // Store workout
-            TestDataManager.shared.workouts[workout.id] = workout
+            LocalDataStore.shared.workouts[workout.id] = workout
         }
 
         Logger.log(.info, component: "HistoricalWorkoutService",
@@ -59,7 +59,7 @@ enum HistoricalWorkoutService {
     @MainActor
     private static func ensureImportedStructureExists(memberId: String) {
         // Check if plan exists
-        if TestDataManager.shared.plans[importedPlanId] == nil {
+        if LocalDataStore.shared.plans[importedPlanId] == nil {
             let plan = Plan(
                 id: importedPlanId,
                 memberId: memberId,
@@ -79,11 +79,11 @@ enum HistoricalWorkoutService {
                 startDate: Date(timeIntervalSince1970: 0),  // Beginning of time
                 endDate: Date().addingTimeInterval(365 * 24 * 60 * 60)  // Far future
             )
-            TestDataManager.shared.plans[importedPlanId] = plan
+            LocalDataStore.shared.plans[importedPlanId] = plan
         }
 
         // Check if program exists
-        if TestDataManager.shared.programs[importedProgramId] == nil {
+        if LocalDataStore.shared.programs[importedProgramId] == nil {
             let program = Program(
                 id: importedProgramId,
                 planId: importedPlanId,
@@ -97,7 +97,7 @@ enum HistoricalWorkoutService {
                 progressionType: .linear,
                 status: .completed
             )
-            TestDataManager.shared.programs[importedProgramId] = program
+            LocalDataStore.shared.programs[importedProgramId] = program
         }
     }
 
@@ -191,7 +191,7 @@ enum HistoricalWorkoutService {
                 notes: nil,
                 recordedDate: date
             )
-            TestDataManager.shared.exerciseSets[setId] = exerciseSet
+            LocalDataStore.shared.exerciseSets[setId] = exerciseSet
         }
 
         // Create exercise instance
@@ -205,7 +205,7 @@ enum HistoricalWorkoutService {
             trainerInstructions: nil,
             supersetLabel: nil
         )
-        TestDataManager.shared.exerciseInstances[instanceId] = instance
+        LocalDataStore.shared.exerciseInstances[instanceId] = instance
     }
 
     // MARK: - Protocol Selection
@@ -215,7 +215,7 @@ enum HistoricalWorkoutService {
     @MainActor
     private static func getDefaultProtocol(for exerciseId: String, sets setCount: Int) -> String {
         // Look for existing protocol that matches set count
-        let matchingProtocol = TestDataManager.shared.protocolConfigs.values.first { config in
+        let matchingProtocol = LocalDataStore.shared.protocolConfigs.values.first { config in
             config.reps.count == setCount
         }
 
@@ -227,7 +227,7 @@ enum HistoricalWorkoutService {
         let protocolId = "imported-protocol-\(setCount)sets"
 
         // Check if we already created this protocol
-        if TestDataManager.shared.protocolConfigs[protocolId] != nil {
+        if LocalDataStore.shared.protocolConfigs[protocolId] != nil {
             return protocolId
         }
 

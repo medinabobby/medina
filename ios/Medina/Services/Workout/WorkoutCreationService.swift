@@ -112,7 +112,7 @@ enum WorkoutCreationService {
         // This prevents plan conflicts when user creates a one-off workout while having an active training plan
         if let activePlan = PlanDataStore.activePlan(for: userId),
            !activePlan.isSingleWorkout,  // Don't insert into other single workouts
-           let program = TestDataManager.shared.programs.values.first(where: { $0.planId == activePlan.id }) {
+           let program = LocalDataStore.shared.programs.values.first(where: { $0.planId == activePlan.id }) {
             Logger.log(.info, component: "WorkoutCreationService",
                 message: "v101.2: Found active plan '\(activePlan.name)' - inserting workout into it")
             return try await insertWorkoutIntoActivePlan(
@@ -124,7 +124,7 @@ enum WorkoutCreationService {
         }
 
         // 1. Get user data
-        guard let user = TestDataManager.shared.users[userId] else {
+        guard let user = LocalDataStore.shared.users[userId] else {
             throw NSError(domain: "WorkoutCreation", code: 404, userInfo: [
                 NSLocalizedDescriptionKey: "User not found: \(userId)"
             ])
@@ -259,7 +259,7 @@ enum WorkoutCreationService {
             let exerciseIds = intent.exerciseIds!
 
             // Validate exercises exist (but don't filter by muscle group)
-            let validExercises = exerciseIds.filter { TestDataManager.shared.exercises[$0] != nil }
+            let validExercises = exerciseIds.filter { LocalDataStore.shared.exercises[$0] != nil }
 
             guard !validExercises.isEmpty else {
                 throw NSError(domain: "WorkoutCreation", code: 500, userInfo: [
@@ -401,10 +401,10 @@ enum WorkoutCreationService {
             weeklyIntensities: workoutIntensities
         )
 
-        // 8. Save to TestDataManager
-        TestDataManager.shared.plans[plan.id] = plan
-        TestDataManager.shared.programs[program.id] = program
-        TestDataManager.shared.workouts[workout.id] = workout
+        // 8. Save to LocalDataStore
+        LocalDataStore.shared.plans[plan.id] = plan
+        LocalDataStore.shared.programs[program.id] = program
+        LocalDataStore.shared.workouts[workout.id] = workout
 
         Logger.log(.info, component: "WorkoutCreationService",
                   message: "Created AI workout '\(intent.name)' (id: \(workout.id), \(workout.exerciseIds.count) exercises, fast path)")
@@ -440,7 +440,7 @@ enum WorkoutCreationService {
     ) async throws -> WorkoutCreationResult {
 
         // 1. Get user data
-        guard let user = TestDataManager.shared.users[userId] else {
+        guard let user = LocalDataStore.shared.users[userId] else {
             throw NSError(domain: "WorkoutCreation", code: 404, userInfo: [
                 NSLocalizedDescriptionKey: "User not found: \(userId)"
             ])
@@ -527,10 +527,10 @@ enum WorkoutCreationService {
             weeklyIntensities: weeklyIntensities
         )
 
-        // 6. Save to TestDataManager
-        TestDataManager.shared.plans[plan.id] = plan
-        TestDataManager.shared.programs[program.id] = program
-        TestDataManager.shared.workouts[workout.id] = workout
+        // 6. Save to LocalDataStore
+        LocalDataStore.shared.plans[plan.id] = plan
+        LocalDataStore.shared.programs[program.id] = program
+        LocalDataStore.shared.workouts[workout.id] = workout
 
         Logger.log(.info, component: "WorkoutCreationService",
                   message: "Created AI workout '\(validatedData.name)' (id: \(workout.id), status: draft)")
@@ -625,10 +625,10 @@ enum WorkoutCreationService {
         var protocolIds: [Int: String] = [:]
 
         // Get user library for protocol selection
-        let library = TestDataManager.shared.libraries[userId] ?? UserLibrary(userId: userId)
+        let library = LocalDataStore.shared.libraries[userId] ?? UserLibrary(userId: userId)
 
         for (index, exerciseId) in exerciseIds.enumerated() {
-            guard let exercise = TestDataManager.shared.exercises[exerciseId] else {
+            guard let exercise = LocalDataStore.shared.exercises[exerciseId] else {
                 continue
             }
 
@@ -690,10 +690,10 @@ enum WorkoutCreationService {
 
         for iteration in 0..<maxIterations {
             // Calculate current workout time
-            let instances = TestDataManager.shared.exerciseInstances.values
+            let instances = LocalDataStore.shared.exerciseInstances.values
                 .filter { $0.workoutId == workout.id }
             let protocolConfigs = instances.compactMap { instance in
-                TestDataManager.shared.protocolConfigs[instance.protocolVariantId]
+                LocalDataStore.shared.protocolConfigs[instance.protocolVariantId]
             }
             // v132: Include transition time to match DurationAwareWorkoutBuilder
             let currentDuration = ExerciseTimeCalculator.calculateWorkoutTime(
@@ -771,7 +771,7 @@ enum WorkoutCreationService {
         }
 
         // Get eligible exercises from library
-        guard let library = TestDataManager.shared.libraries[userId] else {
+        guard let library = LocalDataStore.shared.libraries[userId] else {
             return nil
         }
 
@@ -779,7 +779,7 @@ enum WorkoutCreationService {
             // Skip if already in workout
             guard !existingIds.contains(exerciseId) else { return false }
 
-            guard let exercise = TestDataManager.shared.exercises[exerciseId] else {
+            guard let exercise = LocalDataStore.shared.exercises[exerciseId] else {
                 return false
             }
 
@@ -843,7 +843,7 @@ enum WorkoutCreationService {
         if let aiExerciseIds = intent.exerciseIds, !aiExerciseIds.isEmpty {
             // AI provided exercise IDs - validate they're cardio exercises
             for exerciseId in aiExerciseIds {
-                if let exercise = TestDataManager.shared.exercises[exerciseId],
+                if let exercise = LocalDataStore.shared.exercises[exerciseId],
                    exercise.exerciseType == .cardio {
                     exerciseIds.append(exerciseId)
                 } else {
@@ -860,7 +860,7 @@ enum WorkoutCreationService {
 
             // Find first available cardio exercise
             for exerciseId in defaultCardioExercises {
-                if TestDataManager.shared.exercises[exerciseId] != nil {
+                if LocalDataStore.shared.exercises[exerciseId] != nil {
                     exerciseIds.append(exerciseId)
                     break
                 }
@@ -995,7 +995,7 @@ enum WorkoutCreationService {
             // AI often sends equipment like "dumbbells" when user has none configured
             if workoutPlan.trainingLocation == .home {
                 // Get user's profile to check configured home equipment
-                let userProfile = TestDataManager.shared.users[userId]?.memberProfile
+                let userProfile = LocalDataStore.shared.users[userId]?.memberProfile
 
                 if let profileEquipment = userProfile?.availableEquipment, !profileEquipment.isEmpty {
                     // User has configured home equipment - use it
@@ -1056,8 +1056,8 @@ enum WorkoutCreationService {
             weeklyIntensities: workoutIntensities
         )
 
-        // Save to TestDataManager
-        TestDataManager.shared.workouts[workout.id] = workout
+        // Save to LocalDataStore
+        LocalDataStore.shared.workouts[workout.id] = workout
 
         Logger.log(.info, component: "WorkoutCreationService",
             message: "v101.2: Inserted workout '\(workout.name)' (id: \(workout.id)) into plan '\(plan.name)'")
@@ -1080,9 +1080,9 @@ enum WorkoutCreationService {
         userId: String
     ) async throws {
         // v206: Sync to Firestore
-        let instances = TestDataManager.shared.exerciseInstances.values.filter { $0.workoutId == workout.id }
+        let instances = LocalDataStore.shared.exerciseInstances.values.filter { $0.workoutId == workout.id }
         let instanceIds = Set(instances.map { $0.id })
-        let sets = TestDataManager.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
+        let sets = LocalDataStore.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
 
         try await FirestoreWorkoutRepository.shared.saveFullWorkout(
             workout: workout,

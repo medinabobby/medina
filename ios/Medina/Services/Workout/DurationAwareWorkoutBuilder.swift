@@ -341,7 +341,7 @@ enum DurationAwareWorkoutBuilder {
         // v104: Build set of baseExercises already in candidates
         var usedBaseExercises: Set<String> = []
         for exerciseId in candidates {
-            if let exercise = TestDataManager.shared.exercises[exerciseId] {
+            if let exercise = LocalDataStore.shared.exercises[exerciseId] {
                 usedBaseExercises.insert(exercise.baseExercise)
             }
         }
@@ -363,7 +363,7 @@ enum DurationAwareWorkoutBuilder {
         for exerciseId in libraryExercises {
             if !candidates.contains(exerciseId) {
                 // v104: Check baseExercise isn't already used
-                if let exercise = TestDataManager.shared.exercises[exerciseId] {
+                if let exercise = LocalDataStore.shared.exercises[exerciseId] {
                     if usedBaseExercises.contains(exercise.baseExercise) {
                         Logger.log(.debug, component: "DurationAwareWorkoutBuilder",
                             message: "v104: Skipping library exercise \(exerciseId) - baseExercise '\(exercise.baseExercise)' already in candidates")
@@ -525,20 +525,20 @@ enum DurationAwareWorkoutBuilder {
 
         if let patterns = movementPatternFilter, !patterns.isEmpty {
             // v124.1: Movement patterns need full catalog for variety
-            exerciseIdsToSearch = Array(TestDataManager.shared.exercises.keys)
+            exerciseIdsToSearch = Array(LocalDataStore.shared.exercises.keys)
             Logger.log(.info, component: "DurationAwareWorkoutBuilder",
                 message: "v124.1: Movement pattern filter - using full catalog (\(exerciseIdsToSearch.count) exercises)")
         } else if forceBodyweightOnly {
             // v130: Home workouts need FULL CATALOG because user's library likely has gym exercises only
             // If we use library, bodyweight filter leaves 0-1 exercises → short workouts
-            exerciseIdsToSearch = Array(TestDataManager.shared.exercises.keys)
+            exerciseIdsToSearch = Array(LocalDataStore.shared.exercises.keys)
             Logger.log(.info, component: "DurationAwareWorkoutBuilder",
                 message: "v130: Home workout - using full catalog (\(exerciseIdsToSearch.count) exercises) to find bodyweight options")
-        } else if let library = TestDataManager.shared.libraries[userId], !library.exercises.isEmpty {
+        } else if let library = LocalDataStore.shared.libraries[userId], !library.exercises.isEmpty {
             exerciseIdsToSearch = Array(library.exercises)
         } else {
             // New user or empty library - use all available exercises
-            exerciseIdsToSearch = Array(TestDataManager.shared.exercises.keys)
+            exerciseIdsToSearch = Array(LocalDataStore.shared.exercises.keys)
             Logger.log(.info, component: "DurationAwareWorkoutBuilder",
                 message: "v82.5: No user library, using global exercises (\(exerciseIdsToSearch.count) available)")
         }
@@ -553,7 +553,7 @@ enum DurationAwareWorkoutBuilder {
 
             // Filter exercises by movement pattern
             let eligibleExercises = exerciseIdsToSearch.compactMap { exerciseId -> (String, Exercise)? in
-                guard let exercise = TestDataManager.shared.exercises[exerciseId] else {
+                guard let exercise = LocalDataStore.shared.exercises[exerciseId] else {
                     return nil
                 }
 
@@ -628,7 +628,7 @@ enum DurationAwareWorkoutBuilder {
 
         // Filter and sort exercises
         let eligibleExercises = exerciseIdsToSearch.compactMap { exerciseId -> (String, Exercise)? in
-            guard let exercise = TestDataManager.shared.exercises[exerciseId] else {
+            guard let exercise = LocalDataStore.shared.exercises[exerciseId] else {
                 return nil
             }
 
@@ -726,7 +726,7 @@ enum DurationAwareWorkoutBuilder {
         // This ensures duration calculation matches the final protocol assignment
         if let overrideId = overrideProtocolId, !overrideId.isEmpty {
             // Safety check: only use override if protocol exists
-            if TestDataManager.shared.protocolConfigs[overrideId] != nil {
+            if LocalDataStore.shared.protocolConfigs[overrideId] != nil {
                 for index in 0..<exerciseIds.count {
                     protocolIds[index] = overrideId
                 }
@@ -740,10 +740,10 @@ enum DurationAwareWorkoutBuilder {
         }
 
         // Get user library for protocol selection
-        let library = TestDataManager.shared.libraries[userId] ?? UserLibrary(userId: userId)
+        let library = LocalDataStore.shared.libraries[userId] ?? UserLibrary(userId: userId)
 
         for (index, exerciseId) in exerciseIds.enumerated() {
-            guard let exercise = TestDataManager.shared.exercises[exerciseId] else {
+            guard let exercise = LocalDataStore.shared.exercises[exerciseId] else {
                 continue
             }
 
@@ -791,7 +791,7 @@ enum DurationAwareWorkoutBuilder {
     ) -> Int {
         let protocolConfigs: [ProtocolConfig?] = exerciseIds.enumerated().map { index, _ in
             guard let protocolId = protocolIds[index] else { return nil }
-            return TestDataManager.shared.protocolConfigs[protocolId]
+            return LocalDataStore.shared.protocolConfigs[protocolId]
         }
 
         // v124: Pass transition time to calculator for realistic duration

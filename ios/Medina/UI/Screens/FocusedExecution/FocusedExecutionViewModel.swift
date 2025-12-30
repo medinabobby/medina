@@ -118,7 +118,7 @@ class FocusedExecutionViewModel: ObservableObject {
     /// v78.0: Protocol info for display (e.g., "RPE 8 • Tempo 3-1-1")
     /// v83.3: Updated to use effective protocol config (applies customizations)
     var protocolInfoText: String? {
-        guard let workout = TestDataManager.shared.workouts[workoutId],
+        guard let workout = LocalDataStore.shared.workouts[workoutId],
               let instance = currentInstance,
               let config = InstanceInitializationService.effectiveProtocolConfig(for: instance, in: workout) else {
             return nil
@@ -166,7 +166,7 @@ class FocusedExecutionViewModel: ObservableObject {
     /// v78.2: Current protocol RPE (for info sheet)
     /// v83.3: Updated to use effective protocol config (applies customizations)
     var currentProtocolRPE: Double? {
-        guard let workout = TestDataManager.shared.workouts[workoutId],
+        guard let workout = LocalDataStore.shared.workouts[workoutId],
               let instance = currentInstance,
               let config = InstanceInitializationService.effectiveProtocolConfig(for: instance, in: workout),
               let rpeArray = config.rpe,
@@ -179,7 +179,7 @@ class FocusedExecutionViewModel: ObservableObject {
     /// v78.2: Current protocol tempo (for info sheet)
     /// v83.3: Updated to use effective protocol config (applies customizations)
     var currentProtocolTempo: String? {
-        guard let workout = TestDataManager.shared.workouts[workoutId],
+        guard let workout = LocalDataStore.shared.workouts[workoutId],
               let instance = currentInstance,
               let config = InstanceInitializationService.effectiveProtocolConfig(for: instance, in: workout),
               let tempo = config.tempo,
@@ -195,7 +195,7 @@ class FocusedExecutionViewModel: ObservableObject {
 
         // Check if any set in this instance has actual data logged
         for setId in instance.setIds {
-            if let set = TestDataManager.shared.exerciseSets[setId],
+            if let set = LocalDataStore.shared.exerciseSets[setId],
                set.actualReps != nil || set.actualWeight != nil {
                 return true
             }
@@ -208,7 +208,7 @@ class FocusedExecutionViewModel: ObservableObject {
         guard let instance = currentInstance else { return 0 }
 
         return instance.setIds.reduce(0) { count, setId in
-            if let set = TestDataManager.shared.exerciseSets[setId],
+            if let set = LocalDataStore.shared.exerciseSets[setId],
                set.actualReps != nil || set.actualWeight != nil {
                 return count + 1
             }
@@ -218,12 +218,12 @@ class FocusedExecutionViewModel: ObservableObject {
 
     /// v79.3: Current protocol config (for ProtocolInfoSheet)
     var currentProtocolConfig: ProtocolConfig? {
-        guard let workout = TestDataManager.shared.workouts[workoutId],
+        guard let workout = LocalDataStore.shared.workouts[workoutId],
               exerciseNumber <= workout.protocolVariantIds.count,
               let protocolId = workout.protocolVariantIds[exerciseNumber - 1] else {
             return nil
         }
-        return TestDataManager.shared.protocolConfigs[protocolId]
+        return LocalDataStore.shared.protocolConfigs[protocolId]
     }
 
     /// v79.3: Current protocol variant name (for protocol chip display)
@@ -259,7 +259,7 @@ class FocusedExecutionViewModel: ObservableObject {
 
     /// Split day for the workout (for intro screen display)
     var splitDay: SplitDay? {
-        guard let workout = TestDataManager.shared.workouts[workoutId] else { return nil }
+        guard let workout = LocalDataStore.shared.workouts[workoutId] else { return nil }
         return workout.splitDay
     }
 
@@ -285,7 +285,7 @@ class FocusedExecutionViewModel: ObservableObject {
     /// Returns (label, exerciseName) or nil if not in superset
     /// Wraps around: after last exercise in group, shows first exercise (for next set)
     var nextExerciseInSuperset: (label: String, name: String)? {
-        guard let workout = TestDataManager.shared.workouts[workoutId],
+        guard let workout = LocalDataStore.shared.workouts[workoutId],
               let groups = workout.supersetGroups,
               let currentInstance = currentInstance,
               let _ = currentInstance.supersetLabel else {
@@ -310,7 +310,7 @@ class FocusedExecutionViewModel: ObservableObject {
         guard nextPosition < workout.exerciseIds.count else { return nil }
 
         let nextExerciseId = workout.exerciseIds[nextPosition]
-        if let nextExercise = TestDataManager.shared.exercises[nextExerciseId],
+        if let nextExercise = LocalDataStore.shared.exercises[nextExerciseId],
            let nextLabel = group.label(for: nextPosition) {
             return (nextLabel, nextExercise.name)
         }
@@ -325,7 +325,7 @@ class FocusedExecutionViewModel: ObservableObject {
         self.coordinator = coordinator
 
         // Get workout name
-        if let workout = TestDataManager.shared.workouts[workoutId] {
+        if let workout = LocalDataStore.shared.workouts[workoutId] {
             self.workoutName = workout.displayName
             self.totalExercises = workout.exerciseIds.count
         }
@@ -378,9 +378,9 @@ class FocusedExecutionViewModel: ObservableObject {
     /// Update view state from session
     private func updateFromSession(_ session: Session?) {
         guard let session = session,
-              let workout = TestDataManager.shared.workouts[workoutId] else {
+              let workout = LocalDataStore.shared.workouts[workoutId] else {
             Logger.log(.warning, component: "FocusedExecutionVM",
-                      message: "⚠️ updateFromSession: session=\(session != nil), workout=\(TestDataManager.shared.workouts[workoutId] != nil)")
+                      message: "⚠️ updateFromSession: session=\(session != nil), workout=\(LocalDataStore.shared.workouts[workoutId] != nil)")
             return
         }
 
@@ -396,22 +396,22 @@ class FocusedExecutionViewModel: ObservableObject {
 
         // Get current exercise
         let currentExerciseId = workout.exerciseIds[session.currentExerciseIndex]
-        currentExercise = TestDataManager.shared.exercises[currentExerciseId]
+        currentExercise = LocalDataStore.shared.exercises[currentExerciseId]
 
         // v78.0: Debug logging for exercise lookup failures
         if currentExercise == nil {
             Logger.log(.warning, component: "FocusedExecutionVM",
-                      message: "⚠️ Exercise not found: '\(currentExerciseId)'. Available exercises: \(TestDataManager.shared.exercises.count)")
+                      message: "⚠️ Exercise not found: '\(currentExerciseId)'. Available exercises: \(LocalDataStore.shared.exercises.count)")
         }
 
         // Get current instance - v78.0: Use position-based ID format
         // Instance IDs are formatted as "{workoutId}_ex{position}"
         let instanceId = "\(workoutId)_ex\(session.currentExerciseIndex)"
-        currentInstance = TestDataManager.shared.exerciseInstances[instanceId]
+        currentInstance = LocalDataStore.shared.exerciseInstances[instanceId]
 
         // Fallback: Try filter-based lookup if direct lookup fails
         if currentInstance == nil {
-            let instances = TestDataManager.shared.exerciseInstances.values.filter {
+            let instances = LocalDataStore.shared.exerciseInstances.values.filter {
                 $0.workoutId == workoutId && $0.exerciseId == currentExerciseId
             }
             currentInstance = instances.first
@@ -429,7 +429,7 @@ class FocusedExecutionViewModel: ObservableObject {
 
             if session.currentSetIndex < instance.setIds.count {
                 let setId = instance.setIds[session.currentSetIndex]
-                currentSet = TestDataManager.shared.exerciseSets[setId]
+                currentSet = LocalDataStore.shared.exerciseSets[setId]
 
                 // v78.2: Initialize display values with fallback chain:
                 // 1. Target weight/reps from calibration (if available)
@@ -452,7 +452,7 @@ class FocusedExecutionViewModel: ObservableObject {
             // v78.0: Fallback to protocol default sets if no instance
             // v78.2: Include last logged values in fallback chain
             if let protocolId = workout.protocolVariantIds[session.currentExerciseIndex],
-               let config = TestDataManager.shared.protocolConfigs[protocolId] {
+               let config = LocalDataStore.shared.protocolConfigs[protocolId] {
                 totalSets = config.reps.count
                 setNumber = min(session.currentSetIndex + 1, totalSets)
 
@@ -483,9 +483,9 @@ class FocusedExecutionViewModel: ObservableObject {
     func startWorkoutIfNeeded() async {
         // v208: Lazy load instances/sets if not already loaded
         // This handles navigation directly to FocusedExecution (e.g., from chat chips)
-        let existingInstances = TestDataManager.shared.exerciseInstances.values.filter { $0.workoutId == workoutId }
+        let existingInstances = LocalDataStore.shared.exerciseInstances.values.filter { $0.workoutId == workoutId }
         if existingInstances.isEmpty {
-            let userId = TestDataManager.shared.currentUserId ?? "bobby"
+            let userId = LocalDataStore.shared.currentUserId ?? "bobby"
             Logger.log(.info, component: "FocusedExecutionVM",
                       message: "v208: Lazy loading instances/sets for workout \(workoutId)")
             await LocalDataLoader.loadWorkoutDetails(workoutId: workoutId, userId: userId)
@@ -566,7 +566,7 @@ class FocusedExecutionViewModel: ObservableObject {
             return
         }
 
-        let userId = TestDataManager.shared.currentUserId ?? "bobby"
+        let userId = LocalDataStore.shared.currentUserId ?? "bobby"
 
         do {
             try ExerciseSubstitutionService.performSubstitution(

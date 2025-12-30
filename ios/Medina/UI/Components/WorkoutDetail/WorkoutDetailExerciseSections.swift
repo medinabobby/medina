@@ -17,7 +17,7 @@ struct WorkoutExercisesListView: View {
     let plannedExerciseRowBuilder: (Int, String) -> AnyView
 
     private var instances: [ExerciseInstance] {
-        let allInstances = Array(TestDataManager.shared.exerciseInstances.values)
+        let allInstances = Array(LocalDataStore.shared.exerciseInstances.values)
         let filtered = allInstances.filter { $0.workoutId == workout.id }
         let sorted = filtered.sorted { $0.id < $1.id }
         return sorted
@@ -114,7 +114,7 @@ struct WorkoutPlannedExerciseRow: View {
 
     private var instance: ExerciseInstance? {
         let instanceId = "\(workout.id)_ex\(position)"
-        return TestDataManager.shared.exerciseInstances[instanceId]
+        return LocalDataStore.shared.exerciseInstances[instanceId]
     }
 
     private var displayNumber: String? {
@@ -124,7 +124,7 @@ struct WorkoutPlannedExerciseRow: View {
     private var subtitle: String {
         if position < workout.protocolVariantIds.count,
            let protocolId = workout.protocolVariantIds[position],
-           let config = TestDataManager.shared.protocolConfigs[protocolId] {
+           let config = LocalDataStore.shared.protocolConfigs[protocolId] {
             let setCount = instance?.setIds.count ?? config.reps.count
             return "\(config.variantName) • \(setCount) sets"
         }
@@ -134,7 +134,7 @@ struct WorkoutPlannedExerciseRow: View {
     private var timeText: String? {
         if position < workout.protocolVariantIds.count,
            let protocolId = workout.protocolVariantIds[position],
-           let protocolConfig = TestDataManager.shared.protocolConfigs[protocolId] {
+           let protocolConfig = LocalDataStore.shared.protocolConfigs[protocolId] {
             // v132: Include transition time to match DurationAwareWorkoutBuilder
             let minutes = ExerciseTimeCalculator.calculateWorkoutTime(
                 protocolConfigs: [protocolConfig],
@@ -179,13 +179,13 @@ struct WorkoutHeroSection: View {
     let isSessionActive: Bool
 
     private var instances: [ExerciseInstance] {
-        Array(TestDataManager.shared.exerciseInstances.values)
+        Array(LocalDataStore.shared.exerciseInstances.values)
             .filter { $0.workoutId == workout.id }
     }
 
     private var protocolConfigs: [ProtocolConfig] {
         instances.compactMap { instance in
-            TestDataManager.shared.protocolConfigs[instance.protocolVariantId]
+            LocalDataStore.shared.protocolConfigs[instance.protocolVariantId]
         }
     }
 
@@ -255,8 +255,8 @@ struct WorkoutBreadcrumbBar: View {
     var body: some View {
         var items: [BreadcrumbItem] = []
 
-        if let program = TestDataManager.shared.programs[workout.programId],
-           let plan = TestDataManager.shared.plans[program.planId] {
+        if let program = LocalDataStore.shared.programs[workout.programId],
+           let plan = LocalDataStore.shared.plans[program.planId] {
 
             items.append(BreadcrumbItem(label: "Plan") {
                 coordinator.navigateToPlan(id: plan.id)

@@ -22,13 +22,13 @@ class ChipResolutionTests: XCTestCase {
 
     override func setUp() async throws {
         try await super.setUp()
-        TestDataManager.shared.resetAndReload()
+        LocalDataStore.shared.resetAndReload()
         DeltaStore.shared.clearAllDeltas()
     }
 
     override func tearDown() async throws {
         DeltaStore.shared.clearAllDeltas()
-        TestDataManager.shared.reset()
+        LocalDataStore.shared.reset()
         try await super.tearDown()
     }
 

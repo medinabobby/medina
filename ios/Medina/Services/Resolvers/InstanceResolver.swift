@@ -61,7 +61,7 @@ enum InstanceResolver {
 
     /// Get instances for a specific exercise (permission-filtered, sorted by date)
     /// Returns instances with their workouts, sorted by most recent first
-    /// Backed by TestDataManager.shared.exerciseInstances
+    /// Backed by LocalDataStore.shared.exerciseInstances
     static func instancesForExercise(
         exerciseId: String,
         for userContext: UserContext,
@@ -77,7 +77,7 @@ enum InstanceResolver {
                 return nil
             }
 
-            guard let workout = TestDataManager.shared.workouts[instance.workoutId] else {
+            guard let workout = LocalDataStore.shared.workouts[instance.workoutId] else {
                 return nil
             }
 
@@ -104,7 +104,7 @@ enum InstanceResolver {
     /// Check if user has permission to view an instance (based on workout access)
     private static func hasPermission(toView instance: ExerciseInstance, userContext: UserContext) -> Bool {
         // Get the workout for this instance
-        guard let workout = TestDataManager.shared.workouts[instance.workoutId] else {
+        guard let workout = LocalDataStore.shared.workouts[instance.workoutId] else {
             return false
         }
 
@@ -117,7 +117,7 @@ enum InstanceResolver {
         // If the workout is in their accessible workouts (via WorkoutDataStore), they can see it
 
         // Get the program for this workout
-        guard let program = TestDataManager.shared.programs[workout.programId] else {
+        guard let program = LocalDataStore.shared.programs[workout.programId] else {
             return false
         }
 

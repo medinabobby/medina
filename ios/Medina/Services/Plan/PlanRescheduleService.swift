@@ -65,11 +65,11 @@ enum PlanRescheduleService {
         }
 
         // 2. Get all programs for this plan
-        let programs = Array(TestDataManager.shared.programs.values.filter { $0.planId == plan.id })
+        let programs = Array(LocalDataStore.shared.programs.values.filter { $0.planId == plan.id })
         let programIds = Set(programs.map { $0.id })
 
         // 3. Get all workouts for this plan
-        let allWorkouts = Array(TestDataManager.shared.workouts.values.filter { programIds.contains($0.programId) })
+        let allWorkouts = Array(LocalDataStore.shared.workouts.values.filter { programIds.contains($0.programId) })
 
         // 4. Separate completed vs scheduled workouts
         let completedWorkouts = allWorkouts.filter { $0.status == .completed || $0.status == .inProgress }
@@ -147,16 +147,16 @@ enum PlanRescheduleService {
                 weeklyIntensities: workoutIntensities
             )
 
-            // Save workouts to TestDataManager
+            // Save workouts to LocalDataStore
             for workout in workoutsWithProtocols {
-                TestDataManager.shared.workouts[workout.id] = workout
+                LocalDataStore.shared.workouts[workout.id] = workout
             }
 
             totalNewWorkouts += workoutsWithProtocols.count
         }
 
         // 8. Save updated plan
-        TestDataManager.shared.plans[updatedPlan.id] = updatedPlan
+        LocalDataStore.shared.plans[updatedPlan.id] = updatedPlan
 
         // 9. Persist all changes to disk
         persistChanges(plan: updatedPlan, userId: userId)
@@ -177,20 +177,20 @@ enum PlanRescheduleService {
     /// Delete a workout and its instances/sets
     private static func deleteWorkoutCascade(_ workout: Workout) async {
         // Find instances for this workout
-        let instances = TestDataManager.shared.exerciseInstances.values.filter { $0.workoutId == workout.id }
+        let instances = LocalDataStore.shared.exerciseInstances.values.filter { $0.workoutId == workout.id }
         let instanceIds = Set(instances.map { $0.id })
 
         // Find sets for these instances
-        let sets = TestDataManager.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
+        let sets = LocalDataStore.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
 
         // Delete in reverse order
         for set in sets {
-            TestDataManager.shared.exerciseSets.removeValue(forKey: set.id)
+            LocalDataStore.shared.exerciseSets.removeValue(forKey: set.id)
         }
         for instance in instances {
-            TestDataManager.shared.exerciseInstances.removeValue(forKey: instance.id)
+            LocalDataStore.shared.exerciseInstances.removeValue(forKey: instance.id)
         }
-        TestDataManager.shared.workouts.removeValue(forKey: workout.id)
+        LocalDataStore.shared.workouts.removeValue(forKey: workout.id)
     }
 
     /// v206: Sync changes to Firestore
@@ -202,14 +202,14 @@ enum PlanRescheduleService {
                 try await FirestorePlanRepository.shared.savePlan(plan)
 
                 // Sync all workouts for this plan
-                let programs = TestDataManager.shared.programs.values.filter { $0.planId == plan.id }
+                let programs = LocalDataStore.shared.programs.values.filter { $0.planId == plan.id }
                 let programIds = Set(programs.map { $0.id })
-                let workouts = TestDataManager.shared.workouts.values.filter { programIds.contains($0.programId) }
+                let workouts = LocalDataStore.shared.workouts.values.filter { programIds.contains($0.programId) }
 
                 for workout in workouts {
-                    let instances = TestDataManager.shared.exerciseInstances.values.filter { $0.workoutId == workout.id }
+                    let instances = LocalDataStore.shared.exerciseInstances.values.filter { $0.workoutId == workout.id }
                     let instanceIds = Set(instances.map { $0.id })
-                    let sets = TestDataManager.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
+                    let sets = LocalDataStore.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
 
                     try await FirestoreWorkoutRepository.shared.saveFullWorkout(
                         workout: workout,

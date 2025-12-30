@@ -103,12 +103,12 @@ enum EquivalentExerciseEstimator {
     /// - Returns: Estimated target if found, nil if no equivalent data available
     static func estimate1RM(for exerciseId: String, userId: String) -> EstimatedTarget? {
         // Get the target exercise
-        guard let targetExercise = TestDataManager.shared.exercises[exerciseId] else {
+        guard let targetExercise = LocalDataStore.shared.exercises[exerciseId] else {
             return nil
         }
 
         // Find all exercises with the same baseExercise
-        let equivalentExercises = TestDataManager.shared.exercises.values.filter { exercise in
+        let equivalentExercises = LocalDataStore.shared.exercises.values.filter { exercise in
             exercise.baseExercise == targetExercise.baseExercise &&
             exercise.id != exerciseId
         }
@@ -123,7 +123,7 @@ enum EquivalentExerciseEstimator {
 
         for equivalentExercise in equivalentExercises {
             let targetId = "\(userId)-\(equivalentExercise.id)"
-            guard let target = TestDataManager.shared.targets[targetId],
+            guard let target = LocalDataStore.shared.targets[targetId],
                   let source1RM = target.currentTarget else {
                 continue
             }
@@ -161,7 +161,7 @@ enum EquivalentExerciseEstimator {
     static func suggestedWorkingWeight(for exerciseId: String, userId: String, percentage: Double = 0.75) -> Double? {
         // First check if user has direct 1RM
         let targetId = "\(userId)-\(exerciseId)"
-        if let target = TestDataManager.shared.targets[targetId],
+        if let target = LocalDataStore.shared.targets[targetId],
            let direct1RM = target.currentTarget {
             return roundToPlate(direct1RM * percentage)
         }

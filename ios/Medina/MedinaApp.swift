@@ -35,7 +35,7 @@ struct MedinaApp: App {
                         }
                 } else if let userId = autoLoginUserId {
                     // v57.0: Auto-login successful - go directly to ChatView
-                    if let user = TestDataManager.shared.users[userId] {
+                    if let user = LocalDataStore.shared.users[userId] {
                         ChatView(user: user)
                             .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("UserLogout"))) { _ in
                                 handleLogout()
@@ -80,12 +80,12 @@ struct MedinaApp: App {
     @MainActor
     private func checkSession() async {
         // Load data first
-        if !TestDataManager.shared.isDataLoaded {
+        if !LocalDataStore.shared.isDataLoaded {
             do {
                 try LocalDataLoader.loadAll()
 
                 // Apply persisted deltas
-                let manager = TestDataManager.shared
+                let manager = LocalDataStore.shared
                 manager.workouts = DeltaStore.shared.applyWorkoutDeltas(to: manager.workouts)
                 manager.exerciseSets = DeltaStore.shared.applySetDeltas(to: manager.exerciseSets)
                 manager.exerciseInstances = DeltaStore.shared.applyInstanceDeltas(to: manager.exerciseInstances)
@@ -110,14 +110,14 @@ struct MedinaApp: App {
             Logger.log(.info, component: "MedinaApp", message: "Firebase auto-login: \(firebaseUser.uid)")
 
             // Get or create local user from Firebase credentials
-            let user = TestDataManager.shared.getOrCreateUser(
+            let user = LocalDataStore.shared.getOrCreateUser(
                 firebaseUID: firebaseUser.uid,
                 email: firebaseUser.email ?? "",
                 displayName: firebaseUser.displayName
             )
 
             // Set current user
-            TestDataManager.shared.currentUserId = user.id
+            LocalDataStore.shared.currentUserId = user.id
 
             // v196: Load all reference data from Firestore (protocols, gyms, exercises)
             await LocalDataLoader.loadReferenceDataFromFirestore()

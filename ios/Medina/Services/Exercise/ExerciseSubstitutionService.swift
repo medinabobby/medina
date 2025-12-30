@@ -69,7 +69,7 @@ enum ExerciseSubstitutionService {
     ) -> [SubstitutionCandidate] {
 
         // Get the original exercise
-        guard let originalExercise = TestDataManager.shared.exercises[exerciseId] else {
+        guard let originalExercise = LocalDataStore.shared.exercises[exerciseId] else {
             Logger.log(.warning, component: "ExerciseSubstitutionService",
                       message: "Exercise not found: \(exerciseId)")
             return []
@@ -79,7 +79,7 @@ enum ExerciseSubstitutionService {
                   message: "Finding alternatives for '\(originalExercise.name)' (equipment: \(availableEquipment.count) types)")
 
         // Get all exercises and filter by equipment
-        let allExercises = TestDataManager.shared.exercises.values
+        let allExercises = LocalDataStore.shared.exercises.values
 
         // Filter: Must have equipment user has access to, and not be the original exercise
         let equipmentFiltered = allExercises.filter { exercise in
@@ -355,7 +355,7 @@ enum ExerciseSubstitutionService {
         workoutId: String,
         userId: String
     ) throws {
-        let manager = TestDataManager.shared
+        let manager = LocalDataStore.shared
 
         // 1. Get old instance
         guard let oldInstance = manager.exerciseInstances[instanceId] else {

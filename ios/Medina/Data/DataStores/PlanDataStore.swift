@@ -10,7 +10,7 @@ import Foundation
 
 enum PlanDataStore {
 
-    private static var manager: TestDataManager { TestDataManager.shared }
+    private static var manager: LocalDataStore { LocalDataStore.shared }
 
     // MARK: - Member Queries
 
