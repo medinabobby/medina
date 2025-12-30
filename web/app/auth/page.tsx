@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { getFirebaseAuth } from '@/lib/firebase';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -13,6 +13,7 @@ export default function AuthPage() {
   useEffect(() => {
     async function handleMagicLink() {
       // Check if this is a sign-in link
+      const auth = getFirebaseAuth();
       if (!isSignInWithEmailLink(auth, window.location.href)) {
         setStatus('error');
         setErrorMessage('Invalid sign-in link');
