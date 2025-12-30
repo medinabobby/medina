@@ -901,3 +901,6 @@ export {calculate} from "./api/calculate";
 
 // Import endpoint - CSV parsing, exercise matching, intelligence analysis
 export {importCSV} from "./api/import";
+
+// Exercise selection endpoint - library-first selection with experience fallback
+export {selectExercises} from "./api/selectExercises";
