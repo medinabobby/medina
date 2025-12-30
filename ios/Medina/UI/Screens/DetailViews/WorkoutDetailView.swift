@@ -43,43 +43,48 @@ struct WorkoutDetailView: View {
         NavigationCoordinator(navigationModel: navigationModel)
     }
 
-    var body: some View {
-        Group {
-            let _ = viewModel.applyDeltas()
-            if let workout = LocalDataStore.shared.workouts[workoutId] {
-                VStack(spacing: 0) {
-                    WorkoutBreadcrumbBar(workout: workout, coordinator: coordinator)
-                    WorkoutHeroSection(workout: workout, isSessionActive: sessionCoordinator.isWorkoutActive)
-                    workoutStatusBox(for: workout)
-                    exercisesListView(for: workout)
+    // MARK: - Main Content (extracted to help type checker)
+
+    @ViewBuilder
+    private var mainContent: some View {
+        let _ = viewModel.applyDeltas()
+        if let workout = LocalDataStore.shared.workouts[workoutId] {
+            VStack(spacing: 0) {
+                WorkoutBreadcrumbBar(workout: workout, coordinator: coordinator)
+                WorkoutHeroSection(workout: workout, isSessionActive: sessionCoordinator.isWorkoutActive)
+                workoutStatusBox(for: workout)
+                exercisesListView(for: workout)
+            }
+            .onAppear {
+                // v162: Restore active session if exists - enables "End Workout Early" from detail view
+                sessionCoordinator.restoreSession(for: workoutId)
+
+                // v208: Lazy load instances/sets from Firestore on demand
+                Task {
+                    await viewModel.loadDetailsIfNeeded()
                 }
-                .onAppear {
-                    // v162: Restore active session if exists - enables "End Workout Early" from detail view
-                    sessionCoordinator.restoreSession(for: workoutId)
 
-                    // v208: Lazy load instances/sets from Firestore on demand
+                if workout.exerciseIds.isEmpty {
+                    viewModel.isLoadingExercises = true
                     Task {
-                        await viewModel.loadDetailsIfNeeded()
-                    }
-
-                    if workout.exerciseIds.isEmpty {
-                        viewModel.isLoadingExercises = true
-                        Task {
-                            await viewModel.ensureExercisesSelectedAsync(for: workout)
-                            await MainActor.run {
-                                viewModel.isLoadingExercises = false
-                            }
+                        await viewModel.ensureExercisesSelectedAsync(for: workout)
+                        await MainActor.run {
+                            viewModel.isLoadingExercises = false
                         }
                     }
                 }
-            } else {
-                EmptyStateView(
-                    icon: "figure.strengthtraining.traditional",
-                    title: "Workout Not Found",
-                    message: "The requested workout could not be found."
-                )
             }
+        } else {
+            EmptyStateView(
+                icon: "figure.strengthtraining.traditional",
+                title: "Workout Not Found",
+                message: "The requested workout could not be found."
+            )
         }
+    }
+
+    var body: some View {
+        mainContent
         .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
