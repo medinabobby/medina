@@ -8,6 +8,7 @@ import { KeyValueRow } from './shared/KeyValueRow';
 import { DisclosureSection } from './shared/DisclosureSection';
 import { useAuth } from '@/components/AuthProvider';
 import { getExerciseDetails } from '@/lib/firestore';
+import { calculateWorkingWeight, formatWeight } from '@/lib/api';
 import type { ExerciseDetails } from '@/lib/types';
 
 interface ExerciseDetailModalProps {
@@ -78,9 +79,9 @@ export function ExerciseDetailModal({ exerciseId, onBack, onClose, breadcrumbIte
     }).format(date);
   };
 
-  const calculateWorkingWeight = (oneRM: number, percentage: number) => {
-    const weight = Math.round(oneRM * percentage / 5) * 5; // Round to nearest 5
-    return `${weight} lbs`;
+  // Weight suggestion using shared calculation from api.ts
+  const getWeightSuggestion = (oneRM: number, percentage: number) => {
+    return formatWeight(calculateWorkingWeight(oneRM, percentage));
   };
 
   return (
@@ -220,7 +221,7 @@ export function ExerciseDetailModal({ exerciseId, onBack, onClose, breadcrumbIte
                   >
                     <span className="text-sm" style={{ color: colors.secondaryText }}>Light (60%)</span>
                     <span className="text-sm font-medium" style={{ color: colors.primaryText }}>
-                      {calculateWorkingWeight(exercise.userStats.current1RM, 0.6)}
+                      {getWeightSuggestion(exercise.userStats.current1RM, 0.6)}
                     </span>
                   </div>
                   <div
@@ -229,7 +230,7 @@ export function ExerciseDetailModal({ exerciseId, onBack, onClose, breadcrumbIte
                   >
                     <span className="text-sm" style={{ color: colors.secondaryText }}>Moderate (75%)</span>
                     <span className="text-sm font-medium" style={{ color: colors.primaryText }}>
-                      {calculateWorkingWeight(exercise.userStats.current1RM, 0.75)}
+                      {getWeightSuggestion(exercise.userStats.current1RM, 0.75)}
                     </span>
                   </div>
                   <div
@@ -238,7 +239,7 @@ export function ExerciseDetailModal({ exerciseId, onBack, onClose, breadcrumbIte
                   >
                     <span className="text-sm" style={{ color: colors.secondaryText }}>Heavy (85%)</span>
                     <span className="text-sm font-medium" style={{ color: colors.primaryText }}>
-                      {calculateWorkingWeight(exercise.userStats.current1RM, 0.85)}
+                      {getWeightSuggestion(exercise.userStats.current1RM, 0.85)}
                     </span>
                   </div>
                 </div>
