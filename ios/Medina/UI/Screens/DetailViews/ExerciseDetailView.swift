@@ -55,92 +55,86 @@ struct ExerciseDetailView: View {
         return "\(user.firstName.uppercased())'S STATS"
     }
 
-    var body: some View {
-        Group {
-            if let exercise = LocalDataStore.shared.exercises[exerciseId] {
-                // Scrollable content
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
-                        // v79.4: Exercise header with name + tappable equipment badge
-                        ExerciseHeaderView(
-                            exercise: exercise,
-                            size: .large,
-                            alignment: .center,
-                            equipmentTappable: hasEquipmentVariants,
-                            onEquipmentTap: hasEquipmentVariants ? { showEquipmentVariants = true } : nil
-                        )
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 8)
+    // MARK: - Main Content (extracted to help type checker)
 
-                        // v72.1: Show user's stats first if available
-                        yourStatsSection
+    @ViewBuilder
+    private var mainContent: some View {
+        if let exercise = LocalDataStore.shared.exercises[exerciseId] {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    ExerciseHeaderView(
+                        exercise: exercise,
+                        size: .large,
+                        alignment: .center,
+                        equipmentTappable: hasEquipmentVariants,
+                        onEquipmentTap: hasEquipmentVariants ? { showEquipmentVariants = true } : nil
+                    )
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 8)
 
-                        // v79.1: Use shared ExerciseInfoCard with muscle diagram
-                        // showMuscleHero: true (matches workout sheet with muscle diagram)
-                        // showUserStats: false (handled separately above with history)
-                        // v79.4: showEquipment: false (equipment now shown in header)
-                        // showActions: false (no skip/substitute in sidebar)
-                        ExerciseInfoCard(
-                            exercise: exercise,
-                            showMuscleHero: true,
-                            showUserStats: false,
-                            showEquipment: false,
-                            showActions: false,
-                            userId: userId
-                        )
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 24)
+                    yourStatsSection
+
+                    ExerciseInfoCard(
+                        exercise: exercise,
+                        showMuscleHero: true,
+                        showUserStats: false,
+                        showEquipment: false,
+                        showActions: false,
+                        userId: userId
+                    )
                 }
-            } else {
-                EmptyStateView(
-                    icon: "figure.strengthtraining.traditional",
-                    title: "Exercise Not Found",
-                    message: "The requested exercise could not be found."
-                )
+                .padding(.horizontal, 20)
+                .padding(.vertical, 24)
             }
+        } else {
+            EmptyStateView(
+                icon: "figure.strengthtraining.traditional",
+                title: "Exercise Not Found",
+                message: "The requested exercise could not be found."
+            )
         }
-        .navigationTitle(LocalDataStore.shared.exercises[exerciseId]?.name ?? "Exercise")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                libraryToggleButton
+    }
+
+    var body: some View {
+        mainContent
+            .navigationTitle(LocalDataStore.shared.exercises[exerciseId]?.name ?? "Exercise")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    libraryToggleButton
+                }
             }
-        }
-        .onAppear {
-            isInLibrary = LibraryPersistenceService.isExerciseInLibrary(exerciseId, userId: userId)
-        }
-        .sheet(isPresented: $showOneRMEditSheet) {
-            // v79.3: 1RM edit sheet
-            if let exercise = LocalDataStore.shared.exercises[exerciseId] {
-                OneRMEditSheet(
-                    exercise: exercise,
-                    userId: userId,
-                    existingTarget: target,
-                    onSave: { _ in
-                        showOneRMEditSheet = false
-                        refreshTrigger = UUID()  // Force refresh
-                    },
-                    onDismiss: {
-                        showOneRMEditSheet = false
-                    }
-                )
+            .onAppear {
+                isInLibrary = LibraryPersistenceService.isExerciseInLibrary(exerciseId, userId: userId)
             }
-        }
-        .sheet(isPresented: $showEquipmentVariants) {
-            // v79.4: Equipment variants sheet for library navigation
-            if let exercise = LocalDataStore.shared.exercises[exerciseId] {
-                LibraryEquipmentSheet(
-                    currentExercise: exercise,
-                    onSelect: { variantId in
-                        showEquipmentVariants = false
-                        // Navigate to the variant's detail view
-                        navigationModel.navigateToExercise(variantId)
-                    }
-                )
+            .sheet(isPresented: $showOneRMEditSheet) {
+                if let exercise = LocalDataStore.shared.exercises[exerciseId] {
+                    OneRMEditSheet(
+                        exercise: exercise,
+                        userId: userId,
+                        existingTarget: target,
+                        onSave: { _ in
+                            showOneRMEditSheet = false
+                            refreshTrigger = UUID()
+                        },
+                        onDismiss: {
+                            showOneRMEditSheet = false
+                        }
+                    )
+                }
             }
-        }
-        .id(refreshTrigger)  // v79.3: Force view refresh when target changes
+            .sheet(isPresented: $showEquipmentVariants) {
+                if let exercise = LocalDataStore.shared.exercises[exerciseId] {
+                    LibraryEquipmentSheet(
+                        currentExercise: exercise,
+                        onSelect: { variantId in
+                            showEquipmentVariants = false
+                            navigationModel.navigateToExercise(variantId)
+                        }
+                    )
+                }
+            }
+            .id(refreshTrigger)
     }
 
     // MARK: - Your Stats Section (v72.1, v72.4 estimated support)

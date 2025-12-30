@@ -28,137 +28,132 @@ struct PlanDetailView: View {
         NavigationCoordinator(navigationModel: navigationModel)
     }
 
-    var body: some View {
-        Group {
-            if let plan = LocalDataStore.shared.plans[planId] {
-                VStack(spacing: 0) {
-                    // Breadcrumb navigation
-                    BreadcrumbBar(items: [
-                        BreadcrumbItem(label: "Plan", action: nil)
-                    ])
+    // MARK: - Main Content (extracted to help type checker)
 
-                    // Hero section
-                    heroSection(for: plan)
-
-                    // v74.0: Activate Plan banner for draft plans
-                    if plan.status == .draft {
-                        Button(action: { handleActivatePlan(plan: plan) }) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "play.circle")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.orange)
-
-                                Text("Activate Plan to Start")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(Color("PrimaryText"))
-
-                                Spacer()
-
-                                Image(systemName: "arrow.right")
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundColor(Color("SecondaryText"))
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(Color.orange.opacity(0.1))
-                            .cornerRadius(8)
-                        }
-                        .buttonStyle(.plain)
+    @ViewBuilder
+    private var mainContent: some View {
+        if let plan = LocalDataStore.shared.plans[planId] {
+            VStack(spacing: 0) {
+                BreadcrumbBar(items: [BreadcrumbItem(label: "Plan", action: nil)])
+                heroSection(for: plan)
+                activatePlanBanner(for: plan)
+                if plan.status == .active {
+                    nextWorkoutChip(for: plan)
                         .padding(.horizontal, 20)
                         .padding(.top, 12)
+                }
+                planScrollContent(for: plan)
+            }
+        } else {
+            EmptyStateView(
+                icon: "calendar",
+                title: "Plan Not Found",
+                message: "The requested plan could not be found."
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func activatePlanBanner(for plan: Plan) -> some View {
+        if plan.status == .draft {
+            Button(action: { handleActivatePlan(plan: plan) }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "play.circle")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.orange)
+                    Text("Activate Plan to Start")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(Color("PrimaryText"))
+                    Spacer()
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(Color("SecondaryText"))
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color.orange.opacity(0.1))
+                .cornerRadius(8)
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+        }
+    }
+
+    @ViewBuilder
+    private func planScrollContent(for plan: Plan) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                DisclosureGroup("Plan Details", isExpanded: $showPlanDetails) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        planDetailsSection(for: plan)
                     }
+                    .padding(.top, 12)
+                }
+                .tint(Color("PrimaryText"))
 
-                    // Next Workout Preview (if plan is active)
-                    if plan.status == .active {
-                        nextWorkoutChip(for: plan)
-                            .padding(.horizontal, 20)
-                            .padding(.top, 12)
+                Divider().background(Color("BorderColor"))
+
+                let programCount = LocalDataStore.shared.programs.values
+                    .filter { $0.planId == planId }
+                    .count
+
+                DisclosureGroup("Programs in this Plan (\(programCount))", isExpanded: $showPrograms) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        programsSection(for: plan)
                     }
-
-                    // Scrollable content sections
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 20) {
-                            DisclosureGroup("Plan Details", isExpanded: $showPlanDetails) {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    planDetailsSection(for: plan)
-                                }
-                                .padding(.top, 12)
-                            }
-                            .tint(Color("PrimaryText"))
-
-                            Divider().background(Color("BorderColor"))
-
-                            // Count programs for header
-                            let programCount = LocalDataStore.shared.programs.values
-                                .filter { $0.planId == planId }
-                                .count
-
-                            DisclosureGroup("Programs in this Plan (\(programCount))", isExpanded: $showPrograms) {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    programsSection(for: plan)
-                                }
-                                .padding(.top, 12)
-                            }
-                            .tint(Color("PrimaryText"))
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 24)
-                    }
+                    .padding(.top, 12)
                 }
-            } else {
-                EmptyStateView(
-                    icon: "calendar",
-                    title: "Plan Not Found",
-                    message: "The requested plan could not be found."
-                )
+                .tint(Color("PrimaryText"))
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 24)
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        if let plan = LocalDataStore.shared.plans[planId] {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                planActionsMenu(for: plan)
             }
         }
-        .navigationTitle(LocalDataStore.shared.plans[planId]?.name ?? "")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if let plan = LocalDataStore.shared.plans[planId] {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    planActionsMenu(for: plan)
+    }
+
+    var body: some View {
+        mainContent
+            .navigationTitle(LocalDataStore.shared.plans[planId]?.name ?? "")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { toolbarContent }
+            .alert(actionCoordinator.alertTitle, isPresented: $actionCoordinator.showAlert) {
+                Button("Cancel", role: .cancel) { actionCoordinator.cancelAction() }
+                Button("Confirm", role: .destructive) {
+                    Task { await actionCoordinator.confirmAction() }
+                }
+            } message: {
+                Text(actionCoordinator.alertMessage)
+            }
+            .alert("Replace Active Plan?", isPresented: $showActivationConfirmation) {
+                Button("Cancel", role: .cancel) {
+                    activationOverlapPlan = nil
+                    activationSkippedCount = 0
+                }
+                Button("Replace Plan", role: .destructive) {
+                    Task { await performPlanActivation() }
+                }
+            } message: {
+                if let overlapPlan = activationOverlapPlan,
+                   let plan = LocalDataStore.shared.plans[planId] {
+                    Text("\"\(plan.name)\" will replace \"\(overlapPlan.name)\". \(overlapPlan.name) will be abandoned and \(activationSkippedCount) remaining \(activationSkippedCount == 1 ? "workout" : "workouts") will be marked as skipped.")
                 }
             }
-        }
-        .alert(actionCoordinator.alertTitle, isPresented: $actionCoordinator.showAlert) {
-            Button("Cancel", role: .cancel) {
-                actionCoordinator.cancelAction()
-            }
-            Button("Confirm", role: .destructive) {
-                Task {
-                    await actionCoordinator.confirmAction()
+            .alert("Error", isPresented: $showError) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                if let errorMessage = errorMessage {
+                    Text(errorMessage)
                 }
             }
-        } message: {
-            Text(actionCoordinator.alertMessage)
-        }
-        // v74.0: Plan activation confirmation alert (for overlap)
-        .alert("Replace Active Plan?", isPresented: $showActivationConfirmation) {
-            Button("Cancel", role: .cancel) {
-                activationOverlapPlan = nil
-                activationSkippedCount = 0
-            }
-            Button("Replace Plan", role: .destructive) {
-                Task {
-                    await performPlanActivation()
-                }
-            }
-        } message: {
-            if let overlapPlan = activationOverlapPlan,
-               let plan = LocalDataStore.shared.plans[planId] {
-                Text("\"\(plan.name)\" will replace \"\(overlapPlan.name)\". \(overlapPlan.name) will be abandoned and \(activationSkippedCount) remaining \(activationSkippedCount == 1 ? "workout" : "workouts") will be marked as skipped.")
-            }
-        }
-        // v74.0: Error alert
-        .alert("Error", isPresented: $showError) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            if let errorMessage = errorMessage {
-                Text(errorMessage)
-            }
-        }
     }
 
     // MARK: - Section Builders

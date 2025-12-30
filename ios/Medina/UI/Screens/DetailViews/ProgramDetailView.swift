@@ -41,136 +41,133 @@ struct ProgramDetailView: View {
         parentPlan?.status == .draft
     }
 
-    var body: some View {
-        Group {
-            if let program = LocalDataStore.shared.programs[programId] {
-                VStack(spacing: 0) {
-                    // Breadcrumb navigation
-                    breadcrumbBar(for: program)
+    // MARK: - Main Content (extracted to help type checker)
 
-                    // Hero section
-                    heroSection(for: program)
-
-                    // v74.0: Activate Plan banner for draft plans
-                    if isParentPlanDraft {
-                        Button(action: { handleActivatePlan() }) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "play.circle")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.orange)
-
-                                Text("Activate Plan to Start")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(Color("PrimaryText"))
-
-                                Spacer()
-
-                                Image(systemName: "arrow.right")
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundColor(Color("SecondaryText"))
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(Color.orange.opacity(0.1))
-                            .cornerRadius(8)
-                        }
-                        .buttonStyle(.plain)
+    @ViewBuilder
+    private var mainContent: some View {
+        if let program = LocalDataStore.shared.programs[programId] {
+            VStack(spacing: 0) {
+                breadcrumbBar(for: program)
+                heroSection(for: program)
+                activatePlanBanner
+                if parentPlan?.status == .active {
+                    nextWorkoutChip(for: program)
                         .padding(.horizontal, 20)
                         .padding(.top, 12)
-                    }
-
-                    // Next Workout Preview (if parent plan is active)
-                    // v74.3: Show when parent plan is active, not when program is active
-                    if parentPlan?.status == .active {
-                        nextWorkoutChip(for: program)
-                            .padding(.horizontal, 20)
-                            .padding(.top, 12)
-                    }
-
-                    // Scrollable content sections
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 20) {
-                            // Metadata section (collapsible, collapsed by default)
-                            DisclosureGroup("Program Details", isExpanded: $showMetadata) {
-                                    VStack(alignment: .leading, spacing: 12) {
-                                        programMetadataSection(for: program)
-                                    }
-                                    .padding(.top, 12)
-                                }
-                                .tint(Color("PrimaryText"))
-
-                                Divider().background(Color("BorderColor"))
-
-                                // Count workouts for header
-                                let workoutCount = LocalDataStore.shared.workouts.values
-                                    .filter { $0.programId == programId }
-                                    .count
-
-                                // Workouts list (collapsible)
-                                DisclosureGroup("Workouts in this Program (\(workoutCount))", isExpanded: $showWorkouts) {
-                                    VStack(alignment: .leading, spacing: 12) {
-                                        workoutsSection(for: program)
-                                    }
-                                    .padding(.top, 12)
-                                }
-                                .tint(Color("PrimaryText"))
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 24)
-                    }
                 }
-            } else {
-                EmptyStateView(
-                    icon: "calendar",
-                    title: "Program Not Found",
-                    message: "The requested program could not be found."
-                )
+                programScrollContent(for: program)
             }
+        } else {
+            EmptyStateView(
+                icon: "calendar",
+                title: "Program Not Found",
+                message: "The requested program could not be found."
+            )
         }
-        .navigationTitle(LocalDataStore.shared.programs[programId]?.name ?? "Program")
-        .navigationBarTitleDisplayMode(.inline)
-        // v68.0: Toolbar menu with "Activate Plan" action
-        .toolbar {
-            if isParentPlanDraft {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        Button {
-                            handleActivatePlan()
-                        } label: {
-                            Label("Activate Plan", systemImage: "play.circle")
-                        }
+    }
+
+    @ViewBuilder
+    private var activatePlanBanner: some View {
+        if isParentPlanDraft {
+            Button(action: { handleActivatePlan() }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "play.circle")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.orange)
+                    Text("Activate Plan to Start")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(Color("PrimaryText"))
+                    Spacer()
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(Color("SecondaryText"))
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color.orange.opacity(0.1))
+                .cornerRadius(8)
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+        }
+    }
+
+    @ViewBuilder
+    private func programScrollContent(for program: Program) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                DisclosureGroup("Program Details", isExpanded: $showMetadata) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        programMetadataSection(for: program)
+                    }
+                    .padding(.top, 12)
+                }
+                .tint(Color("PrimaryText"))
+
+                Divider().background(Color("BorderColor"))
+
+                let workoutCount = LocalDataStore.shared.workouts.values
+                    .filter { $0.programId == programId }
+                    .count
+
+                DisclosureGroup("Workouts in this Program (\(workoutCount))", isExpanded: $showWorkouts) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        workoutsSection(for: program)
+                    }
+                    .padding(.top, 12)
+                }
+                .tint(Color("PrimaryText"))
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 24)
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        if isParentPlanDraft {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button {
+                        handleActivatePlan()
                     } label: {
-                        Image(systemName: "ellipsis.circle")
-                            .font(.system(size: 18))
-                            .foregroundColor(Color("PrimaryText"))
+                        Label("Activate Plan", systemImage: "play.circle")
                     }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.system(size: 18))
+                        .foregroundColor(Color("PrimaryText"))
                 }
             }
         }
-        // v68.0: Error alert
-        .alert("Error", isPresented: $showError) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            if let errorMessage = errorMessage {
-                Text(errorMessage)
-            }
-        }
-        // v68.0: Plan activation confirmation alert (for overlap)
-        .alert("Replace Active Plan?", isPresented: $showActivationConfirmation) {
-            Button("Cancel", role: .cancel) {
-                activationOverlapPlan = nil
-                activationSkippedCount = 0
-            }
-            Button("Replace Plan", role: .destructive) {
-                Task {
-                    await performPlanActivation()
+    }
+
+    var body: some View {
+        mainContent
+            .navigationTitle(LocalDataStore.shared.programs[programId]?.name ?? "Program")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { toolbarContent }
+            .alert("Error", isPresented: $showError) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                if let errorMessage = errorMessage {
+                    Text(errorMessage)
                 }
             }
-        } message: {
-            if let overlapPlan = activationOverlapPlan {
-                Text("\"\(parentPlan?.name ?? "New Plan")\" will replace \"\(overlapPlan.name)\". \(overlapPlan.name) will be abandoned and \(activationSkippedCount) remaining \(activationSkippedCount == 1 ? "workout" : "workouts") will be marked as skipped.")
+            .alert("Replace Active Plan?", isPresented: $showActivationConfirmation) {
+                Button("Cancel", role: .cancel) {
+                    activationOverlapPlan = nil
+                    activationSkippedCount = 0
+                }
+                Button("Replace Plan", role: .destructive) {
+                    Task { await performPlanActivation(planId: parentPlan?.id ?? "") }
+                }
+            } message: {
+                if let overlapPlan = activationOverlapPlan {
+                    Text("\"\(parentPlan?.name ?? "New Plan")\" will replace \"\(overlapPlan.name)\". \(overlapPlan.name) will be abandoned and \(activationSkippedCount) remaining \(activationSkippedCount == 1 ? "workout" : "workouts") will be marked as skipped.")
+                }
             }
-        }
     }
 
     // MARK: - Section Builders
