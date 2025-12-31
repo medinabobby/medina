@@ -699,7 +699,7 @@ describe("createWorkoutHandler", () => {
   });
 
   describe("Duration Handling", () => {
-    it("uses default duration of 45 when not specified", async () => {
+    it("shows estimated duration based on protocols", async () => {
       const db = createMockDb();
       const context = createContext(db);
 
@@ -712,10 +712,12 @@ describe("createWorkoutHandler", () => {
       }, context);
 
       expect(result.output).toContain("SUCCESS");
-      expect(result.output).toContain("45 minutes");
+      // v236: Now shows estimated duration from protocols, not requested duration
+      expect(result.output).toContain("Duration:");
+      expect(result.output).toMatch(/Duration: ~\d+ minutes/);
     });
 
-    it("respects custom duration", async () => {
+    it("shows estimated duration for multiple exercises", async () => {
       const db = createMockDb();
       const context = createContext(db);
 
@@ -725,11 +727,13 @@ describe("createWorkoutHandler", () => {
         scheduledDate: "2025-01-15",
         duration: 90,
         effortLevel: "standard",
-        exerciseIds: ["barbell_back_squat", "barbell_bench_press", "pull_up"],
+        exerciseIds: ["barbell_back_squat", "barbell_bench_press", "pull_up", "dumbbell_bicep_curl"],
       }, context);
 
       expect(result.output).toContain("SUCCESS");
-      expect(result.output).toContain("90 minutes");
+      // v236: Duration is now calculated from protocols (more accurate)
+      expect(result.output).toContain("Duration:");
+      expect(result.output).toMatch(/Duration: ~\d+ minutes/);
     });
   });
 

@@ -89,9 +89,7 @@ class Logger {
         "ShowScheduleHandler",
         "GetSubstitutionHandler",
         "GetSummaryHandler",
-        // v82.0: Duration-aware workout building
-        "WorkoutCreationService",
-        "DurationAwareWorkoutBuilder",
+        // v236: Workout creation now on Firebase (deleted iOS services)
         "LibraryProtocolSelector",
         // Legacy (deprecated)
         "AssistantManager",
