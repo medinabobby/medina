@@ -19,6 +19,7 @@ import {
 } from './contextBuilders/userContext';
 import { buildTrainingDataContext, StrengthTarget, ExerciseAffinity } from './contextBuilders/trainingDataContext';
 import { buildTrainerContext, isTrainer, MemberInfo, SelectedMember } from './contextBuilders/trainerContext';
+import { capitalize, formatGoal } from './shared/formatters';
 
 // ============================================================================
 // Main Entry Point
@@ -47,36 +48,36 @@ export function buildSystemPrompt(options: SystemPromptOptions | UserProfile): s
 
   const currentDate = new Date().toISOString().slice(0, 10);
 
-  // Build sections
+  // Build sections (ordered for primacy bias - important rules first)
   const sections: string[] = [];
 
-  // 1. Base identity (always)
+  // 1. Identity (who am I)
   sections.push(BASE_IDENTITY);
 
-  // 2. User context
+  // 2. Core Rules (MUST/NEVER constraints) - moved up for primacy
+  sections.push(buildCoreRules());
+
+  // 3. User context (current state + profile)
   sections.push(buildFullUserContext(user, workoutContext, planContext));
 
-  // 3. Training data (if available)
+  // 4. Tool instructions
+  sections.push(buildToolInstructions());
+
+  // 5. Training data (if available)
   const trainingData = buildTrainingDataContext(strengthTargets, exerciseAffinity);
   if (trainingData) {
     sections.push(trainingData);
   }
 
-  // 4. Trainer context (if trainer)
+  // 6. Trainer context (if trainer)
   if (isTrainer(user.roles)) {
     sections.push(buildTrainerContext(trainerMembers || [], selectedMember));
   }
 
-  // 5. Core behavioral rules
-  sections.push(buildCoreRules());
-
-  // 6. Tool instructions
-  sections.push(buildToolInstructions());
-
-  // 7. Action examples
+  // 7. Examples (few-shot learning)
   sections.push(buildExamples());
 
-  // 8. Fitness warnings
+  // 8. Warnings
   sections.push(buildWarnings());
 
   // 9. Current date
@@ -134,26 +135,6 @@ You help members with:
 2. **Progressive Overload**: Respect the user's experience level
 3. **Personalization**: Consider their goals, schedule, and preferences
 4. **Practical**: Focus on actionable advice they can use immediately`;
-
-// ============================================================================
-// Helpers
-// ============================================================================
-
-function formatGoal(goal: string): string {
-  const goalMap: Record<string, string> = {
-    strength: 'Build Strength',
-    muscleGain: 'Build Muscle',
-    fatLoss: 'Lose Fat',
-    endurance: 'Improve Endurance',
-    generalFitness: 'General Fitness',
-    athleticPerformance: 'Athletic Performance',
-  };
-  return goalMap[goal] || goal;
-}
-
-function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
 
 // ============================================================================
 // Re-exports for convenience

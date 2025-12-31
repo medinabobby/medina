@@ -100,6 +100,16 @@ HOME: Check profile for "Home Equipment"
 LIGHT DUMBBELLS: Ask weight range, use recovery effort, high reps`;
 
 /**
+ * ID safety rules - centralized to avoid repetition
+ */
+export const ID_RULES = `## ID SAFETY
+NEVER fabricate workout, plan, or exercise IDs.
+ONLY use IDs from:
+- Context sections: "Today's Workout: ... (ID: xyz)"
+- Tool outputs: "WORKOUT_ID: xyz"
+Validation WILL fail for guessed IDs.`;
+
+/**
  * Workout creation few-shot examples
  */
 export const WORKOUT_EXAMPLES = `## WORKOUT CREATION EXAMPLES
@@ -172,6 +182,8 @@ When creating ANY muscle gain plan, mention:
  */
 export function buildCoreRules(): string {
   return `# CORE BEHAVIORAL RULES
+
+${ID_RULES}
 
 ${CONFIRMATION_RULES}
 

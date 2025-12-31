@@ -6,6 +6,7 @@
  */
 
 import { UserProfile } from '../../types/chat';
+import { capitalize, formatGoal } from '../shared/formatters';
 
 export interface WorkoutContext {
   todayWorkout?: { id: string; name: string };
@@ -203,22 +204,3 @@ export function buildFullUserContext(
   return sections.join('\n\n');
 }
 
-// ============================================================================
-// Helpers
-// ============================================================================
-
-function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function formatGoal(goal: string): string {
-  const goalMap: Record<string, string> = {
-    strength: 'Build Strength',
-    muscleGain: 'Build Muscle',
-    fatLoss: 'Lose Fat',
-    endurance: 'Improve Endurance',
-    generalFitness: 'General Fitness',
-    athleticPerformance: 'Athletic Performance',
-  };
-  return goalMap[goal] || goal;
-}
