@@ -1046,6 +1046,46 @@ async function createHistoricalWorkouts(
 }
 
 // ============================================================================
+// Exports for Testing
+// ============================================================================
+
+export {
+  parseCSVLine,
+  parseDate,
+  parseWeights,
+  parseSetsAndWeight,
+  calculateBest1RM,
+  parseCSV,
+  matchExerciseToLibrary,
+  calculateRelativeStrengthScore,
+  calculateAbsoluteStrengthScore,
+  calculateHistoryScore,
+  calculateVolumeScore,
+  calculateVarietyScore,
+  computeExperienceLevel,
+  inferTrainingStyle,
+  inferMuscleGroupsFromName,
+  inferEmphasizedMuscles,
+  inferSplitType,
+  estimateSessionDuration,
+  calculateConfidence,
+  analyzeImport,
+};
+
+export type {
+  ParsedSet,
+  ParsedExercise,
+  ParsedWorkout,
+  ImportedSession,
+  ImportedSessionExercise,
+  ImportedExerciseData,
+  ExperienceIndicators,
+  ImportIntelligence,
+  ImportSummary,
+  ImportResponse,
+};
+
+// ============================================================================
 // Main Handler
 // ============================================================================
 

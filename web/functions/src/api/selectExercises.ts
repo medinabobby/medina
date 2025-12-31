@@ -308,6 +308,31 @@ function extractMuscles(exerciseIds: string[], pool: Exercise[]): Set<MuscleGrou
 }
 
 // =============================================================================
+// EXPORTS FOR TESTING
+// =============================================================================
+
+export {
+  buildExercisePool,
+  selectCompounds,
+  selectIsolations,
+  extractMuscles,
+  experienceLevelOrder,
+};
+
+export type {
+  Exercise,
+  Equipment,
+  ExerciseType,
+  MuscleGroup,
+  ExperienceLevel,
+  MovementPattern,
+  SplitDay,
+  SelectionRequest,
+  SelectionResult,
+  SelectionResponse,
+};
+
+// =============================================================================
 // MAIN ENDPOINT
 // =============================================================================
 
