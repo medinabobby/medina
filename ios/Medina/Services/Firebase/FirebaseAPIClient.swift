@@ -138,9 +138,10 @@ actor FirebaseAPIClient {
 
     /// Delete a plan (cascade deletes programs, workouts)
     /// POST /deletePlan (requires auth)
+    /// v236: Always pass confirmDelete=true since iOS shows confirmation dialog before calling
     func deletePlan(planId: String) async throws -> PlanActionResponse {
         let start = Date()
-        let body = PlanActionRequest(planId: planId)
+        let body = PlanActionRequest(planId: planId, confirmDelete: true)
         let response: PlanActionResponse = try await post(endpoint: "deletePlan", body: body, requiresAuth: true)
         let latency = Date().timeIntervalSince(start) * 1000
         print("[FirebaseAPI] /deletePlan completed in \(Int(latency))ms")
@@ -419,11 +420,13 @@ struct CalculationResponse: Codable {
 struct PlanActionRequest: Codable {
     let planId: String
     var confirmOverlap: Bool?
+    var confirmDelete: Bool?  // v236: Skip server confirmation when iOS already confirmed
     var newStartDate: String?  // For reschedule, ISO8601 format
 
-    init(planId: String, confirmOverlap: Bool? = nil, newStartDate: String? = nil) {
+    init(planId: String, confirmOverlap: Bool? = nil, confirmDelete: Bool? = nil, newStartDate: String? = nil) {
         self.planId = planId
         self.confirmOverlap = confirmOverlap
+        self.confirmDelete = confirmDelete
         self.newStartDate = newStartDate
     }
 }

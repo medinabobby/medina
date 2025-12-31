@@ -224,6 +224,11 @@ class EntityActionCoordinator: ObservableObject {
             let message = response.message ?? "'\(planName)' has been deleted."
             Logger.log(.info, component: "EntityActionCoordinator", message: "Plan deleted via Firebase: \(entityId)")
 
+            // v237: Remove plan from local state immediately (triggers @Published UI update)
+            await MainActor.run {
+                LocalDataStore.shared.plans.removeValue(forKey: entityId)
+            }
+
             // Refresh local data from Firestore
             NotificationCenter.default.post(name: .planStatusDidChange, object: nil)
 
