@@ -7,10 +7,23 @@
  *
  * Version History:
  * - v1.0: Initial TypeScript port from iOS
+ * - v236: Phase 6 - Populate exercises for near-term workouts (within 7 days)
+ *         Uses ExerciseSelector and ProtocolAssigner from workout service layer.
+ *         Workouts beyond 7 days remain stubs (runtime selection for flexibility).
  */
 
 import {HandlerContext, HandlerResult, SuggestionChip, PlanCardData} from "./index";
 import * as admin from "firebase-admin";
+import {
+  selectExercises,
+  calculateExerciseCount,
+  determinePrimaryEquipment,
+  assignProtocols,
+  SplitDay as ServiceSplitDay,
+  EffortLevel,
+  Equipment,
+  TrainingLocation,
+} from "../services/workout";
 
 // ============================================================================
 // Types
@@ -343,7 +356,17 @@ export async function createPlanHandler(
     );
     console.log(`[create_plan] Created ${workouts.length} workouts`);
 
-    // Step 8: Format success response
+    // Step 8: Populate exercises for near-term workouts (within 7 days)
+    await populateNearTermExercises(
+      db,
+      uid,
+      workouts,
+      params.sessionDuration,
+      params.trainingLocation,
+      params.startDate
+    );
+
+    // Step 9: Format success response
     const output = formatSuccessResponse(
       planId,
       params.name,
@@ -1424,6 +1447,118 @@ function formatDateLong(date: Date): string {
  */
 function generateShortId(): string {
   return Math.random().toString(36).substring(2, 10);
+}
+
+// ============================================================================
+// Exercise Selection for Near-Term Workouts
+// ============================================================================
+
+/**
+ * Populate exercises for workouts within 7 days of plan start
+ *
+ * Phase 6 integration: Near-term workouts get exercises selected immediately
+ * so users can see their upcoming exercises. Workouts beyond 7 days remain
+ * as stubs - exercises will be selected at runtime.
+ */
+async function populateNearTermExercises(
+  db: admin.firestore.Firestore,
+  uid: string,
+  workouts: WorkoutDoc[],
+  sessionDuration: number,
+  trainingLocation: string,
+  planStartDate: Date
+): Promise<void> {
+  // Calculate 7-day cutoff from plan start
+  const cutoffDate = new Date(planStartDate);
+  cutoffDate.setDate(cutoffDate.getDate() + 7);
+
+  // Filter to near-term strength workouts (cardio exercises selected at runtime for more variety)
+  const nearTermWorkouts = workouts.filter((w) => {
+    const workoutDate = w.scheduledDate.toDate();
+    return workoutDate < cutoffDate && w.type === "strength" && w.splitDay !== "notApplicable";
+  });
+
+  if (nearTermWorkouts.length === 0) {
+    console.log(`[create_plan] No near-term strength workouts to populate`);
+    return;
+  }
+
+  console.log(`[create_plan] Populating exercises for ${nearTermWorkouts.length} near-term workouts`);
+
+  // Convert training location to Equipment array and TrainingLocation type
+  const location = trainingLocation as TrainingLocation;
+  const equipment = determineEquipmentFromLocation(location);
+
+  for (const workout of nearTermWorkouts) {
+    try {
+      // Calculate exercise count based on duration and equipment
+      const primaryEquipment = determinePrimaryEquipment(equipment);
+      const exerciseCount = calculateExerciseCount(sessionDuration, primaryEquipment);
+
+      // Map local SplitDay to service SplitDay
+      const serviceSplitDay = workout.splitDay as ServiceSplitDay;
+
+      // Select exercises using ExerciseSelector
+      const selectionResult = await selectExercises(db, {
+        splitDay: serviceSplitDay,
+        targetCount: exerciseCount,
+        availableEquipment: equipment,
+        trainingLocation: location,
+      });
+
+      const exercises = selectionResult.exercises;
+      if (!exercises || exercises.length === 0) {
+        console.log(`[create_plan] No exercises found for ${workout.splitDay}, skipping`);
+        continue;
+      }
+
+      // Update workout with selected exercises
+      const exerciseIds = exercises.map((e) => e.id);
+
+      // Assign protocols to get protocol variant IDs
+      const protocols = assignProtocols(exercises, "standard");
+      const protocolVariantIds: Record<string, string> = {};
+      exercises.forEach((exercise, index) => {
+        const protocol = protocols.find((p) => p.exerciseId === exercise.id);
+        if (protocol) {
+          protocolVariantIds[index.toString()] = protocol.protocolId;
+        }
+      });
+
+      // Update Firestore
+      await db
+        .collection("users")
+        .doc(uid)
+        .collection("workouts")
+        .doc(workout.id)
+        .update({
+          exerciseIds,
+          protocolVariantIds,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+      console.log(`[create_plan] Populated ${exerciseIds.length} exercises for workout ${workout.id}`);
+    } catch (error) {
+      // Log error but don't fail the entire plan creation
+      console.error(`[create_plan] Failed to populate exercises for ${workout.id}:`, error);
+    }
+  }
+}
+
+/**
+ * Determine available equipment based on training location
+ */
+function determineEquipmentFromLocation(location: TrainingLocation): Equipment[] {
+  switch (location) {
+  case "gym":
+    return ["barbell", "dumbbell", "cable", "machine", "bodyweight"];
+  case "home":
+    return ["dumbbell", "bodyweight", "bands"];
+  case "outdoor":
+    return ["bodyweight"];
+  default:
+    return ["barbell", "dumbbell", "cable", "machine", "bodyweight"];
+  }
 }
 
 // ============================================================================
