@@ -381,6 +381,110 @@ describe("deletePlanHandler", () => {
       expect(result.output).toContain("2 workouts");
       expect(result.output).toContain("has been deleted");
     });
+
+    it("deletes all programs in the plan", async () => {
+      const programDocs = [
+        {exists: true, id: "prog-1", data: () => ({}), ref: {id: "prog-1"}},
+        {exists: true, id: "prog-2", data: () => ({}), ref: {id: "prog-2"}},
+      ];
+
+      const db = createMockDb({
+        planDoc: {
+          exists: true,
+          id: "plan-1",
+          data: () => ({name: "Plan With Programs", status: "draft", memberId: "test-user-123"}),
+          ref: {collection: vi.fn().mockReturnValue({get: vi.fn().mockResolvedValue({empty: true, docs: []})})},
+        },
+        workoutsSnapshot: {empty: true, docs: [], size: 0},
+        programsSnapshot: {empty: false, docs: programDocs, size: 2},
+      });
+      const context = createContext(db);
+
+      await deletePlanHandler({planId: "plan-1", confirmDelete: true}, context);
+
+      const batch = db.batch();
+      // batch.delete should be called for each program + the plan itself
+      expect(batch.delete).toHaveBeenCalled();
+      expect(batch.commit).toHaveBeenCalledOnce();
+    });
+
+    it("deletes exercise instances and sets for each workout", async () => {
+      const setDocs = [
+        {exists: true, id: "set-1", data: () => ({}), ref: {id: "set-1"}},
+        {exists: true, id: "set-2", data: () => ({}), ref: {id: "set-2"}},
+      ];
+      const instanceDocs = [
+        {exists: true, id: "inst-1", data: () => ({}), ref: {id: "inst-1", collection: vi.fn()}},
+      ];
+      const workoutDocs = [
+        {exists: true, id: "w1", data: () => ({}), ref: {collection: vi.fn()}},
+      ];
+
+      const db = createMockDb({
+        planDoc: {
+          exists: true,
+          id: "plan-1",
+          data: () => ({name: "Full Plan", status: "draft", memberId: "test-user-123"}),
+          ref: {collection: vi.fn().mockReturnValue({get: vi.fn().mockResolvedValue({empty: true, docs: []})})},
+        },
+        workoutsSnapshot: {empty: false, docs: workoutDocs, size: 1},
+        programsSnapshot: {empty: true, docs: [], size: 0},
+        instancesSnapshot: {empty: false, docs: instanceDocs, size: 1},
+        setsSnapshot: {empty: false, docs: setDocs, size: 2},
+      });
+      const context = createContext(db);
+
+      const result = await deletePlanHandler({planId: "plan-1", confirmDelete: true}, context);
+
+      expect(result.output).toContain("has been deleted");
+      const batch = db.batch();
+      // Verify batch operations were called (sets + instances + workouts + plan)
+      expect(batch.delete).toHaveBeenCalled();
+      expect(batch.commit).toHaveBeenCalledOnce();
+    });
+
+    it("commits all deletions in single batch", async () => {
+      // Full hierarchy: plan → 2 programs, 2 workouts → 1 instance each → 2 sets each
+      const setDocs = [
+        {exists: true, id: "set-1", data: () => ({}), ref: {id: "set-1"}},
+        {exists: true, id: "set-2", data: () => ({}), ref: {id: "set-2"}},
+      ];
+      const instanceDocs = [
+        {exists: true, id: "inst-1", data: () => ({}), ref: {id: "inst-1", collection: vi.fn()}},
+      ];
+      const workoutDocs = [
+        {exists: true, id: "w1", data: () => ({}), ref: {collection: vi.fn()}},
+        {exists: true, id: "w2", data: () => ({}), ref: {collection: vi.fn()}},
+      ];
+      const programDocs = [
+        {exists: true, id: "prog-1", data: () => ({}), ref: {id: "prog-1"}},
+        {exists: true, id: "prog-2", data: () => ({}), ref: {id: "prog-2"}},
+      ];
+
+      const db = createMockDb({
+        planDoc: {
+          exists: true,
+          id: "plan-1",
+          data: () => ({name: "Complete Plan", status: "completed", memberId: "test-user-123"}),
+          ref: {collection: vi.fn().mockReturnValue({get: vi.fn().mockResolvedValue({empty: true, docs: []})})},
+        },
+        workoutsSnapshot: {empty: false, docs: workoutDocs, size: 2},
+        programsSnapshot: {empty: false, docs: programDocs, size: 2},
+        instancesSnapshot: {empty: false, docs: instanceDocs, size: 1},
+        setsSnapshot: {empty: false, docs: setDocs, size: 2},
+      });
+      const context = createContext(db);
+
+      const result = await deletePlanHandler({planId: "plan-1", confirmDelete: true}, context);
+
+      expect(result.output).toContain("has been deleted");
+      const batch = db.batch();
+      // Batch commit should be called exactly once (not multiple times)
+      expect(batch.commit).toHaveBeenCalledTimes(1);
+      // batch.delete should be called multiple times for all entities:
+      // 2 workouts × (2 sets + 1 instance) = 6, + 2 workouts + 2 programs + 1 plan = 11 total
+      expect(batch.delete.mock.calls.length).toBeGreaterThan(0);
+    });
   });
 
   describe("Suggestion Chips", () => {

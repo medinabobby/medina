@@ -11,6 +11,7 @@ import { StatusListRow } from './shared/StatusListRow';
 import { ActionBanner } from './shared/ActionBanner';
 import { useDetailModal } from './DetailModalContext';
 import { useAuth } from '@/components/AuthProvider';
+import { useChatLayout } from '@/components/chat/ChatLayout';
 import { getPlanWithPrograms } from '@/lib/firestore';
 import type { PlanDetails } from '@/lib/types';
 
@@ -24,6 +25,7 @@ interface PlanDetailModalProps {
 export function PlanDetailModal({ planId, onBack, onClose, breadcrumbItems }: PlanDetailModalProps) {
   const { openProgram, refresh, close } = useDetailModal();
   const { user } = useAuth();
+  const { refreshSidebar } = useChatLayout();
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState<PlanDetails | null>(null);
   const [activating, setActivating] = useState(false);
@@ -117,7 +119,7 @@ export function PlanDetailModal({ planId, onBack, onClose, breadcrumbItems }: Pl
         // Refresh the data
         const data = await getPlanWithPrograms(user.uid, planId);
         setPlan(data);
-        refresh();
+        refreshSidebar();  // v237: Use sidebar refresh to update plan status
         setShowConfirmDialog(null);
       } else {
         console.error('Failed to abandon plan:', await response.text());
@@ -129,7 +131,7 @@ export function PlanDetailModal({ planId, onBack, onClose, breadcrumbItems }: Pl
     }
   };
 
-  // v227: Delete plan handler (draft/abandoned → deleted)
+  // v227: Delete plan handler (draft/abandoned/completed → deleted)
   const handleDelete = async () => {
     if (!user?.uid || !plan) return;
 
@@ -142,12 +144,12 @@ export function PlanDetailModal({ planId, onBack, onClose, breadcrumbItems }: Pl
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ planId: plan.id }),
+        body: JSON.stringify({ planId: plan.id, confirmDelete: true }),
       });
 
       if (response.ok) {
         // Close the detail panel after deletion
-        refresh();
+        refreshSidebar();  // v237: Use sidebar refresh to update plan list
         close();
       } else {
         console.error('Failed to delete plan:', await response.text());
@@ -168,7 +170,8 @@ export function PlanDetailModal({ planId, onBack, onClose, breadcrumbItems }: Pl
     if (plan.status === 'active') {
       actions.push({ id: 'abandon', label: 'Abandon Plan', icon: XCircle, destructive: true });
     }
-    if (plan.status === 'draft' || plan.status === 'abandoned') {
+    // v236: Allow delete for completed plans (parity with iOS)
+    if (plan.status === 'draft' || plan.status === 'abandoned' || plan.status === 'completed') {
       actions.push({ id: 'delete', label: 'Delete Plan', icon: Trash2, destructive: true });
     }
 
