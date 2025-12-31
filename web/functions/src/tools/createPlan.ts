@@ -1540,6 +1540,32 @@ async function populateNearTermExercises(
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
 
+      // v240: Create exerciseInstances subcollection documents
+      // Clients expect these documents to exist for workout detail view
+      const instancesRef = db
+        .collection("users")
+        .doc(uid)
+        .collection("workouts")
+        .doc(workout.id)
+        .collection("exerciseInstances");
+
+      const batch = db.batch();
+      exercises.forEach((exercise, index) => {
+        const instanceId = `${workout.id}-${exercise.id}`;
+        const instanceDoc = instancesRef.doc(instanceId);
+        batch.set(instanceDoc, {
+          exerciseId: exercise.id,
+          workoutId: workout.id,
+          position: index,
+          protocolVariantId: protocolVariantIds[index.toString()] || null,
+          targetSets: 3,
+          targetReps: "8-12",
+          isCompleted: false,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      });
+      await batch.commit();
+
       console.log(`[create_plan] Populated ${exerciseIds.length} exercises for workout ${workout.id}`);
     } catch (error) {
       // Log error but don't fail the entire plan creation

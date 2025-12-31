@@ -323,7 +323,7 @@ export async function getPlanWithPrograms(uid: string, planId: string): Promise<
 
   // Get programs
   const programsRef = collection(db, 'users', uid, 'plans', planId, 'programs');
-  const programsQuery = query(programsRef, orderBy('weekNumber', 'asc'));
+  const programsQuery = query(programsRef, orderBy('startDate', 'asc'));
   const programsSnap = await getDocs(programsQuery);
 
   const programs: Program[] = programsSnap.docs.map(doc => ({
@@ -332,10 +332,18 @@ export async function getPlanWithPrograms(uid: string, planId: string): Promise<
     ...doc.data(),
   } as Program));
 
-  // Count total workouts
+  // v241: Count workouts by querying with programId (server doesn't populate workoutIds)
+  const workoutsRef = collection(db, 'users', uid, 'workouts');
   let workoutCount = 0;
+
   for (const program of programs) {
-    workoutCount += program.workoutIds?.length || 0;
+    const workoutsQuery = query(workoutsRef, where('programId', '==', program.id));
+    const workoutsSnap = await getDocs(workoutsQuery);
+    const count = workoutsSnap.size;
+
+    // Attach count to program for display
+    (program as any).workoutCount = count;
+    workoutCount += count;
   }
 
   return {
@@ -390,33 +398,34 @@ export async function getProgramWithWorkouts(
       } as Plan
     : undefined;
 
-  // Get workouts for this program
-  const workoutIds = programData.workoutIds || [];
-  const workouts: Workout[] = [];
+  // Get workouts for this program by querying programId
+  // v239: Query by programId instead of relying on workoutIds array
+  const workoutsRef = collection(db, 'users', uid, 'workouts');
+  const workoutsQuery = query(
+    workoutsRef,
+    where('programId', '==', programId),
+    orderBy('scheduledDate', 'asc')
+  );
+  const workoutsSnap = await getDocs(workoutsQuery);
 
-  for (const workoutId of workoutIds) {
-    const workoutRef = doc(db, 'users', uid, 'workouts', workoutId);
-    const workoutSnap = await getDoc(workoutRef);
-
-    if (workoutSnap.exists()) {
-      const data = workoutSnap.data();
-      workouts.push({
-        id: workoutSnap.id,
-        userId: uid,
-        name: data.name || 'Untitled Workout',
-        status: data.status || 'scheduled',
-        exerciseIds: data.exerciseIds || [],
-        scheduledDate: toDate(data.scheduledDate),
-        completedDate: toDate(data.completedDate),
-        splitDay: data.splitDay,
-        sessionType: data.sessionType,
-        estimatedDuration: data.estimatedDuration,
-        actualDuration: data.actualDuration,
-        programId: data.programId,
-        planId: data.planId,
-      });
-    }
-  }
+  const workouts: Workout[] = workoutsSnap.docs.map(workoutSnap => {
+    const data = workoutSnap.data();
+    return {
+      id: workoutSnap.id,
+      userId: uid,
+      name: data.name || 'Untitled Workout',
+      status: data.status || 'scheduled',
+      exerciseIds: data.exerciseIds || [],
+      scheduledDate: toDate(data.scheduledDate),
+      completedDate: toDate(data.completedDate),
+      splitDay: data.splitDay,
+      sessionType: data.sessionType,
+      estimatedDuration: data.estimatedDuration,
+      actualDuration: data.actualDuration,
+      programId: data.programId,
+      planId: data.planId,
+    };
+  });
 
   return {
     id: programSnap.id,
@@ -425,7 +434,7 @@ export async function getProgramWithWorkouts(
     phase: programData.phase || '',
     weekNumber: programData.weekNumber || 1,
     status: programData.status || 'pending',
-    workoutIds: programData.workoutIds || [],
+    workoutIds: workouts.map(w => w.id),  // v239: Derive from query
     workouts,
     parentPlan,
     progressionType: programData.progressionType,
@@ -592,4 +601,88 @@ export async function getExerciseDetails(exerciseId: string, uid?: string): Prom
     instructions: data.instructions || data.description,
     userStats,
   };
+}
+
+// ============================================
+// Library / Favorites (v242)
+// Uses iOS Firestore path: users/{uid}/preferences/exercise.favorites
+// ============================================
+
+/**
+ * Check if an exercise is in the user's library
+ */
+export async function isExerciseInLibrary(uid: string, exerciseId: string): Promise<boolean> {
+  const db = getFirebaseDb();
+  const prefsRef = doc(db, 'users', uid, 'preferences', 'exercise');
+  const prefsSnap = await getDoc(prefsRef);
+
+  if (!prefsSnap.exists()) return false;
+
+  const favorites: string[] = prefsSnap.data()?.favorites || [];
+  const normalizedId = exerciseId.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
+
+  return favorites.includes(normalizedId);
+}
+
+/**
+ * Get all library exercises with their details
+ */
+export async function getLibraryExercises(uid: string): Promise<Exercise[]> {
+  const db = getFirebaseDb();
+
+  // Get user's favorites from preferences
+  const prefsRef = doc(db, 'users', uid, 'preferences', 'exercise');
+  const prefsSnap = await getDoc(prefsRef);
+
+  if (!prefsSnap.exists()) return [];
+
+  const favorites: string[] = prefsSnap.data()?.favorites || [];
+  if (favorites.length === 0) return [];
+
+  // Fetch exercise details for each favorite
+  const exercises: Exercise[] = [];
+  for (const exerciseId of favorites) {
+    const exerciseRef = doc(db, 'exercises', exerciseId);
+    const exerciseSnap = await getDoc(exerciseRef);
+    if (exerciseSnap.exists()) {
+      exercises.push({
+        id: exerciseSnap.id,
+        ...exerciseSnap.data()
+      } as Exercise);
+    }
+  }
+
+  return exercises;
+}
+
+/**
+ * Add an exercise to the user's library
+ */
+export async function addToLibrary(uid: string, exerciseId: string): Promise<void> {
+  const { setDoc, arrayUnion } = await import('firebase/firestore');
+  const db = getFirebaseDb();
+  const prefsRef = doc(db, 'users', uid, 'preferences', 'exercise');
+
+  const normalizedId = exerciseId.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
+
+  await setDoc(prefsRef, {
+    favorites: arrayUnion(normalizedId),
+    lastModified: new Date()
+  }, { merge: true });
+}
+
+/**
+ * Remove an exercise from the user's library
+ */
+export async function removeFromLibrary(uid: string, exerciseId: string): Promise<void> {
+  const { setDoc, arrayRemove } = await import('firebase/firestore');
+  const db = getFirebaseDb();
+  const prefsRef = doc(db, 'users', uid, 'preferences', 'exercise');
+
+  const normalizedId = exerciseId.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
+
+  await setDoc(prefsRef, {
+    favorites: arrayRemove(normalizedId),
+    lastModified: new Date()
+  }, { merge: true });
 }

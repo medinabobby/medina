@@ -7,7 +7,8 @@ import { BreadcrumbBar, BreadcrumbItem } from './shared/BreadcrumbBar';
 import { KeyValueRow } from './shared/KeyValueRow';
 import { DisclosureSection } from './shared/DisclosureSection';
 import { useAuth } from '@/components/AuthProvider';
-import { getExerciseDetails } from '@/lib/firestore';
+import { useChatLayout } from '@/components/chat/ChatLayout';
+import { getExerciseDetails, isExerciseInLibrary, addToLibrary, removeFromLibrary } from '@/lib/firestore';
 import { calculateWorkingWeight, formatWeight } from '@/lib/api';
 import type { ExerciseDetails } from '@/lib/types';
 
@@ -20,6 +21,7 @@ interface ExerciseDetailModalProps {
 
 export function ExerciseDetailModal({ exerciseId, onBack, onClose, breadcrumbItems }: ExerciseDetailModalProps) {
   const { user } = useAuth();
+  const { refreshSidebar } = useChatLayout();
   const [loading, setLoading] = useState(true);
   const [exercise, setExercise] = useState<ExerciseDetails | null>(null);
   const [isInLibrary, setIsInLibrary] = useState(false);
@@ -31,6 +33,12 @@ export function ExerciseDetailModal({ exerciseId, onBack, onClose, breadcrumbIte
       try {
         const data = await getExerciseDetails(exerciseId, user?.uid);
         setExercise(data);
+
+        // v242: Check if exercise is in user's library
+        if (user?.uid) {
+          const inLibrary = await isExerciseInLibrary(user.uid, exerciseId);
+          setIsInLibrary(inLibrary);
+        }
       } catch (error) {
         console.error('Failed to fetch exercise:', error);
       } finally {
@@ -41,28 +49,19 @@ export function ExerciseDetailModal({ exerciseId, onBack, onClose, breadcrumbIte
     fetchExercise();
   }, [exerciseId, user?.uid]);
 
+  // v242: Use direct Firestore functions for library toggle
   const toggleLibrary = async () => {
     if (!user?.uid || libraryLoading) return;
 
     setLibraryLoading(true);
     try {
-      const token = await user.getIdToken();
-      const action = isInLibrary ? 'removeFromLibrary' : 'addToLibrary';
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          action,
-          exerciseId,
-        }),
-      });
-
-      if (response.ok) {
-        setIsInLibrary(!isInLibrary);
+      if (isInLibrary) {
+        await removeFromLibrary(user.uid, exerciseId);
+      } else {
+        await addToLibrary(user.uid, exerciseId);
       }
+      setIsInLibrary(!isInLibrary);
+      refreshSidebar();  // Refresh sidebar to show updated library
     } catch (error) {
       console.error('Failed to toggle library:', error);
     } finally {

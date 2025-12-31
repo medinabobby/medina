@@ -1,6 +1,6 @@
 # Backend Test Strategy
 
-**Version:** v212 (December 29, 2025)
+**Version:** v242 (December 31, 2025)
 
 > **See also:** [TESTING.md](../../../TESTING.md) for cross-platform testing strategy
 
@@ -156,6 +156,17 @@ Add to `handlers/index.ts` and update this doc.
 - Valid options → Chips returned
 - Empty options → Error
 - Long labels → Truncated
+
+### add_to_library (v242)
+- Valid exercise → Added to `preferences/exercise.favorites`
+- Already in library → "Already in library" message
+- Invalid exercise ID → Error message
+- Normalized ID → Lowercase, underscores
+
+### remove_from_library (v242)
+- Valid exercise → Removed from `preferences/exercise.favorites`
+- Not in library → "Not in library" message
+- Normalized ID → Matches add normalization
 
 ### create_workout (TODO)
 - Valid request → Workout created

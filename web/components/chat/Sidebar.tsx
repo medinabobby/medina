@@ -5,6 +5,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { getPlans } from '@/lib/firestore';
 import type { Plan } from '@/lib/types';
 import PlansFolder from './folders/PlansFolder';
+import LibraryFolder from './folders/LibraryFolder';
 import TrainingPreferencesModal from '@/components/TrainingPreferencesModal';
 
 interface SidebarProps {
@@ -57,11 +58,9 @@ export default function Sidebar({ isOpen, onClose, isMobile, refreshKey = 0 }: S
     async function loadData() {
       if (!user) return;
 
-      console.log('[Sidebar] Loading data for user:', user.uid, 'refreshKey:', refreshKey);
       setLoading(true);
       try {
         const plansData = await getPlans(user.uid);
-        console.log('[Sidebar] Plans loaded:', plansData.length, plansData);
         setPlans(plansData);
       } catch (error) {
         console.error('[Sidebar] Error loading data:', error);
@@ -152,24 +151,8 @@ export default function Sidebar({ isOpen, onClose, isMobile, refreshKey = 0 }: S
               {/* Plans Folder */}
               <PlansFolder plans={plans} />
 
-              {/* Library Folder - Bar chart icon like iOS */}
-              <FolderSection
-                icon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                }
-                title="Library"
-              >
-                <div className="pl-7 space-y-1">
-                  <button className="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                    Exercises
-                  </button>
-                  <button className="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                    Protocols
-                  </button>
-                </div>
-              </FolderSection>
+              {/* v242: Library Folder - dynamic with exercises from Firestore */}
+              <LibraryFolder refreshKey={refreshKey} />
 
             </div>
           )}

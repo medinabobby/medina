@@ -4,8 +4,8 @@
  * Adds an exercise to the user's favorites library.
  * Port of iOS AddToLibraryHandler.swift
  *
- * Firestore structure:
- *   users/{uid}/library/exercises → { exerciseIds: string[] }
+ * v242: Unified Firestore structure with iOS:
+ *   users/{uid}/preferences/exercise → { favorites: string[] }
  */
 
 import type {HandlerContext, HandlerResult} from "./index";
@@ -34,16 +34,16 @@ export async function addToLibraryHandler(
     .replace(/-/g, "_");
 
   try {
-    // Get the user's library document
-    const libraryRef = db
+    // v242: Use iOS Firestore path for cross-platform compatibility
+    const prefsRef = db
       .collection("users")
       .doc(uid)
-      .collection("library")
-      .doc("exercises");
+      .collection("preferences")
+      .doc("exercise");
 
-    const libraryDoc = await libraryRef.get();
-    const currentExercises: string[] = libraryDoc.exists ?
-      (libraryDoc.data()?.exerciseIds || []) :
+    const prefsDoc = await prefsRef.get();
+    const currentExercises: string[] = prefsDoc.exists ?
+      (prefsDoc.data()?.favorites || []) :
       [];
 
     // Check for duplicates
@@ -60,9 +60,9 @@ export async function addToLibraryHandler(
     // Add the exercise
     const updatedExercises = [...currentExercises, normalizedId];
 
-    await libraryRef.set(
+    await prefsRef.set(
       {
-        exerciseIds: updatedExercises,
+        favorites: updatedExercises,
         lastModified: new Date(),
       },
       {merge: true}

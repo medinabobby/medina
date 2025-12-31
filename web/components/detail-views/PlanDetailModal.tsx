@@ -406,7 +406,7 @@ export function PlanDetailModal({ planId, onBack, onClose, breadcrumbItems }: Pl
                       number={index + 1}
                       title={program.name}
                       subtitle={formatProgramPhase(program)}
-                      metadata={`${program.workoutIds?.length || 0} workouts`}
+                      metadata={`${(program as any).workoutCount ?? program.workoutIds?.length ?? 0} workouts`}
                       status={program.status}
                       statusText={getStatusLabel(program.status)}
                       onClick={() => openProgram(program.id, program.name, planId, plan.name)}

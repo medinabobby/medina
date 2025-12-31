@@ -1,6 +1,6 @@
 # Medina Testing Strategy
 
-**Last updated:** December 30, 2025 | **Version:** v235
+**Last updated:** December 31, 2025 | **Version:** v242
 
 Cross-platform testing strategy for iOS, Web, and Backend.
 
@@ -249,7 +249,35 @@ iOS tool handler tests in `MedinaTests/ToolHandlerTests/` are now deprecated. Th
 
 ## Manual Testing Checklist
 
-### Cross-Client Verification (v235)
+### Library Functionality (v242)
+
+**Critical: Web & iOS use same Firestore path** - `users/{uid}/preferences/exercise.favorites`
+
+| Test Case | iOS | Web | Verify |
+|-----------|-----|-----|--------|
+| Star button shows filled when exercise is in library | ✓ | ✓ | Star icon filled yellow |
+| Star button toggle adds to library | ✓ | ✓ | Firestore `favorites` array updated |
+| Star button toggle removes from library | ✓ | ✓ | Firestore `favorites` array updated |
+| Sidebar shows library exercises | ✓ | ✓ | Exercises appear under Library > Exercises |
+| Sidebar refreshes after star toggle | ✓ | ✓ | New exercise appears/disappears in sidebar |
+| Chat "add [exercise] to library" works | ✓ | ✓ | Sidebar updates, Firestore updated |
+| Cross-platform sync: iOS → Web | Add on iOS | Check web | Exercise appears in web sidebar |
+| Cross-platform sync: Web → iOS | Add on web | Check iOS | Exercise appears in iOS sidebar |
+
+### Plan Detail Panel (v239-v241)
+
+| Test Case | iOS | Web | Verify |
+|-----------|-----|-----|--------|
+| Programs show in plan detail | ✓ | ✓ | Programs list is not empty |
+| Programs ordered by startDate | ✓ | ✓ | Order matches chronological sequence |
+| Programs show workout count | ✓ | ✓ | Each program shows "N workouts" |
+| Workouts show in program detail | ✓ | ✓ | Workouts list is not empty |
+| Workouts ordered by scheduledDate | ✓ | ✓ | Order matches schedule sequence |
+| Exercises show in workout detail | ✓ | ✓ | Exercises list is not empty |
+| Breadcrumb truncates gracefully | - | ✓ | Long names truncate with ellipsis |
+| Breadcrumb works in resized panel | - | ✓ | Text truncates at any panel width |
+
+### Cross-Client Verification (v242)
 
 **ALWAYS test changes on both iOS and Web** when fixing bugs or adding features that affect shared behavior.
 
@@ -276,6 +304,8 @@ AI tool selection can't be unit tested. Verify manually:
 | "Show my schedule" | `show_schedule` | Functions logs |
 | "Skip today's workout" | `skip_workout` | Firestore |
 | "Create a push workout" | `create_workout` | Firestore |
+| "Add bench press to my library" | `add_to_library` | Firestore `preferences/exercise.favorites` |
+| "Remove deadlift from library" | `remove_from_library` | Firestore `preferences/exercise.favorites` |
 
 ### After Handler Deployment
 
