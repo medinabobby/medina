@@ -1,15 +1,17 @@
 /**
  * Create Workout Handler
  *
- * v236: Refactored to use StrengthBuilder service layer
+ * v236: Refactored to use StrengthBuilder and CardioBuilder service layers
  *
  * Handles create_workout tool calls - creates workout with exercises and protocols.
- * Delegates to StrengthBuilder for the heavy lifting.
+ * Routes to StrengthBuilder or CardioBuilder based on sessionType.
  */
 
 import {HandlerContext, HandlerResult, SuggestionChip, WorkoutCardData} from "./index";
 import {
   buildStrengthWorkout,
+  buildCardioWorkout,
+  suggestCardioStyle,
   getActivePlan,
   parseScheduledDate,
   formatDate,
@@ -18,6 +20,7 @@ import {
   SessionType,
   Equipment,
   TrainingLocation,
+  CardioStyle,
 } from "../services/workout";
 
 // ============================================================================
@@ -40,6 +43,7 @@ interface CreateWorkoutArgs {
   availableEquipment?: string[];
   protocolId?: string;
   planId?: string;
+  cardioStyle?: string; // For cardio workouts: steady, intervals, hiit, mixed
 }
 
 // ============================================================================
@@ -55,10 +59,6 @@ function validateArgs(args: CreateWorkoutArgs): string | null {
     return "ERROR: Missing required parameter 'name'. Please provide a workout name.";
   }
 
-  if (!args.splitDay) {
-    return "ERROR: Missing required parameter 'splitDay'. Please specify the workout split (upper, lower, push, pull, legs, fullBody, etc.).";
-  }
-
   if (!args.scheduledDate) {
     return "ERROR: Missing required parameter 'scheduledDate'. Please provide a date in YYYY-MM-DD format.";
   }
@@ -67,8 +67,18 @@ function validateArgs(args: CreateWorkoutArgs): string | null {
     return "ERROR: Missing required parameter 'effortLevel'. Please specify effort level (recovery, standard, or push).";
   }
 
-  if (!args.exerciseIds || args.exerciseIds.length === 0) {
-    return "ERROR: Missing required parameter 'exerciseIds'. Please select exercises from your EXERCISE OPTIONS context.";
+  // Cardio workouts have different requirements
+  const isCardio = args.sessionType === "cardio";
+
+  if (!isCardio) {
+    // Strength workouts require splitDay and exerciseIds
+    if (!args.splitDay) {
+      return "ERROR: Missing required parameter 'splitDay'. Please specify the workout split (upper, lower, push, pull, legs, fullBody, etc.).";
+    }
+
+    if (!args.exerciseIds || args.exerciseIds.length === 0) {
+      return "ERROR: Missing required parameter 'exerciseIds'. Please select exercises from your EXERCISE OPTIONS context.";
+    }
   }
 
   return null;
@@ -84,7 +94,7 @@ function validateArgs(args: CreateWorkoutArgs): string | null {
  * Flow:
  * 1. Validate required parameters
  * 2. Check for active plan (insert into it, or create standalone)
- * 3. Delegate to StrengthBuilder service
+ * 3. Route to StrengthBuilder or CardioBuilder based on sessionType
  * 4. Format and return response
  */
 export async function createWorkoutHandler(
@@ -113,6 +123,7 @@ export async function createWorkoutHandler(
     availableEquipment: rawEquipment,
     protocolId: overrideProtocolId,
     planId: explicitPlanId,
+    cardioStyle: rawCardioStyle,
   } = typedArgs;
 
   // Parse parameters
@@ -123,9 +134,8 @@ export async function createWorkoutHandler(
   const trainingLocation = rawTrainingLocation as TrainingLocation | undefined;
   const availableEquipment = rawEquipment as Equipment[] | undefined;
 
-  console.log(`[create_workout] Creating workout '${name}' for user ${uid}`);
-  console.log(`[create_workout] Split: ${splitDay}, Duration: ${duration}min, Effort: ${effortLevel}`);
-  console.log(`[create_workout] Requested exercises: ${requestedExerciseIds?.length || 0}`);
+  console.log(`[create_workout] Creating ${sessionType} workout '${name}' for user ${uid}`);
+  console.log(`[create_workout] Duration: ${duration}min, Effort: ${effortLevel}`);
 
   try {
     // Check for active plan to insert into
@@ -143,7 +153,25 @@ export async function createWorkoutHandler(
       }
     }
 
-    // Build workout using StrengthBuilder service
+    // Route to appropriate builder based on session type
+    if (sessionType === "cardio") {
+      return await createCardioWorkout(db, uid, {
+        name: name!,
+        duration,
+        effortLevel,
+        scheduledDate,
+        cardioStyle: (rawCardioStyle as CardioStyle) || suggestCardioStyle(duration, effortLevel),
+        trainingLocation,
+        availableEquipment,
+        planId,
+        programId,
+        planName,
+      });
+    }
+
+    // Build strength workout using StrengthBuilder service
+    console.log(`[create_workout] Split: ${splitDay}, Requested exercises: ${requestedExerciseIds?.length || 0}`);
+
     const result = await buildStrengthWorkout(db, {
       userId: uid,
       name: name!,
@@ -244,9 +272,132 @@ RESPONSE_GUIDANCE:
     return {
       output: `ERROR: Failed to create workout. ${error instanceof Error ? error.message : "Unknown error"}`,
       suggestionChips: [
-        {label: "Try again", command: `Create a ${splitDay} workout for ${rawScheduledDate}`},
+        {label: "Try again", command: `Create a ${splitDay || sessionType} workout for ${rawScheduledDate}`},
         {label: "Get help", command: "What workouts can I create?"},
       ],
     };
   }
+}
+
+// ============================================================================
+// Cardio Workout Creation
+// ============================================================================
+
+interface CardioWorkoutParams {
+  name: string;
+  duration: number;
+  effortLevel: EffortLevel;
+  scheduledDate: Date;
+  cardioStyle: CardioStyle;
+  trainingLocation?: TrainingLocation;
+  availableEquipment?: Equipment[];
+  planId?: string;
+  programId?: string;
+  planName?: string;
+}
+
+/**
+ * Create a cardio workout using CardioBuilder
+ */
+async function createCardioWorkout(
+  db: FirebaseFirestore.Firestore,
+  uid: string,
+  params: CardioWorkoutParams
+): Promise<HandlerResult> {
+  const {
+    name,
+    duration,
+    effortLevel,
+    scheduledDate,
+    cardioStyle,
+    trainingLocation,
+    availableEquipment,
+    planId,
+    programId,
+    planName,
+  } = params;
+
+  console.log(`[create_workout] Cardio style: ${cardioStyle}`);
+
+  const result = await buildCardioWorkout(db, {
+    userId: uid,
+    name,
+    targetDuration: duration,
+    effortLevel,
+    scheduledDate,
+    cardioStyle,
+    trainingLocation,
+    availableEquipment,
+    planId,
+    programId,
+  });
+
+  const {workout, exerciseCount, actualDuration} = result;
+
+  console.log(`[create_workout] Created cardio workout ${workout.id} with ${exerciseCount} exercises`);
+
+  // Format success response
+  const dateString = formatDate(scheduledDate);
+
+  // Get exercise names for display
+  const exerciseNames: string[] = [];
+  for (const exerciseId of workout.exerciseIds.slice(0, 5)) {
+    const exerciseDoc = await db.collection("exercises").doc(exerciseId).get();
+    if (exerciseDoc.exists) {
+      exerciseNames.push(exerciseDoc.data()?.name || exerciseId);
+    } else {
+      exerciseNames.push(exerciseId);
+    }
+  }
+  const exerciseList = exerciseNames.length > 0
+    ? exerciseNames.join(", ")
+    : "Cardio exercises selected automatically";
+
+  // Build response output
+  let output = `SUCCESS: Cardio workout created.
+
+WORKOUT_ID: ${workout.id}
+Name: ${name}
+Date: ${dateString}
+Type: ${cardioStyle} cardio
+Duration: ~${actualDuration} minutes
+Effort: ${effortLevel}
+Status: Ready to start
+
+EXERCISES:
+${exerciseList}`;
+
+  if (planName) {
+    output += `\n\nAdded to plan: ${planName}`;
+  }
+
+  output += `
+
+RESPONSE_GUIDANCE:
+1. Confirm the cardio workout was created
+2. Mention the cardio style (${cardioStyle}) and duration
+3. Remind user they can modify if they want different exercises
+4. Tell them they can tap the workout card below to review`;
+
+  // Build suggestion chips
+  const chips: SuggestionChip[] = [
+    {label: "Start workout", command: `Start workout ${workout.id}`},
+    {label: "Modify workout", command: `Modify workout ${workout.id}`},
+  ];
+
+  if (!planId) {
+    chips.push({label: "Create plan", command: "Create a training plan"});
+  }
+
+  // Include workout card data for inline display
+  const workoutCard: WorkoutCardData = {
+    workoutId: workout.id,
+    workoutName: name,
+  };
+
+  return {
+    output,
+    suggestionChips: chips,
+    workoutCard,
+  };
 }

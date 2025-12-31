@@ -73,3 +73,13 @@ export {
   SupersetResult,
   ExerciseInfo,
 } from './SupersetPairer';
+
+// Cardio builder
+export {
+  buildCardioWorkout,
+  suggestCardioStyle,
+  isCardioWorkout,
+  CardioStyle,
+  CardioBuildRequest,
+  CardioBuildResult,
+} from './CardioBuilder';
