@@ -152,6 +152,14 @@ struct SidebarView: View {
         .onReceive(NotificationCenter.default.publisher(for: .workoutStatusDidChange)) { _ in
             viewModel.loadData()
         }
+        // v238: Refresh sidebar when plan status changes (delete, activate, etc.)
+        // Refetches from Firestore to sync cross-device changes
+        .onReceive(NotificationCenter.default.publisher(for: .planStatusDidChange)) { _ in
+            Task {
+                await LocalDataLoader.loadPlansFromFirestore(userId: user.id)
+                viewModel.loadData()
+            }
+        }
     }
 
     // MARK: - Trainer Content (v118: Plans → Library → Classes)

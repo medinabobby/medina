@@ -234,6 +234,14 @@ enum LocalDataLoader {
             let firestorePlans = try await FirestorePlanRepository.shared.fetchPlans(forMember: userId)
             Logger.log(.info, component: "DataLoader", message: "Fetched \(firestorePlans.count) plans from Firestore")
 
+            // v238: Remove plans not in Firestore (handles cross-device deletions)
+            let firestorePlanIds = Set(firestorePlans.map { $0.id })
+            let localPlanIds = manager.plans.keys.filter { manager.plans[$0]?.memberId == userId }
+            for localId in localPlanIds where !firestorePlanIds.contains(localId) {
+                manager.plans.removeValue(forKey: localId)
+                Logger.log(.info, component: "DataLoader", message: "Removed deleted plan \(localId)")
+            }
+
             // Merge with local plans (Firestore is source of truth)
             for plan in firestorePlans {
                 manager.plans[plan.id] = plan
