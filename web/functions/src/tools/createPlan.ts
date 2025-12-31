@@ -20,7 +20,6 @@ import {
   determinePrimaryEquipment,
   assignProtocols,
   SplitDay as ServiceSplitDay,
-  EffortLevel,
   Equipment,
   TrainingLocation,
 } from "../services/workout";
@@ -1492,7 +1491,7 @@ async function populateNearTermExercises(
   for (const workout of nearTermWorkouts) {
     try {
       // Calculate exercise count based on duration and equipment
-      const primaryEquipment = determinePrimaryEquipment(equipment);
+      const primaryEquipment = determinePrimaryEquipment(location, equipment);
       const exerciseCount = calculateExerciseCount(sessionDuration, primaryEquipment);
 
       // Map local SplitDay to service SplitDay
@@ -1501,6 +1500,7 @@ async function populateNearTermExercises(
       // Select exercises using ExerciseSelector
       const selectionResult = await selectExercises(db, {
         splitDay: serviceSplitDay,
+        sessionType: "strength",
         targetCount: exerciseCount,
         availableEquipment: equipment,
         trainingLocation: location,
@@ -1516,12 +1516,15 @@ async function populateNearTermExercises(
       const exerciseIds = exercises.map((e) => e.id);
 
       // Assign protocols to get protocol variant IDs
-      const protocols = assignProtocols(exercises, "standard");
+      const protocolResult = assignProtocols({
+        exercises,
+        effortLevel: "standard",
+      });
       const protocolVariantIds: Record<string, string> = {};
-      exercises.forEach((exercise, index) => {
-        const protocol = protocols.find((p) => p.exerciseId === exercise.id);
-        if (protocol) {
-          protocolVariantIds[index.toString()] = protocol.protocolId;
+      exercises.forEach((_, index) => {
+        const protocolId = protocolResult.protocolIds[index];
+        if (protocolId) {
+          protocolVariantIds[index.toString()] = protocolId;
         }
       });
 
@@ -1551,13 +1554,13 @@ async function populateNearTermExercises(
 function determineEquipmentFromLocation(location: TrainingLocation): Equipment[] {
   switch (location) {
   case "gym":
-    return ["barbell", "dumbbell", "cable", "machine", "bodyweight"];
+    return ["barbell", "dumbbells", "cable", "machine", "bodyweight"];
   case "home":
-    return ["dumbbell", "bodyweight", "bands"];
+    return ["dumbbells", "bodyweight", "resistanceBand"];
   case "outdoor":
     return ["bodyweight"];
   default:
-    return ["barbell", "dumbbell", "cable", "machine", "bodyweight"];
+    return ["barbell", "dumbbells", "cable", "machine", "bodyweight"];
   }
 }
 

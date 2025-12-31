@@ -120,7 +120,7 @@ class FocusedExecutionViewModel: ObservableObject {
     var protocolInfoText: String? {
         guard let workout = LocalDataStore.shared.workouts[workoutId],
               let instance = currentInstance,
-              let config = InstanceInitializationService.effectiveProtocolConfig(for: instance, in: workout) else {
+              let config = ProtocolAssignmentService.effectiveProtocolConfig(for: instance, in: workout) else {
             return nil
         }
 
@@ -168,7 +168,7 @@ class FocusedExecutionViewModel: ObservableObject {
     var currentProtocolRPE: Double? {
         guard let workout = LocalDataStore.shared.workouts[workoutId],
               let instance = currentInstance,
-              let config = InstanceInitializationService.effectiveProtocolConfig(for: instance, in: workout),
+              let config = ProtocolAssignmentService.effectiveProtocolConfig(for: instance, in: workout),
               let rpeArray = config.rpe,
               let rpe = rpeArray.first else {
             return nil
@@ -181,7 +181,7 @@ class FocusedExecutionViewModel: ObservableObject {
     var currentProtocolTempo: String? {
         guard let workout = LocalDataStore.shared.workouts[workoutId],
               let instance = currentInstance,
-              let config = InstanceInitializationService.effectiveProtocolConfig(for: instance, in: workout),
+              let config = ProtocolAssignmentService.effectiveProtocolConfig(for: instance, in: workout),
               let tempo = config.tempo,
               tempo != "X" && tempo != "0" else {
             return nil

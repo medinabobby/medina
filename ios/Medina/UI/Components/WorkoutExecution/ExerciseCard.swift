@@ -53,7 +53,7 @@ struct ExerciseCard: View {
                             // Line 2: Equipment + Weight/Intensity info
                             // v83.3: Use effective protocol config (applies customizations)
                             if let workout = LocalDataStore.shared.workouts[instance.workoutId],
-                               let protocolConfig = InstanceInitializationService.effectiveProtocolConfig(for: instance, in: workout) {
+                               let protocolConfig = ProtocolAssignmentService.effectiveProtocolConfig(for: instance, in: workout) {
                                 Text(equipmentAndWeightInfo(protocolConfig: protocolConfig))
                                     .font(.system(size: 13))
                                     .foregroundColor(Color("SecondaryText"))
@@ -257,7 +257,7 @@ struct ExerciseCard: View {
                     guard let workout = LocalDataStore.shared.workouts[instance.workoutId] else {
                         return LocalDataStore.shared.protocolConfigs[instance.protocolVariantId]
                     }
-                    return InstanceInitializationService.effectiveProtocolConfig(for: instance, in: workout)
+                    return ProtocolAssignmentService.effectiveProtocolConfig(for: instance, in: workout)
                 }()
 
                 // Get program to calculate base intensity

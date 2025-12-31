@@ -464,4 +464,23 @@ enum ProtocolAssignmentService {
             return "accessory_3x10_rpe8"
         }
     }
+
+    // MARK: - v236: Protocol Config Lookup
+
+    /// Get effective protocol configuration for an exercise instance
+    ///
+    /// Looks up the protocol by ID from the cached protocol configs.
+    /// Used for displaying RPE, tempo, and other protocol info during workout execution.
+    ///
+    /// - Parameters:
+    ///   - instance: The exercise instance to get config for
+    ///   - workout: The workout containing the instance (for protocolVariantIds lookup)
+    /// - Returns: ProtocolConfig if found, nil otherwise
+    static func effectiveProtocolConfig(for instance: ExerciseInstance, in workout: Workout) -> ProtocolConfig? {
+        // Get the protocol ID for this instance
+        let protocolId = instance.protocolVariantId
+
+        // Try to find in cached protocol configs
+        return LocalDataStore.shared.protocolConfigs[protocolId]
+    }
 }

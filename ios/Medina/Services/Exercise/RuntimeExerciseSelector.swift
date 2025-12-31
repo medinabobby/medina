@@ -166,18 +166,14 @@ enum RuntimeExerciseSelector {
             updatedWorkout = workoutWithProtocols
         }
 
-        // v78.3: Initialize instances and sets (matches WorkoutCreationService flow)
-        InstanceInitializationService.initializeInstances(
-            for: [updatedWorkout],
-            memberId: userId,
-            weeklyIntensities: workoutIntensities
-        )
+        // v236: Instances now created by Firebase when workout is built/synced
+        // No local instance initialization needed
 
         // Persist to LocalDataStore
         LocalDataStore.shared.workouts[workout.id] = updatedWorkout
 
-        // v78.3: Persist workout, instances, and sets to disk
-        persistWorkoutWithInstances(updatedWorkout, userId: userId)
+        // v236: Sync workout to Firestore (instances created server-side)
+        persistWorkout(updatedWorkout, userId: userId)
 
         Logger.log(.info, component: "RuntimeExerciseSelector",
                   message: "✅ Selected \(exerciseIds.count) exercises with protocols for workout \(workout.id)")
@@ -369,28 +365,5 @@ enum RuntimeExerciseSelector {
         }
     }
 
-    /// v206: Sync workout with instances and sets to Firestore
-    private static func persistWorkoutWithInstances(_ workout: Workout, userId: String) {
-        // v206: Sync full workout to Firestore (fire-and-forget)
-        Task {
-            do {
-                let instances = LocalDataStore.shared.exerciseInstances.values.filter { $0.workoutId == workout.id }
-                let instanceIds = Set(instances.map { $0.id })
-                let sets = LocalDataStore.shared.exerciseSets.values.filter { instanceIds.contains($0.exerciseInstanceId) }
-
-                try await FirestoreWorkoutRepository.shared.saveFullWorkout(
-                    workout: workout,
-                    instances: Array(instances),
-                    sets: Array(sets),
-                    memberId: userId
-                )
-
-                Logger.log(.debug, component: "RuntimeExerciseSelector",
-                          message: "☁️ Synced workout with \(instances.count) instances and \(sets.count) sets")
-            } catch {
-                Logger.log(.warning, component: "RuntimeExerciseSelector",
-                          message: "⚠️ Firestore sync failed: \(error)")
-            }
-        }
-    }
+    // v236: persistWorkoutWithInstances removed - instances now created by Firebase
 }
