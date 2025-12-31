@@ -38,15 +38,16 @@ export const colors = {
   avatarText: 'rgb(255, 255, 255)',
 };
 
-// Status dot colors for plans/workouts (matches iOS)
+// Status dot colors for plans/workouts (matches iOS StatusHelpers.swift)
+// v235: Fixed to match iOS canonical scheme - active=blue, draft=grey
 export const statusColors = {
-  active: colors.success,       // Green - active plans/programs
-  completed: colors.success,    // Green - completed
+  active: colors.accentBlue,    // Blue - currently active (only 1 at a time)
+  completed: colors.success,    // Green - completed successfully
   inProgress: colors.accentBlue, // Blue - in progress
   scheduled: colors.tertiaryText, // Gray - scheduled (future)
   skipped: colors.warning,      // Orange - skipped
   abandoned: colors.tertiaryText, // Gray - abandoned
-  draft: colors.accentBlue,     // Blue - draft plans
+  draft: colors.tertiaryText,   // Grey - not yet started
   pending: colors.tertiaryText, // Gray - pending
 };
 

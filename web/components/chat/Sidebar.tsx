@@ -11,6 +11,8 @@ interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
   isMobile: boolean;
+  // v235: Refresh key to trigger re-fetch when plan is created
+  refreshKey?: number;
 }
 
 // Get user initials - "Bobby Tulsiani" -> "BT", "bobby@email.com" -> "B"
@@ -27,7 +29,7 @@ function getInitials(nameOrEmail: string): string {
   return nameOrEmail.slice(0, 2).toUpperCase();
 }
 
-export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
+export default function Sidebar({ isOpen, onClose, isMobile, refreshKey = 0 }: SidebarProps) {
   const { user, signOut } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,12 +51,13 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
     }
   }, [showSettingsMenu]);
 
-  // Load data when user is available
+  // Load data when user is available or refreshKey changes
+  // v235: Added refreshKey to re-fetch when plan is created via chat
   useEffect(() => {
     async function loadData() {
       if (!user) return;
 
-      console.log('[Sidebar] Loading data for user:', user.uid, user.email);
+      console.log('[Sidebar] Loading data for user:', user.uid, 'refreshKey:', refreshKey);
       setLoading(true);
       try {
         const plansData = await getPlans(user.uid);
@@ -68,7 +71,7 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
     }
 
     loadData();
-  }, [user]);
+  }, [user, refreshKey]);
 
   // Sidebar is always full width - parent controls visibility via width/margin
   const sidebarClasses = 'w-[280px] h-full bg-white border-r border-gray-200 flex-shrink-0 overflow-hidden';

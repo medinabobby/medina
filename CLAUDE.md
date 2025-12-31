@@ -50,6 +50,31 @@ Server creates data → Firestore → Client reads via listener → UI renders
 
 Clients never create authoritative data. Server writes to Firestore, clients read.
 
+## Development Guidelines
+
+### Cross-Client Verification (v235)
+
+**Always verify changes across both iOS and web clients.**
+
+When fixing bugs or implementing features:
+1. Check if the change affects shared behavior (data display, status colors, API calls)
+2. Implement the fix on BOTH platforms if needed
+3. Test on both iOS simulator and web browser
+
+Common areas requiring cross-client sync:
+- **Status colors** - Both platforms must use same color scheme (see `StatusHelpers.swift` and `colors.ts`)
+- **Sidebar/navigation refresh** - When data is created via chat, both platforms need to refresh
+- **Entity actions** - Available actions should match across platforms (delete, activate, etc.)
+- **API token handling** - Both platforms should get tokens on-demand, not rely on cached state
+
+Files to check for parity:
+| Feature | iOS | Web |
+|---------|-----|-----|
+| Status colors | `StatusHelpers.swift`, `SelectablePlansFolder.swift` | `lib/colors.ts` |
+| Entity actions | `EntityActionProvider.swift` | `PlanDetailModal.tsx` |
+| Sidebar refresh | `ChatViewModel.swift` | `Sidebar.tsx`, `ChatLayout.tsx` |
+| API auth | `FirebaseAPIClient.swift` | Uses `getIdToken()` directly |
+
 ## Current Version
 
-v232
+v235

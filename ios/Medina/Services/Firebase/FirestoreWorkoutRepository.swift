@@ -187,6 +187,57 @@ actor FirestoreWorkoutRepository {
         return try parseWorkoutDocument(doc)
     }
 
+    /// v235: Fetch workouts for a specific plan
+    nonisolated func fetchWorkouts(forPlan planId: String, memberId: String) async throws -> [Workout] {
+        let token = try await FirebaseAuthService.shared.getIDToken()
+
+        // Query within user's workouts collection
+        guard let url = URL(string: "\(baseURL)/users/\(memberId):runQuery") else {
+            throw FirestoreWorkoutError.invalidURL
+        }
+
+        // Query: SELECT * FROM users/{memberId}/workouts WHERE planId == planId
+        let query: [String: Any] = [
+            "structuredQuery": [
+                "from": [
+                    ["collectionId": "workouts"]
+                ],
+                "where": [
+                    "fieldFilter": [
+                        "field": ["fieldPath": "planId"],
+                        "op": "EQUAL",
+                        "value": ["stringValue": planId]
+                    ]
+                ]
+            ]
+        ]
+
+        let body = try JSONSerialization.data(withJSONObject: query)
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = body
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            if (response as? HTTPURLResponse)?.statusCode == 404 {
+                return []
+            }
+            throw FirestoreWorkoutError.fetchFailed
+        }
+
+        // Parse query results
+        let results = try JSONDecoder().decode([FirestoreQueryResult].self, from: data)
+        return results.compactMap { result in
+            guard let doc = result.document else { return nil }
+            return try? parseWorkoutDocument(doc)
+        }
+    }
+
     /// Fetch all workouts for a trainer (across all assigned members)
     nonisolated func fetchWorkoutsForTrainer(trainerId: String) async throws -> [Workout] {
         let token = try await FirebaseAuthService.shared.getIDToken()

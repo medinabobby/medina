@@ -8,9 +8,9 @@
 
 | Platform | Version | Status |
 |----------|---------|--------|
-| iOS | v232 | TestFlight (passthrough client) |
-| Web | v232 | Production |
-| Backend | v232 | **22/22 tools complete** |
+| iOS | v235 | TestFlight (passthrough client) |
+| Web | v235 | Production |
+| Backend | v235 | **22/22 tools complete** |
 
 ---
 
@@ -215,6 +215,7 @@ All iOS business logic migrated to Firebase Functions. iOS is pure passthrough c
 
 | Feature | Date | Notes |
 |---------|------|-------|
+| **Cross-client parity fixes (v235)** | Dec 30 | Fixed status dot colors (active=blue, completed=green, draft=grey) on both iOS and Web. Added sidebar refresh on plan creation for Web. Fixed iOS token race condition. Added cross-client verification docs to CLAUDE.md and TESTING.md. |
 | **ExerciseSelectionService consolidation (v232)** | Dec 30 | Deleted ExerciseSelectionService.swift (~600 LOC) - methods were unused, logic duplicated in RuntimeExerciseSelector. Moved `lastError` to RuntimeExerciseSelector. |
 | **iOS Services cleanup (v232)** | Dec 30 | Deleted 2 dead files (~500 LOC): ExerciseSummaryService.swift (unused), TrainerSidebarSections.swift (obsolete - replaced by SidebarFilterSection). Trainer functionality preserved. |
 | **Voice consolidation (v231)** | Dec 30 | Merged 7 voice files → 3: VoiceInput.swift (STT + VoiceModeManager), VoiceOutput.swift (TTS + Templates), VoiceCoordination.swift (Sequencer + Announcements + Realtime). |

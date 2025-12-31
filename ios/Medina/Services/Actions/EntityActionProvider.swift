@@ -73,8 +73,9 @@ enum EntityActionProvider {
             ))
         }
 
-        // Delete: Draft or Abandoned plans only
-        if descriptor.status == "Draft" || descriptor.status == "Abandoned" {
+        // Delete: Draft, Abandoned, or Completed plans
+        // v235: Added Completed so users can delete old finished plans
+        if descriptor.status == "Draft" || descriptor.status == "Abandoned" || descriptor.status == "Completed" {
             actions.append(EntityAction(
                 type: .deletePlan,
                 title: "Delete Plan",

@@ -48,11 +48,8 @@ class FirebaseAuthService: ObservableObject {
 
                 if let user = user {
                     Logger.log(.info, component: "FirebaseAuth", message: "User signed in: \(user.uid)")
-                    // Update FirebaseAPIClient with the ID token
-                    await self?.refreshIDToken()
                 } else {
                     Logger.log(.info, component: "FirebaseAuth", message: "User signed out")
-                    await FirebaseAPIClient.shared.setAuthToken(nil)
                 }
             }
         }
@@ -61,23 +58,13 @@ class FirebaseAuthService: ObservableObject {
     // MARK: - ID Token Management
 
     /// Get the current user's ID token for API calls
+    /// v235: Tokens are now fetched on-demand by FirebaseAPIClient, no caching needed
     func getIDToken() async throws -> String {
         guard let user = Auth.auth().currentUser else {
             throw FirebaseAuthError.notSignedIn
         }
 
         return try await user.getIDToken()
-    }
-
-    /// Refresh and update the ID token in FirebaseAPIClient
-    func refreshIDToken() async {
-        do {
-            let token = try await getIDToken()
-            await FirebaseAPIClient.shared.setAuthToken(token)
-            Logger.log(.debug, component: "FirebaseAuth", message: "ID token refreshed")
-        } catch {
-            Logger.log(.error, component: "FirebaseAuth", message: "Failed to refresh ID token: \(error)")
-        }
     }
 
     // MARK: - Sign In with Apple (Recommended for iOS)
@@ -120,10 +107,7 @@ class FirebaseAuthService: ObservableObject {
             let result = try await Auth.auth().signIn(with: credential)
             Logger.log(.info, component: "FirebaseAuth", message: "Apple Sign-In successful: \(result.user.uid)")
 
-            // Explicitly refresh the ID token BEFORE making API calls
-            // (Don't rely on auth state listener - it runs in a separate Task)
-            await refreshIDToken()
-
+            // v235: Tokens are now fetched on-demand by FirebaseAPIClient
             // Fetch user profile from Firebase backend
             await fetchUserProfile()
         } catch {
@@ -171,9 +155,7 @@ class FirebaseAuthService: ObservableObject {
             let authResult = try await Auth.auth().signIn(with: credential)
             Logger.log(.info, component: "FirebaseAuth", message: "Google Sign-In successful: \(authResult.user.uid)")
 
-            // Explicitly refresh the ID token BEFORE making API calls
-            await refreshIDToken()
-
+            // v235: Tokens are now fetched on-demand by FirebaseAPIClient
             // Fetch user profile from Firebase backend
             await fetchUserProfile()
         } catch let error as GIDSignInError where error.code == .canceled {
@@ -235,8 +217,8 @@ class FirebaseAuthService: ObservableObject {
             // Clear saved email
             UserDefaults.standard.removeObject(forKey: "pendingMagicLinkEmail")
 
-            // Refresh token and fetch profile
-            await refreshIDToken()
+            // v235: Tokens are now fetched on-demand by FirebaseAPIClient
+            // Fetch user profile
             await fetchUserProfile()
         } catch {
             Logger.log(.error, component: "FirebaseAuth", message: "Magic link sign-in failed: \(error)")

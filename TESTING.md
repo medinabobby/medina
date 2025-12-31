@@ -1,6 +1,6 @@
 # Medina Testing Strategy
 
-**Last updated:** December 30, 2025 | **Version:** v232
+**Last updated:** December 30, 2025 | **Version:** v235
 
 Cross-platform testing strategy for iOS, Web, and Backend.
 
@@ -248,6 +248,23 @@ iOS tool handler tests in `MedinaTests/ToolHandlerTests/` are now deprecated. Th
 ---
 
 ## Manual Testing Checklist
+
+### Cross-Client Verification (v235)
+
+**ALWAYS test changes on both iOS and Web** when fixing bugs or adding features that affect shared behavior.
+
+| Change Type | iOS Test | Web Test |
+|-------------|----------|----------|
+| Status colors | Check sidebar plan dots | Check sidebar plan dots |
+| Data creation (plan/workout) | Verify detail view shows data | Verify detail view shows data |
+| Sidebar refresh | Create plan via chat, check sidebar updates | Create plan via chat, check sidebar updates |
+| Entity actions | Check ... menu options match | Check ... menu options match |
+
+**Common cross-client bugs:**
+- Fix works on one platform but not the other (different code paths)
+- Status colors don't match between platforms
+- Sidebar doesn't refresh after data creation
+- Actions menu shows different options
 
 ### After Prompt Changes
 

@@ -477,18 +477,41 @@ class ChatViewModel: ObservableObject {
                 case .planCard(let cardData):
                     Logger.spine("ChatViewModel", "📋 Plan card: \(cardData.planName)")
 
-                    // v211: Fetch newly created plan from Firestore into local cache
+                    // v235: Fetch newly created plan, programs, AND workouts from Firestore
                     if let userId = LocalDataStore.shared.currentUserId {
                         Task {
                             do {
+                                // Fetch plan
                                 if let plan = try await FirestorePlanRepository.shared.fetchPlan(
                                     id: cardData.planId,
                                     memberId: userId
                                 ) {
                                     await MainActor.run {
                                         LocalDataStore.shared.plans[cardData.planId] = plan
+                                    }
+
+                                    // v235: Also fetch programs for this plan
+                                    let programs = try await FirestorePlanRepository.shared.fetchPrograms(
+                                        forPlan: cardData.planId,
+                                        memberId: userId
+                                    )
+                                    await MainActor.run {
+                                        for program in programs {
+                                            LocalDataStore.shared.programs[program.id] = program
+                                        }
+                                    }
+
+                                    // v235: Fetch workouts for this plan
+                                    let workouts = try await FirestoreWorkoutRepository.shared.fetchWorkouts(
+                                        forPlan: cardData.planId,
+                                        memberId: userId
+                                    )
+                                    await MainActor.run {
+                                        for workout in workouts {
+                                            LocalDataStore.shared.workouts[workout.id] = workout
+                                        }
                                         Logger.log(.info, component: "ChatViewModel",
-                                                  message: "✅ Synced plan \(cardData.planId) from Firestore")
+                                                  message: "✅ Synced plan \(cardData.planId) with \(programs.count) programs and \(workouts.count) workouts")
                                     }
                                 }
                             } catch {

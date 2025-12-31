@@ -64,6 +64,7 @@ function getToolHandlers() {
 
 /**
  * Load user profile from Firestore
+ * v234: Fixed to read from memberProfile (iOS format) and map field names
  */
 async function loadUserProfile(
   uid: string,
@@ -78,12 +79,38 @@ async function loadUserProfile(
   }
 
   const data = userDoc.data()!;
+
+  // v234: iOS saves to memberProfile, web expects profile
+  // Map from iOS format to web format
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let profile: any = data.profile;
+
+  if (data.memberProfile) {
+    const mp = data.memberProfile;
+    profile = {
+      experienceLevel: mp.experienceLevel,
+      fitnessGoal: mp.fitnessGoal,
+      sessionDuration: mp.preferredSessionDuration,
+      preferredDays: mp.preferredWorkoutDays,
+      trainingLocation: mp.trainingLocation,
+      homeEquipment: mp.availableEquipment,
+      emphasizedMuscles: mp.emphasizedMuscleGroups,
+      excludedMuscles: mp.excludedMuscleGroups,
+      currentWeight: mp.currentWeight,
+      goalWeight: mp.goalWeight,
+      heightInches: mp.height,
+      personalMotivation: mp.personalMotivation,
+    };
+  }
+
   return {
     uid,
     email: data.email,
-    displayName: data.displayName,
-    profile: data.profile,
-    role: data.role,
+    displayName: data.displayName || data.name,
+    birthdate: data.birthdate,
+    profile,
+    role: data.role || (data.roles?.[0]),
+    roles: data.roles,
     gymId: data.gymId,
     trainerId: data.trainerId,
   };

@@ -16,12 +16,14 @@ interface CardState {
   workoutCards: WorkoutCardData[];
   planCards: PlanCardData[];
 }
-import ChatLayout from '@/components/chat/ChatLayout';
+import ChatLayout, { useChatLayout } from '@/components/chat/ChatLayout';
 import ChatMessages from '@/components/chat/ChatMessages';
 import ChatInput from '@/components/chat/ChatInput';
 
 function ChatArea() {
   const { getIdToken } = useAuth();
+  // v235: Access sidebar refresh for cross-client sync
+  const { refreshSidebar } = useChatLayout();
   // v227: Start with empty messages - greeting shown separately
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -187,6 +189,12 @@ function ChatArea() {
           workoutCards: collectedCards.workoutCards.length ? collectedCards.workoutCards : undefined,
           planCards: collectedCards.planCards.length ? collectedCards.planCards : undefined,
         }]);
+
+        // v235: Refresh sidebar when plan cards received (cross-client sync)
+        if (collectedCards.planCards.length > 0) {
+          console.log('[Chat] v235: Refreshing sidebar after plan creation');
+          refreshSidebar();
+        }
       } else {
         console.warn('[Chat] No text or cards received from stream');
       }

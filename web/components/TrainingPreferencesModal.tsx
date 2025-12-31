@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { colors } from '@/lib/colors';
+import { useAuth } from '@/components/AuthProvider';
+import { getTrainingPreferences, updateTrainingPreferences, TrainingPreferences } from '@/lib/firestore';
 
 interface TrainingPreferencesModalProps {
   isOpen: boolean;
@@ -47,6 +49,8 @@ const sessionDurations = [
 ];
 
 export default function TrainingPreferencesModal({ isOpen, onClose }: TrainingPreferencesModalProps) {
+  const { user } = useAuth();
+
   // State for all preferences
   const [fitnessGoal, setFitnessGoal] = useState('strength');
   const [muscle, setMuscle] = useState('balanced');
@@ -55,6 +59,67 @@ export default function TrainingPreferencesModal({ isOpen, onClose }: TrainingPr
   const [splitType, setSplitType] = useState('auto');
   const [cardioDays, setCardioDays] = useState(0);
   const [sessionDuration, setSessionDuration] = useState(60);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // v234: Load preferences from Firestore when modal opens
+  useEffect(() => {
+    if (isOpen && user?.uid) {
+      setIsLoading(true);
+      getTrainingPreferences(user.uid)
+        .then((prefs) => {
+          if (prefs) {
+            if (prefs.fitnessGoal) setFitnessGoal(prefs.fitnessGoal);
+            if (prefs.experienceLevel) setExperience(prefs.experienceLevel);
+            if (prefs.preferredSessionDuration) setSessionDuration(prefs.preferredSessionDuration);
+            if (prefs.preferredSplitType) setSplitType(prefs.preferredSplitType);
+            if (prefs.preferredCardioDays !== undefined) setCardioDays(prefs.preferredCardioDays);
+            // workoutDays from preferredWorkoutDays array length
+            if (prefs.preferredWorkoutDays) setWorkoutDays(prefs.preferredWorkoutDays.length);
+          }
+        })
+        .catch((err) => console.error('Failed to load preferences:', err))
+        .finally(() => setIsLoading(false));
+    }
+  }, [isOpen, user?.uid]);
+
+  // v234: Save preference to Firestore
+  const savePreference = useCallback(
+    async (updates: Partial<TrainingPreferences>) => {
+      if (!user?.uid) return;
+      try {
+        await updateTrainingPreferences(user.uid, updates);
+      } catch (err) {
+        console.error('Failed to save preference:', err);
+      }
+    },
+    [user?.uid]
+  );
+
+  // Handlers that update local state and save to Firestore
+  const handleFitnessGoalChange = (value: string) => {
+    setFitnessGoal(value);
+    savePreference({ fitnessGoal: value });
+  };
+
+  const handleExperienceChange = (value: string) => {
+    setExperience(value);
+    savePreference({ experienceLevel: value });
+  };
+
+  const handleSessionDurationChange = (value: number) => {
+    setSessionDuration(value);
+    savePreference({ preferredSessionDuration: value });
+  };
+
+  const handleSplitTypeChange = (value: string) => {
+    setSplitType(value);
+    savePreference({ preferredSplitType: value });
+  };
+
+  const handleCardioDaysChange = (value: number) => {
+    setCardioDays(value);
+    savePreference({ preferredCardioDays: value });
+  };
 
   if (!isOpen) return null;
 
@@ -99,7 +164,7 @@ export default function TrainingPreferencesModal({ isOpen, onClose }: TrainingPr
                   value={fitnessGoals.find(g => g.value === fitnessGoal)?.label || fitnessGoal}
                   options={fitnessGoals}
                   selectedValue={fitnessGoal}
-                  onChange={(v) => setFitnessGoal(String(v))}
+                  onChange={(v) => handleFitnessGoalChange(String(v))}
                 />
                 <PreferenceRow
                   label="Muscle Focus"
@@ -123,7 +188,7 @@ export default function TrainingPreferencesModal({ isOpen, onClose }: TrainingPr
                   value={experienceLevels.find(e => e.value === experience)?.label || experience}
                   options={experienceLevels}
                   selectedValue={experience}
-                  onChange={(v) => setExperience(String(v))}
+                  onChange={(v) => handleExperienceChange(String(v))}
                 />
                 <PreferenceRow
                   label="Workout Days"
@@ -138,21 +203,21 @@ export default function TrainingPreferencesModal({ isOpen, onClose }: TrainingPr
                   value={splitTypes.find(s => s.value === splitType)?.label || splitType}
                   options={splitTypes}
                   selectedValue={splitType}
-                  onChange={(v) => setSplitType(String(v))}
+                  onChange={(v) => handleSplitTypeChange(String(v))}
                 />
                 <PreferenceRow
                   label="Cardio Days"
                   value={cardioDays === 0 ? 'Auto' : `${cardioDays} days/week`}
                   options={[{ value: 0, label: 'Auto' }, ...([1, 2, 3, 4, 5].map(d => ({ value: d, label: `${d} days/week` })))]}
                   selectedValue={cardioDays}
-                  onChange={(v) => setCardioDays(Number(v))}
+                  onChange={(v) => handleCardioDaysChange(Number(v))}
                 />
                 <PreferenceRow
                   label="Session Duration"
                   value={sessionDurations.find(s => s.value === sessionDuration)?.label || `${sessionDuration} min`}
                   options={sessionDurations}
                   selectedValue={sessionDuration}
-                  onChange={(v) => setSessionDuration(Number(v))}
+                  onChange={(v) => handleSessionDurationChange(Number(v))}
                 />
               </div>
             </section>

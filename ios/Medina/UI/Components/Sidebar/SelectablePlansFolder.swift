@@ -152,14 +152,15 @@ struct PlanStatusDot: View {
     }
 
     /// Colors from StatusHelpers.swift (canonical source)
+    /// v235: Fixed to match StatusHelpers - active=blue, completed=green
     private var dotColor: Color {
         switch status {
         case .draft:
             return Color("SecondaryText")  // Grey - not yet started
         case .active:
-            return .green  // Green - currently running
+            return .accentColor  // Blue - currently running (only 1 at a time)
         case .completed:
-            return .blue   // Blue - finished
+            return .green  // Green - finished successfully
         }
     }
 }

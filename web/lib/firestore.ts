@@ -217,6 +217,95 @@ export async function getUserProfile(uid: string) {
   };
 }
 
+// v234: Training preferences interface matching iOS MemberProfile
+export interface TrainingPreferences {
+  fitnessGoal?: string;
+  experienceLevel?: string;
+  preferredSessionDuration?: number;
+  preferredWorkoutDays?: string[];
+  preferredSplitType?: string;
+  preferredCardioDays?: number;
+  trainingLocation?: string;
+  availableEquipment?: string[];
+  emphasizedMuscleGroups?: string[];
+  excludedMuscleGroups?: string[];
+}
+
+// v234: Get training preferences from user's memberProfile
+export async function getTrainingPreferences(uid: string): Promise<TrainingPreferences | null> {
+  const db = getFirebaseDb();
+  const userRef = doc(db, 'users', uid);
+  const snapshot = await getDoc(userRef);
+
+  if (!snapshot.exists()) return null;
+
+  const data = snapshot.data();
+  const memberProfile = data.memberProfile;
+
+  if (!memberProfile) return null;
+
+  return {
+    fitnessGoal: memberProfile.fitnessGoal,
+    experienceLevel: memberProfile.experienceLevel,
+    preferredSessionDuration: memberProfile.preferredSessionDuration,
+    preferredWorkoutDays: memberProfile.preferredWorkoutDays,
+    preferredSplitType: memberProfile.preferredSplitType,
+    preferredCardioDays: memberProfile.preferredCardioDays,
+    trainingLocation: memberProfile.trainingLocation,
+    availableEquipment: memberProfile.availableEquipment,
+    emphasizedMuscleGroups: memberProfile.emphasizedMuscleGroups,
+    excludedMuscleGroups: memberProfile.excludedMuscleGroups,
+  };
+}
+
+// v234: Update training preferences in user's memberProfile
+export async function updateTrainingPreferences(
+  uid: string,
+  preferences: Partial<TrainingPreferences>
+): Promise<void> {
+  const { updateDoc, setDoc } = await import('firebase/firestore');
+  const db = getFirebaseDb();
+  const userRef = doc(db, 'users', uid);
+
+  // Build memberProfile update object
+  const memberProfileUpdate: Record<string, unknown> = {};
+
+  if (preferences.fitnessGoal !== undefined) {
+    memberProfileUpdate['memberProfile.fitnessGoal'] = preferences.fitnessGoal;
+  }
+  if (preferences.experienceLevel !== undefined) {
+    memberProfileUpdate['memberProfile.experienceLevel'] = preferences.experienceLevel;
+  }
+  if (preferences.preferredSessionDuration !== undefined) {
+    memberProfileUpdate['memberProfile.preferredSessionDuration'] = preferences.preferredSessionDuration;
+  }
+  if (preferences.preferredWorkoutDays !== undefined) {
+    memberProfileUpdate['memberProfile.preferredWorkoutDays'] = preferences.preferredWorkoutDays;
+  }
+  if (preferences.preferredSplitType !== undefined) {
+    memberProfileUpdate['memberProfile.preferredSplitType'] = preferences.preferredSplitType;
+  }
+  if (preferences.preferredCardioDays !== undefined) {
+    memberProfileUpdate['memberProfile.preferredCardioDays'] = preferences.preferredCardioDays;
+  }
+
+  try {
+    await updateDoc(userRef, memberProfileUpdate);
+  } catch (error) {
+    // If document doesn't exist, create it with memberProfile
+    const newDoc = {
+      memberProfile: {
+        fitnessGoal: preferences.fitnessGoal || 'strength',
+        experienceLevel: preferences.experienceLevel || 'intermediate',
+        preferredSessionDuration: preferences.preferredSessionDuration || 60,
+        membershipStatus: 'active',
+        memberSince: new Date().toISOString(),
+      }
+    };
+    await setDoc(userRef, newDoc, { merge: true });
+  }
+}
+
 // ============================================
 // Detail View Queries
 // ============================================

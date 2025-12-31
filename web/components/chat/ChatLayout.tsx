@@ -9,6 +9,9 @@ interface ChatLayoutContextType {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
+  // v235: Refresh sidebar data (e.g., after plan creation)
+  refreshSidebar: () => void;
+  sidebarRefreshKey: number;
 }
 
 const ChatLayoutContext = createContext<ChatLayoutContextType | undefined>(undefined);
@@ -95,6 +98,8 @@ function ChatLayoutInner({ children }: ChatLayoutProps) {
   // v230: Sidebar collapsed by default (Claude style)
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  // v235: Sidebar refresh mechanism for cross-client consistency
+  const [sidebarRefreshKey, setSidebarRefreshKey] = useState(0);
   const { isOpen: isPanelOpen, close: closePanel } = useDetailModal();
 
   // Handle responsive behavior
@@ -114,9 +119,11 @@ function ChatLayoutInner({ children }: ChatLayoutProps) {
   }, []);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  // v235: Refresh sidebar data (called when plan card received from chat)
+  const refreshSidebar = () => setSidebarRefreshKey(k => k + 1);
 
   return (
-    <ChatLayoutContext.Provider value={{ sidebarOpen, setSidebarOpen, toggleSidebar }}>
+    <ChatLayoutContext.Provider value={{ sidebarOpen, setSidebarOpen, toggleSidebar, refreshSidebar, sidebarRefreshKey }}>
       <div className="flex h-screen bg-gray-50 overflow-hidden">
         {/* v232: ChatGPT-style collapsed rail (desktop only, when sidebar collapsed) */}
         {!isMobile && !sidebarOpen && (
@@ -139,6 +146,7 @@ function ChatLayoutInner({ children }: ChatLayoutProps) {
             isOpen={sidebarOpen}
             onClose={() => setSidebarOpen(false)}
             isMobile={isMobile}
+            refreshKey={sidebarRefreshKey}
           />
         </div>
 

@@ -25,9 +25,6 @@ actor FirebaseAPIClient {
     ]
     private let session: URLSession
 
-    /// Current Firebase Auth ID token (set after sign-in)
-    private var authToken: String?
-
     // MARK: - Singleton
 
     static let shared = FirebaseAPIClient()
@@ -37,13 +34,6 @@ actor FirebaseAPIClient {
         config.timeoutIntervalForRequest = 30
         config.timeoutIntervalForResource = 60
         self.session = URLSession(configuration: config)
-    }
-
-    // MARK: - Auth Token Management
-
-    /// Set the Firebase Auth ID token for authenticated requests
-    func setAuthToken(_ token: String?) {
-        self.authToken = token
     }
 
     // MARK: - API Endpoints
@@ -191,9 +181,9 @@ actor FirebaseAPIClient {
         request.httpMethod = "GET"
 
         if requiresAuth {
-            guard let token = authToken else {
-                throw FirebaseAPIError.notAuthenticated
-            }
+            // v235: Get fresh token on-demand instead of using cached token
+            // Fixes race condition where API calls happen before auth state listener fires
+            let token = try await FirebaseAuthService.shared.getIDToken()
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
 
@@ -211,9 +201,8 @@ actor FirebaseAPIClient {
         request.httpBody = try JSONEncoder().encode(body)
 
         if requiresAuth {
-            guard let token = authToken else {
-                throw FirebaseAPIError.notAuthenticated
-            }
+            // v235: Get fresh token on-demand instead of using cached token
+            let token = try await FirebaseAuthService.shared.getIDToken()
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
 
@@ -232,9 +221,8 @@ actor FirebaseAPIClient {
         request.httpBody = try JSONEncoder().encode(body)
 
         if requiresAuth {
-            guard let token = authToken else {
-                throw FirebaseAPIError.notAuthenticated
-            }
+            // v235: Get fresh token on-demand instead of using cached token
+            let token = try await FirebaseAuthService.shared.getIDToken()
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
 
