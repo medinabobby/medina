@@ -78,18 +78,7 @@ class Logger {
         "ResponsesAPIClient",
         "ResponseStreamProcessor",
         "ChatViewModel",
-        "ToolHandlerRouter",
-        "ToolHandlerUtilities",
-        // Tool handlers
-        "UpdateProfileHandler",
-        "CreatePlanHandler",
-        "CreateWorkoutHandler",
-        "CreateCustomWorkoutHandler",
-        "ModifyWorkoutHandler",
-        "ShowScheduleHandler",
-        "GetSubstitutionHandler",
-        "GetSummaryHandler",
-        // v236: Workout creation now on Firebase (deleted iOS services)
+        // v236: Tool handlers now on Firebase server
         "LibraryProtocolSelector",
         // Legacy (deprecated)
         "AssistantManager",

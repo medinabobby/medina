@@ -581,8 +581,10 @@ class ChatViewModel: ObservableObject {
                 continue
             }
 
-            Logger.spine("ChatViewModel", "🔧 Executing: \(toolCall.name)")
-            let output = await ToolHandlerRouter.executeOnly(toolName: toolCall.name, args: args, context: context)
+            // v236: All tools now execute server-side
+            // This code path should never be reached - server handles all 22 tools
+            Logger.spine("ChatViewModel", "⚠️ Passthrough tool (unexpected): \(toolCall.name)")
+            let output = "ERROR: Tool \(toolCall.name) should be handled server-side"
             context.responsesManager.executeToolAndStoreOutput(toolCallId: toolCall.id, output: output)
         }
 
