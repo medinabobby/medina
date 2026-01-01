@@ -46,7 +46,7 @@ struct SettingsModal: View {
                     accountSection
                     trainingPreferencesSection
                     appInfoSection
-                    resourcesSection
+                    // Legal section removed - ToS/Privacy already on login screen
                     creditsSection
                     signOutButton
                 }
@@ -75,19 +75,29 @@ struct SettingsModal: View {
     @ViewBuilder
     private var accountSection: some View {
         SettingsSection(title: "ACCOUNT") {
-            // Gym row (only show if user has a gym)
-            if let gym = gymName {
-                NavigationLink {
-                    GymDetailView(user: $currentUser)
-                } label: {
-                    SettingsNavigationRow(icon: "building.2.fill", title: "Gym", value: gym)
-                }
-
-                SettingsDivider()
+            // Gym row - always show (with "None" if no gym)
+            NavigationLink {
+                GymDetailView(user: $currentUser)
+            } label: {
+                SettingsNavigationRow(icon: "building.2.fill", title: "Gym", value: gymName ?? "None")
             }
 
-            // v92.0: Unified user profile view (replaces ProfileEditView)
-            // v90.0: Dynamic role display (Member, Trainer, Admin, Gym Owner) with email
+            SettingsDivider()
+
+            // Trainer row - always show (with "None" if no trainer)
+            if let trainer = assignedTrainer {
+                NavigationLink {
+                    UserProfileView(userId: trainer.id, mode: .view)
+                } label: {
+                    SettingsNavigationRow(icon: "figure.strengthtraining.traditional", title: "Trainer", value: trainer.name)
+                }
+            } else {
+                SettingsNavigationRow(icon: "figure.strengthtraining.traditional", title: "Trainer", value: "None")
+            }
+
+            SettingsDivider()
+
+            // Member row - show NAME not email
             NavigationLink {
                 UserProfileView(
                     userId: currentUser.id,
@@ -99,18 +109,7 @@ struct SettingsModal: View {
                     onDeleteAccount: onDeleteAccount
                 )
             } label: {
-                SettingsNavigationRow(icon: roleIcon, title: roleDisplayName, value: currentUser.email ?? currentUser.name)
-            }
-
-            // v92.0: Trainer row (only show if member has assigned trainer)
-            if let trainer = assignedTrainer {
-                SettingsDivider()
-
-                NavigationLink {
-                    UserProfileView(userId: trainer.id, mode: .view)
-                } label: {
-                    SettingsNavigationRow(icon: "figure.strengthtraining.traditional", title: "Trainer", value: trainer.name)
-                }
+                SettingsNavigationRow(icon: roleIcon, title: roleDisplayName, value: currentUser.name)
             }
 
             SettingsDivider()
@@ -143,25 +142,6 @@ struct SettingsModal: View {
     private var appInfoSection: some View {
         SettingsSection(title: "APP INFORMATION") {
             SettingsValueRow(icon: "app.badge", label: "Version", value: appVersionDisplay)
-        }
-    }
-
-    @ViewBuilder
-    private var resourcesSection: some View {
-        SettingsSection(title: "LEGAL") {
-            NavigationLink {
-                TermsOfServiceView()
-            } label: {
-                SettingsNavigationRow(icon: "doc.text", title: "Terms of Service", value: nil)
-            }
-
-            SettingsDivider()
-
-            NavigationLink {
-                PrivacyPolicyView()
-            } label: {
-                SettingsNavigationRow(icon: "hand.raised.fill", title: "Privacy Policy", value: nil)
-            }
         }
     }
 

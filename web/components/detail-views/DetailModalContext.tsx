@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
-type EntityType = 'plan' | 'program' | 'workout' | 'exercise';
+type EntityType = 'plan' | 'program' | 'workout' | 'exercise' | 'schedule';
 
 interface NavigationItem {
   type: EntityType;
@@ -12,6 +12,11 @@ interface NavigationItem {
     planId?: string;
     programId?: string;
     workoutId?: string;
+  };
+  // v248: Schedule-specific metadata
+  scheduleData?: {
+    weekStart: string;
+    weekEnd: string;
   };
 }
 
@@ -26,6 +31,8 @@ interface DetailModalContextType {
   openProgram: (programId: string, programName: string, planId: string, planName: string) => void;
   openWorkout: (workoutId: string, workoutName: string, parentIds?: { planId?: string; programId?: string }, parentLabels?: { planName?: string; programName?: string }) => void;
   openExercise: (exerciseId: string, exerciseName: string, workoutId?: string, workoutName?: string) => void;
+  // v248: Schedule navigation
+  openSchedule: (weekStart?: string, weekEnd?: string) => void;
   goBack: () => void;
   close: () => void;
   refresh: () => void;
@@ -106,6 +113,32 @@ export function DetailModalProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // v248: Open schedule view
+  const openSchedule = useCallback((weekStart?: string, weekEnd?: string) => {
+    // Generate default week range if not provided
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const daysToSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - daysToMonday);
+    const endOfWeek = new Date(now);
+    endOfWeek.setDate(now.getDate() + daysToSunday);
+
+    const start = weekStart || startOfWeek.toISOString().split('T')[0];
+    const end = weekEnd || endOfWeek.toISOString().split('T')[0];
+
+    setNavigationStack([
+      {
+        type: 'schedule',
+        id: `schedule-${start}`,
+        label: 'Schedule',
+        scheduleData: { weekStart: start, weekEnd: end }
+      }
+    ]);
+  }, []);
+
   const goBack = useCallback(() => {
     setNavigationStack(prev => {
       if (prev.length <= 1) return [];
@@ -131,6 +164,7 @@ export function DetailModalProvider({ children }: { children: ReactNode }) {
         openProgram,
         openWorkout,
         openExercise,
+        openSchedule,
         goBack,
         close,
         refresh,

@@ -152,6 +152,41 @@ export async function getRecentWorkouts(uid: string, limit: number = 10): Promis
   } as Workout));
 }
 
+/**
+ * v248: Get workouts within a date range for schedule display
+ */
+export async function getScheduleWorkouts(
+  uid: string,
+  startDate: string,
+  endDate: string
+): Promise<Workout[]> {
+  const db = getFirebaseDb();
+  const workoutsRef = collection(db, 'users', uid, 'workouts');
+
+  // Convert string dates to Date objects for Firestore comparison
+  const startDateTime = new Date(startDate);
+  startDateTime.setHours(0, 0, 0, 0);
+  const endDateTime = new Date(endDate);
+  endDateTime.setHours(23, 59, 59, 999);
+
+  // Query workouts within the date range
+  const q = query(
+    workoutsRef,
+    where('scheduledDate', '>=', startDateTime.toISOString()),
+    where('scheduledDate', '<=', endDateTime.toISOString()),
+    orderBy('scheduledDate', 'asc')
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    userId: uid,
+    ...doc.data(),
+    scheduledDate: toDate(doc.data().scheduledDate),
+    completedDate: toDate(doc.data().completedDate),
+  } as Workout));
+}
+
 // ============================================
 // Exercises (shared collection)
 // ============================================

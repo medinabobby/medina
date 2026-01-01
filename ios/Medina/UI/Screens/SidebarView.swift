@@ -229,24 +229,34 @@ struct SidebarView: View {
         }
     }
 
-    // MARK: - Member Content (v118: Plans → Library → Classes)
+    // MARK: - Member Content (v250: Schedule → Plans → Library)
 
     @ViewBuilder
     private var memberContent: some View {
-        // SECTION 1: Plans (v116: max 1 with "+N more" link)
-        if !context.availablePlans.isEmpty {
-            SelectablePlansFolder(
-                context: context,
-                contextLabel: "Plans",
-                isExpanded: $viewModel.showPlans,
-                onNavigate: onNavigate,
-                onShowAll: onShowAll,
-                onDismiss: onDismiss
-            )
+        // SECTION 0: Schedule (v250: this week's workouts)
+        ScheduleFolder(
+            userId: user.id,
+            sidebarItemLimit: viewModel.sidebarItemLimit,
+            isExpanded: $viewModel.showSchedule,
+            onNavigate: onNavigate,
+            onDismiss: onDismiss
+        )
 
-            Divider()
-                .padding(.vertical, 8)
-        }
+        Divider()
+            .padding(.vertical, 8)
+
+        // SECTION 1: Plans (v250: always show, even when empty)
+        SelectablePlansFolder(
+            context: context,
+            contextLabel: "Plans",
+            isExpanded: $viewModel.showPlans,
+            onNavigate: onNavigate,
+            onShowAll: onShowAll,
+            onDismiss: onDismiss
+        )
+
+        Divider()
+            .padding(.vertical, 8)
 
         // SECTION 2: Library (Exercises + Protocols)
         LibrarySection(

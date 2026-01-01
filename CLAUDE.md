@@ -124,4 +124,23 @@ User terms are silently mapped to Medina concepts (no correction needed):
 
 ## Current Version
 
-v247
+v250
+
+## Recent Changes (v248-250)
+
+### iOS/Web Sidebar Parity
+- Both platforms now have: Messages, Schedule, Plans, Library folders
+- Schedule shows this week's workouts with day labels (Today, Tomorrow, Wed)
+- Plans folder always visible (even when empty)
+- Web Exercises subfolder has dumbbell icon matching iOS
+
+### iOS/Web Settings Parity
+- Web settings dropdown now has Gym/Trainer/Plan rows (matching iOS)
+- iOS Settings shows member NAME (not email)
+- iOS Profile header simplified (48px avatar in edit mode)
+- Web Profile converted to centered modal
+
+### Key Files Added
+- `ios/Medina/UI/Components/Sidebar/ScheduleFolder.swift`
+- `web/components/chat/folders/ScheduleFolder.tsx`
+- `web/components/detail-views/ScheduleDetailModal.tsx`

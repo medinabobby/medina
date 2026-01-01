@@ -76,7 +76,7 @@ A test that expects `update_profile` for "I want to train 4 days" will fail - bu
 
 ---
 
-## Current State (December 2025)
+## Current State (January 2026)
 
 ### iOS Tests
 | Category | Files | Tests | Status |
@@ -275,6 +275,18 @@ User → Firebase Function → OpenAI → Tool Call
 
 ### Legacy iOS Tests
 iOS tool handler tests in `MedinaTests/ToolHandlerTests/` are now deprecated. They tested the passthrough pattern which is no longer used.
+
+### Test Scenarios by Handler
+
+| Handler | Test Cases |
+|---------|------------|
+| `show_schedule` | Empty schedule → "No workouts scheduled"; Week/month periods → correct date range; Workout formatting → name, date, status |
+| `update_profile` | Single field → only that field updated; Multiple fields → all merged; Empty update → error |
+| `skip_workout` | Valid → status="skipped"; Already skipped → error; Completed → cannot skip; Non-existent → not found |
+| `suggest_options` | Valid options → chips returned; Empty → error; Long labels → truncated |
+| `add_to_library` | Valid exercise → added to favorites; Already in library → message; Invalid ID → error |
+| `remove_from_library` | Valid → removed from favorites; Not in library → message |
+| `create_workout` | Valid → workout created; Duration-based exercise count; Equipment filtering; Protocol assignment |
 
 ---
 

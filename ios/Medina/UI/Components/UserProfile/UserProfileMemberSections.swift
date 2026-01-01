@@ -12,6 +12,7 @@ import SwiftUI
 
 struct MemberProfileHeader: View {
     let user: UnifiedUser
+    let mode: ProfileViewMode
 
     private func statusColor(for status: MembershipStatus) -> Color {
         switch status {
@@ -23,45 +24,49 @@ struct MemberProfileHeader: View {
     }
 
     var body: some View {
-        VStack(spacing: 16) {
-            // Avatar
+        VStack(spacing: 12) {
+            // Smaller avatar - 48px in edit mode, 80px in view mode
             ZStack {
                 Circle()
                     .fill(Color.blue.opacity(0.15))
-                    .frame(width: 80, height: 80)
+                    .frame(width: mode == .edit ? 48 : 80, height: mode == .edit ? 48 : 80)
 
                 Text(user.firstName.prefix(1).uppercased())
-                    .font(.system(size: 32, weight: .semibold))
+                    .font(.system(size: mode == .edit ? 20 : 32, weight: .semibold))
                     .foregroundColor(.blue)
             }
 
             // Name
             Text(user.name)
-                .font(.title2)
-                .fontWeight(.bold)
+                .font(mode == .edit ? .headline : .title2)
+                .fontWeight(.semibold)
 
-            // Membership status
-            HStack(spacing: 6) {
-                Circle()
-                    .fill(statusColor(for: user.memberProfile?.membershipStatus ?? .active))
-                    .frame(width: 8, height: 8)
+            // Only show status and member since in view mode
+            if mode == .view {
+                // Membership status
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(statusColor(for: user.memberProfile?.membershipStatus ?? .active))
+                        .frame(width: 8, height: 8)
 
-                Text(user.memberProfile?.membershipStatus.displayName ?? "Active")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
+                    Text(user.memberProfile?.membershipStatus.displayName ?? "Active")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
 
-            // Member since
-            if let memberSince = user.memberProfile?.memberSince {
-                Text("Member since \(memberSince.formatted(.dateTime.month().year()))")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                // Member since
+                if let memberSince = user.memberProfile?.memberSince {
+                    Text("Member since \(memberSince.formatted(.dateTime.month().year()))")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(24)
-        .background(Color(.systemBackground))
-        .cornerRadius(16)
+        .padding(mode == .edit ? 16 : 24)
+        // Only show card background in view mode
+        .background(mode == .view ? Color(.systemBackground) : Color.clear)
+        .cornerRadius(mode == .view ? 16 : 0)
     }
 }
 
@@ -307,7 +312,19 @@ struct MemberEditableFields: View {
             ProfileDivider()
 
             if let email = user.email {
-                ProfileValueRow(label: "Email", value: email)
+                HStack {
+                    Text("Email")
+                        .font(.system(size: 17))
+                        .foregroundColor(.primary)
+                    Spacer()
+                    Text(email)
+                        .font(.system(size: 17))
+                        .foregroundColor(Color("SecondaryText"))
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
                 ProfileDivider()
             }
 

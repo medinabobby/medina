@@ -20,6 +20,7 @@ final class SidebarViewModel: ObservableObject {
 
     // MARK: - Folder Expansion State (v116: mostly collapsed by default)
 
+    @Published var showSchedule = true  // v250: Schedule folder expanded by default
     @Published var showPlans = true   // v116: Expanded so user sees current plan selected
     @Published var showWorkouts = false
     @Published var showExercises = false

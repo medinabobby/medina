@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
-import type { ChatMessage, WorkoutCardData, PlanCardData } from '@/lib/types';
+import type { ChatMessage, WorkoutCardData, PlanCardData, ScheduleCardData } from '@/lib/types';
 import { colors } from '@/lib/colors';
 import { useDetailModal } from '@/components/detail-views';
 import { MedinaIcon } from '@/components/icons/MedinaIcon';
@@ -75,7 +75,7 @@ interface MessageBubbleProps {
 
 function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
-  const { openWorkout, openPlan } = useDetailModal();
+  const { openWorkout, openPlan, openSchedule } = useDetailModal();
 
   if (isUser) {
     // User message: right-aligned, blue bubble
@@ -117,6 +117,15 @@ function MessageBubble({ message }: MessageBubbleProps) {
             key={card.planId}
             card={card}
             onClick={() => openPlan(card.planId, card.planName)}
+          />
+        ))}
+
+        {/* v248: Schedule Cards */}
+        {message.scheduleCards?.map((card, idx) => (
+          <ScheduleCard
+            key={`schedule-${card.weekStart}-${idx}`}
+            card={card}
+            onClick={() => openSchedule(card.weekStart, card.weekEnd)}
           />
         ))}
       </div>
@@ -180,6 +189,84 @@ function PlanCard({ card, onClick }: { card: PlanCardData; onClick: () => void }
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
       </div>
+    </button>
+  );
+}
+
+// v248: Schedule Card Component
+function ScheduleCard({ card, onClick }: { card: ScheduleCardData; onClick: () => void }) {
+  // Format date range: "Dec 30 - Jan 5"
+  const formatDateRange = () => {
+    const start = new Date(card.weekStart);
+    const end = new Date(card.weekEnd);
+    const startMonth = start.toLocaleDateString('en-US', { month: 'short' });
+    const startDay = start.getDate();
+    const endMonth = end.toLocaleDateString('en-US', { month: 'short' });
+    const endDay = end.getDate();
+
+    if (startMonth === endMonth) {
+      return `${startMonth} ${startDay} - ${endDay}`;
+    }
+    return `${startMonth} ${startDay} - ${endMonth} ${endDay}`;
+  };
+
+  const upcomingCount = card.workouts.filter(w => w.status === 'scheduled').length;
+  const completedCount = card.workouts.filter(w => w.status === 'completed').length;
+
+  // Show first 3 workouts as preview
+  const previewWorkouts = card.workouts.slice(0, 3);
+
+  return (
+    <button
+      onClick={onClick}
+      className="w-full border rounded-xl p-4 bg-gradient-to-br from-purple-50 to-white shadow-sm hover:shadow-md transition-shadow cursor-pointer text-left"
+      style={{ borderColor: '#8B5CF6' + '40' }}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className="w-10 h-10 rounded-lg flex items-center justify-center"
+          style={{ backgroundColor: '#8B5CF620' }}
+        >
+          <svg className="w-5 h-5" style={{ color: '#8B5CF6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-gray-900">This Week&apos;s Schedule</p>
+          <p className="text-sm text-gray-500">
+            {formatDateRange()} • {upcomingCount > 0 ? `${upcomingCount} upcoming` : ''}
+            {upcomingCount > 0 && completedCount > 0 ? ', ' : ''}
+            {completedCount > 0 ? `${completedCount} done` : ''}
+            {upcomingCount === 0 && completedCount === 0 ? 'No workouts' : ''}
+          </p>
+        </div>
+        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+
+      {/* Preview of workouts */}
+      {previewWorkouts.length > 0 && (
+        <div className="mt-3 flex gap-2 flex-wrap">
+          {previewWorkouts.map((w) => (
+            <span
+              key={w.id}
+              className="text-xs px-2 py-1 rounded-full"
+              style={{
+                backgroundColor: w.status === 'completed' ? colors.successSubtle : colors.bgSecondary,
+                color: w.status === 'completed' ? colors.success : colors.secondaryText,
+              }}
+            >
+              {w.dayOfWeek.slice(0, 3)}: {w.name.length > 12 ? w.name.slice(0, 12) + '...' : w.name}
+            </span>
+          ))}
+          {card.workouts.length > 3 && (
+            <span className="text-xs px-2 py-1 text-gray-400">
+              +{card.workouts.length - 3} more
+            </span>
+          )}
+        </div>
+      )}
     </button>
   );
 }

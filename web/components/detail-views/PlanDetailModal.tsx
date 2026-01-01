@@ -72,25 +72,26 @@ export function PlanDetailModal({ planId, onBack, onClose, breadcrumbItems }: Pl
 
     setActivating(true);
     try {
-      // Call the activate handler
+      // Call the dedicated activatePlan endpoint (same pattern as abandonPlan)
       const token = await user.getIdToken();
-      const response = await fetch('/api/chat', {
+      const response = await fetch('https://us-central1-medinaintelligence.cloudfunctions.net/activatePlan', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          action: 'activatePlan',
-          planId: plan.id,
-        }),
+        body: JSON.stringify({ planId: plan.id }),
       });
 
       if (response.ok) {
-        // Refresh the data
+        // Refresh the data and sidebar
         const data = await getPlanWithPrograms(user.uid, planId);
         setPlan(data);
         refresh();
+        refreshSidebar();
+      } else {
+        const error = await response.json();
+        console.error('Activate plan error:', error);
       }
     } catch (error) {
       console.error('Failed to activate plan:', error);

@@ -82,6 +82,15 @@ export default function LibraryFolder({ refreshKey = 0 }: LibraryFolderProps) {
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
+            {/* Dumbbell icon - matches iOS dumbbell.fill */}
+            <svg
+              className="w-4 h-4 text-gray-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8h3m12 0h3M3 16h3m12 0h3M6 8v8M18 8v8M9 6h6v12H9V6z" />
+            </svg>
             <span className="flex-1 text-left text-sm">Exercises</span>
             {exercises.length > 0 && (
               <span className="text-xs text-gray-400">{exercises.length}</span>

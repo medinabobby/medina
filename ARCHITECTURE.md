@@ -1,6 +1,6 @@
 # Medina Architecture
 
-**Last updated:** January 1, 2026 | **Version:** v247
+**Last updated:** January 1, 2026 | **Version:** v250
 
 Medina is an AI fitness coach with iOS and web clients sharing a Firebase backend.
 
@@ -199,6 +199,19 @@ AI-invokable tools that execute server-side:
 - `VoiceCoordination` - TTS/STT during workouts
 - `WorkoutSessionCoordinator` - Local execution state
 
+**Sidebar Structure (v250):**
+```
+Messages
+────────────
+Schedule        ← This week's workouts
+────────────
+Plans           ← Always shows (even when empty)
+────────────
+Library
+  └── Exercises
+  └── Protocols
+```
+
 ### Web (`web/`)
 
 **Role:** React UI + Firebase client
@@ -208,6 +221,34 @@ AI-invokable tools that execute server-side:
 | **Pages** | Next.js routes |
 | **Components** | React UI components |
 | **Lib** | Firebase client, API helpers |
+
+**Sidebar Structure (v250):** Matches iOS - Messages, Schedule, Plans, Library
+```
+Messages
+────────────
+Schedule        ← This week's workouts
+────────────
+Plans
+────────────
+Library
+  └── Exercises (with dumbbell icon)
+  └── Protocols
+```
+
+**Settings Dropdown (v250):** Matches iOS SettingsModal structure
+```
+Gym          None
+Trainer      None
+Plan         Free
+────────────
+Profile
+Training Preferences
+────────────
+Terms of Service
+Privacy Policy
+────────────
+Log out
+```
 
 ### Backend (`web/functions/`)
 

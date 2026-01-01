@@ -376,6 +376,19 @@ export const chat = onRequest(
         const allWorkoutCards: Array<{workoutId: string; workoutName: string}> = [];
         // v210: Collect plan cards for inline display
         const allPlanCards: Array<{planId: string; planName: string; workoutCount: number; durationWeeks: number}> = [];
+        // v248: Collect schedule cards for inline display
+        const allScheduleCards: Array<{
+          weekStart: string;
+          weekEnd: string;
+          workouts: Array<{
+            id: string;
+            name: string;
+            date: string;
+            dayOfWeek: string;
+            status: 'scheduled' | 'completed' | 'skipped' | 'inProgress';
+            splitDay: string;
+          }>;
+        }> = [];
 
         for (const toolCall of pendingToolCalls) {
           let parsedArgs: Record<string, unknown> = {};
@@ -431,6 +444,11 @@ export const chat = onRequest(
             if (result.planCard) {
               allPlanCards.push(result.planCard);
             }
+
+            // v248: Collect schedule cards
+            if (result.scheduleCard) {
+              allScheduleCards.push(result.scheduleCard);
+            }
           }
         }
 
@@ -474,6 +492,14 @@ export const chat = onRequest(
             console.log(`[chat] Sending plan_card event:`, JSON.stringify(allPlanCards));
             res.write(`event: plan_card\n`);
             res.write(`data: ${JSON.stringify({cards: allPlanCards})}\n\n`);
+          }
+
+          // v248: Send schedule cards as custom event if any
+          console.log(`[chat] Schedule cards to send: ${allScheduleCards.length}`);
+          if (allScheduleCards.length > 0) {
+            console.log(`[chat] Sending schedule_card event:`, JSON.stringify(allScheduleCards));
+            res.write(`event: schedule_card\n`);
+            res.write(`data: ${JSON.stringify({cards: allScheduleCards})}\n\n`);
           }
         }
       }

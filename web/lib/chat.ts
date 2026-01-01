@@ -1,8 +1,8 @@
 // Chat service for communicating with Firebase Functions backend
 
-import type { ChatMessage, WorkoutCardData, PlanCardData } from './types';
+import type { ChatMessage, WorkoutCardData, PlanCardData, ScheduleCardData } from './types';
 
-export type { ChatMessage, WorkoutCardData, PlanCardData };
+export type { ChatMessage, WorkoutCardData, PlanCardData, ScheduleCardData };
 
 export interface StreamEvent {
   type: string;

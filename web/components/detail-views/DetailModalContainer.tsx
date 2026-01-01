@@ -5,6 +5,7 @@ import { PlanDetailModal } from './PlanDetailModal';
 import { ProgramDetailModal } from './ProgramDetailModal';
 import { WorkoutDetailModal } from './WorkoutDetailModal';
 import { ExerciseDetailModal } from './ExerciseDetailModal';
+import { ScheduleDetailModal } from './ScheduleDetailModal';
 
 export function DetailModalContainer() {
   const { isOpen, currentEntity, navigationStack, goBack, close } = useDetailModal();
@@ -55,6 +56,14 @@ export function DetailModalContainer() {
       return (
         <ExerciseDetailModal
           exerciseId={currentEntity.id}
+          {...commonProps}
+        />
+      );
+    case 'schedule':
+      return (
+        <ScheduleDetailModal
+          weekStart={currentEntity.scheduleData?.weekStart}
+          weekEnd={currentEntity.scheduleData?.weekEnd}
           {...commonProps}
         />
       );

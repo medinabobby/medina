@@ -113,7 +113,7 @@ struct UserProfileView: View {
         if user.hasRole(.trainer) {
             TrainerProfileHeader(user: user)
         } else {
-            MemberProfileHeader(user: user)
+            MemberProfileHeader(user: user, mode: mode)
         }
     }
 

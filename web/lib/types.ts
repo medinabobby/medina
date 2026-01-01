@@ -161,12 +161,29 @@ export interface PlanCardData {
   durationWeeks: number;
 }
 
+/**
+ * v248: Schedule card data for calendar display
+ */
+export interface ScheduleCardData {
+  weekStart: string;
+  weekEnd: string;
+  workouts: Array<{
+    id: string;
+    name: string;
+    date: string;
+    dayOfWeek: string;
+    status: 'scheduled' | 'completed' | 'skipped' | 'inProgress';
+    splitDay: string;
+  }>;
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp?: Date;
   workoutCards?: WorkoutCardData[];
   planCards?: PlanCardData[];
+  scheduleCards?: ScheduleCardData[];
   metadata?: {
     toolCalls?: ToolCall[];
     workoutCreated?: Workout;

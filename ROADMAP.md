@@ -1,6 +1,6 @@
 # Medina Roadmap
 
-**Last Updated:** December 31, 2025
+**Last Updated:** January 1, 2026
 
 ---
 
@@ -8,9 +8,9 @@
 
 | Platform | Version | Status |
 |----------|---------|--------|
-| iOS | v246 | TestFlight (passthrough client) |
-| Web | v246 | Production |
-| Backend | v246 | **22/22 tools complete** |
+| iOS | v250 | TestFlight (passthrough client) |
+| Web | v250 | Production |
+| Backend | v250 | **22/22 tools complete** |
 
 ---
 
@@ -217,7 +217,10 @@ All iOS business logic migrated to Firebase Functions. iOS is pure passthrough c
 
 | Feature | Date | Notes |
 |---------|------|-------|
-| **Profile Panel + AI Eval Framework (v246)** | Dec 31 | Added ProfilePanel to web with birthdate/gender/height/weight. AI now asks before saving profile info. Added 30-test evaluation framework for benchmarking AI models. Fixed Firestore collection path (instances→exerciseInstances). |
+| **iOS/Web Sidebar & Settings Parity (v250)** | Jan 1 | Added Schedule folder to iOS sidebar. Added dumbbell icon to Web Exercises. Added Gym/Trainer/Plan rows to Web settings dropdown. Plans folder always shows on iOS. Consistent UX across platforms. |
+| **iOS Settings & Profile Cleanup (v248-249)** | Jan 1 | Fixed iOS Settings: member NAME not email, always show Gym/Trainer/Member rows. Simplified iOS Profile header (smaller avatar in edit mode). Removed redundant Legal section. Fixed email truncation. Converted Web Profile to centered modal, removed avatar header. |
+| **Web Schedule Folder (v248)** | Jan 1 | Added ScheduleFolder to web sidebar showing this week's workouts with day labels (Today, Tomorrow, Wed) and status dots. ScheduleDetailModal for full week view. |
+| **Profile Panel + AI Eval Framework (v246-247)** | Dec 31 | Added ProfilePanel to web with birthdate/gender/height/weight. AI now asks before saving profile info. Added 30-test evaluation framework for benchmarking AI models. Fixed Firestore collection path (instances→exerciseInstances). |
 | **Cross-client parity fixes (v235)** | Dec 30 | Fixed status dot colors (active=blue, completed=green, draft=grey) on both iOS and Web. Added sidebar refresh on plan creation for Web. Fixed iOS token race condition. Added cross-client verification docs to CLAUDE.md and TESTING.md. |
 | **ExerciseSelectionService consolidation (v232)** | Dec 30 | Deleted ExerciseSelectionService.swift (~600 LOC) - methods were unused, logic duplicated in RuntimeExerciseSelector. Moved `lastError` to RuntimeExerciseSelector. |
 | **iOS Services cleanup (v232)** | Dec 30 | Deleted 2 dead files (~500 LOC): ExerciseSummaryService.swift (unused), TrainerSidebarSections.swift (obsolete - replaced by SidebarFilterSection). Trainer functionality preserved. |

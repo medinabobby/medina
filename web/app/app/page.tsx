@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { useAuth } from '@/components/AuthProvider';
-import { sendMessage, StreamEvent, WorkoutCardData, PlanCardData } from '@/lib/chat';
+import { sendMessage, StreamEvent, WorkoutCardData, PlanCardData, ScheduleCardData } from '@/lib/chat';
 import type { ChatMessage } from '@/lib/types';
 
 // v226: Server-side suggestion chips
@@ -15,6 +15,7 @@ interface SuggestionChip {
 interface CardState {
   workoutCards: WorkoutCardData[];
   planCards: PlanCardData[];
+  scheduleCards: ScheduleCardData[]; // v248
 }
 import ChatLayout, { useChatLayout } from '@/components/chat/ChatLayout';
 import ChatMessages from '@/components/chat/ChatMessages';
@@ -30,7 +31,7 @@ function ChatArea() {
   const [streamingText, setStreamingText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [responseId, setResponseId] = useState<string | undefined>();
-  const [pendingCards, setPendingCards] = useState<CardState>({ workoutCards: [], planCards: [] });
+  const [pendingCards, setPendingCards] = useState<CardState>({ workoutCards: [], planCards: [], scheduleCards: [] });
 
   // v226: Server-side initial chips
   const [serverChips, setServerChips] = useState<SuggestionChip[]>([]);
@@ -112,7 +113,7 @@ function ChatArea() {
         const workoutCards = (event as any).cards as WorkoutCardData[];
         if (workoutCards?.length) {
           console.log('[Chat] Received workout cards:', workoutCards);
-          onCards({ workoutCards, planCards: [] });
+          onCards({ workoutCards, planCards: [], scheduleCards: [] });
         }
         break;
       case 'plan_card':
@@ -120,7 +121,16 @@ function ChatArea() {
         const planCards = (event as any).cards as PlanCardData[];
         if (planCards?.length) {
           console.log('[Chat] Received plan cards:', planCards);
-          onCards({ workoutCards: [], planCards });
+          onCards({ workoutCards: [], planCards, scheduleCards: [] });
+        }
+        break;
+      case 'schedule_card':
+        // v248: Schedule card for calendar display
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const scheduleCards = (event as any).cards as ScheduleCardData[];
+        if (scheduleCards?.length) {
+          console.log('[Chat] Received schedule cards:', scheduleCards);
+          onCards({ workoutCards: [], planCards: [], scheduleCards });
         }
         break;
     }
@@ -150,7 +160,7 @@ function ChatArea() {
 
       let fullText = '';
       let newResponseId: string | undefined;
-      let collectedCards: CardState = { workoutCards: [], planCards: [] };
+      let collectedCards: CardState = { workoutCards: [], planCards: [], scheduleCards: [] };
 
       console.log('[Chat] Sending message:', userMessage);
       console.log('[Chat] Previous responseId:', responseId);
@@ -171,6 +181,7 @@ function ChatArea() {
             collectedCards = {
               workoutCards: [...collectedCards.workoutCards, ...cards.workoutCards],
               planCards: [...collectedCards.planCards, ...cards.planCards],
+              scheduleCards: [...collectedCards.scheduleCards, ...cards.scheduleCards],
             };
             setPendingCards(collectedCards);
           }
@@ -182,12 +193,13 @@ function ChatArea() {
       console.log('[Chat] Collected cards:', collectedCards);
 
       // Add complete assistant message with any cards
-      if (fullText || collectedCards.workoutCards.length || collectedCards.planCards.length) {
+      if (fullText || collectedCards.workoutCards.length || collectedCards.planCards.length || collectedCards.scheduleCards.length) {
         setMessages((prev) => [...prev, {
           role: 'assistant',
           content: fullText,
           workoutCards: collectedCards.workoutCards.length ? collectedCards.workoutCards : undefined,
           planCards: collectedCards.planCards.length ? collectedCards.planCards : undefined,
+          scheduleCards: collectedCards.scheduleCards.length ? collectedCards.scheduleCards : undefined,
         }]);
 
         // v235: Refresh sidebar when plan cards received (cross-client sync)
@@ -199,7 +211,7 @@ function ChatArea() {
         console.warn('[Chat] No text or cards received from stream');
       }
       setStreamingText('');
-      setPendingCards({ workoutCards: [], planCards: [] });
+      setPendingCards({ workoutCards: [], planCards: [], scheduleCards: [] });
 
       if (newResponseId) {
         setResponseId(newResponseId);
