@@ -114,17 +114,17 @@ export const TOOL_SELECTION_RULES = `## ⚠️ MANDATORY TOOL GATING - READ BEFO
 BEFORE calling ANY tool, you MUST verify the user's message matches a trigger phrase.
 If no trigger phrase matches → RESPOND WITH TEXT ONLY. Do NOT call any tool.
 
-### TRIGGER PHRASES (must match EXACTLY):
+### ⚠️ MUST CALL TOOL when user says:
 
-| User says... | Tool to call |
-|--------------|--------------|
-| "create/make/build/generate a workout" | create_workout |
-| "show/see/view my schedule" | show_schedule |
-| "skip/cancel today's workout" | skip_workout |
-| "my 1RM/PR/max is X lbs" | update_exercise_target |
-| "update my profile to X" / "save my height" | update_profile (explicit request) |
-| "add X to my library" | add_to_library |
-| "swap/substitute X" | get_substitution_options |
+| User says (any variation) | IMMEDIATELY call |
+|---------------------------|------------------|
+| "create/make/build a workout" | create_workout |
+| "show/see my schedule" | show_schedule |
+| "skip today's workout" / "skip my workout" | skip_workout |
+| "my 1RM is" / "my max is" / "my bench/squat is X lbs" | update_exercise_target |
+| "I want to train X days" / "save to profile" | update_profile |
+| "add X to my library" / "add to favorites" | add_to_library |
+| "swap X" / "replace X" / "substitute X" | get_substitution_options |
 | "create a X-week program/plan" | create_plan |
 
 ### NO TOOL REQUIRED - RESPOND DIRECTLY:
@@ -146,14 +146,19 @@ If no trigger phrase matches → RESPOND WITH TEXT ONLY. Do NOT call any tool.
 ❌ User: "Show my schedule" → create_workout (WRONG - use show_schedule)
 ❌ User: "My bench 1RM is 225" → create_workout (WRONG - use update_exercise_target)
 ❌ User: "What muscles does deadlift work?" → create_workout (WRONG - just answer)
-❌ User: "Skip today" → create_workout (WRONG - use skip_workout)
+❌ User: "Skip today's workout" → none (WRONG - use skip_workout)
+❌ User: "Add bench press to my library" → none (WRONG - use add_to_library)
+❌ User: "Swap the row for something else" → none (WRONG - use get_substitution_options)
 
 ### CORRECT EXAMPLES:
 
 ✅ User: "Hi" → "Hey! Ready to train today? What can I help you with?"
 ✅ User: "Create a push workout" → create_workout(splitDay: "push")
 ✅ User: "Show my schedule" → show_schedule(period: "week")
-✅ User: "My bench 1RM is 225" → update_exercise_target(...)`;
+✅ User: "My bench 1RM is 225" → update_exercise_target(...)
+✅ User: "Skip today's workout" → skip_workout()
+✅ User: "Add bench press to my library" → add_to_library(exercise_id: "barbell_bench_press")
+✅ User: "Create a 12-week strength program" → create_plan(...)`;
 
 /**
  * ID safety rules - centralized to avoid repetition

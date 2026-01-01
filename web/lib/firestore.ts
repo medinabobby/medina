@@ -574,13 +574,14 @@ export async function getExerciseDetails(exerciseId: string, uid?: string): Prom
   let userStats: ExerciseDetails['userStats'];
 
   if (uid) {
-    const statsRef = doc(db, 'users', uid, 'exerciseStats', exerciseId);
+    // Read from targets collection (where update_exercise_target tool writes)
+    const statsRef = doc(db, 'users', uid, 'targets', exerciseId);
     const statsSnap = await getDoc(statsRef);
 
     if (statsSnap.exists()) {
       const statsData = statsSnap.data();
       userStats = {
-        current1RM: statsData.current1RM,
+        current1RM: statsData.currentTarget, // Tool saves as currentTarget
         lastCalibrated: toDate(statsData.lastCalibrated),
       };
     }

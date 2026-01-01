@@ -392,6 +392,15 @@ export const chat = onRequest(
             {uid, db}
           );
 
+          // v247: Emit tool_executed event for reliable benchmark detection
+          // This gives definitive signal that a tool was called, regardless of AI response phrasing
+          res.write(`data: ${JSON.stringify({
+            type: "tool_executed",
+            name: toolCall.name,
+            success: !!result,
+            callId: toolCall.id,
+          })}\n\n`);
+
           if (result) {
             console.log(`[chat] Handler ${toolCall.name} returned:`, {
               hasOutput: !!result.output,

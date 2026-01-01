@@ -778,7 +778,7 @@ export const getSummary: ToolDefinition = {
 export const updateExerciseTarget: ToolDefinition = {
   type: 'function',
   name: 'update_exercise_target',
-  description: "Update a user's 1RM (one rep max) or working weight for an exercise. Use when user tells you their max or typical working weight. Examples: 'my bench 1RM is 225', 'I usually do 45lb dumbbells for curls', 'I can squat 315 for 5 reps'.",
+  description: "⚠️ MUST CALL when user shares ANY strength number. Saves their 1RM or working weight to the database. Triggers: 'my 1RM is', 'my max is', 'I can bench/squat X', 'my PR is'. Do NOT just acknowledge - you MUST call this tool to actually save the data.",
   parameters: {
     type: 'object',
     properties: {

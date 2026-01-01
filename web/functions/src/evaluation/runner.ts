@@ -160,9 +160,16 @@ function parseSSEStream(fullResponse: string): ParsedSSE {
 
       const data = JSON.parse(jsonStr);
 
+      // v247: Check for tool_executed event (definitive - server confirms tool ran)
+      // This is the most reliable indicator as it comes after actual execution
+      if (data.type === 'tool_executed' && data.name) {
+        toolCalled = data.name;
+      }
+
       // Check for function_call in output_item.added event
-      // This is the definitive indicator that a tool was called
-      if (data.type === 'response.output_item.added' &&
+      // This indicates AI requested a tool call (may be server or client handled)
+      if (!toolCalled &&
+          data.type === 'response.output_item.added' &&
           data.item?.type === 'function_call' &&
           data.item?.name) {
         toolCalled = data.item.name;
