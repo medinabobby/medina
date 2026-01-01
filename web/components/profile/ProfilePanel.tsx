@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
-import { colors } from '@/lib/colors';
 import { useAuth } from '@/components/AuthProvider';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { getFirebaseDb } from '@/lib/firebase';
@@ -30,7 +29,6 @@ const GENDER_OPTIONS = [
 export default function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<ProfileData>({});
 
   // Height in feet/inches for display
@@ -67,6 +65,22 @@ export default function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
     loadProfile();
   }, [user?.uid, isOpen]);
 
+  // Auto-save helper (like Training Preferences)
+  const saveField = useCallback(
+    async (field: string, value: unknown) => {
+      if (!user?.uid) return;
+      try {
+        const db = getFirebaseDb();
+        await updateDoc(doc(db, 'users', user.uid), {
+          [`profile.${field}`]: value,
+        });
+      } catch (error) {
+        console.error('Failed to save profile field:', error);
+      }
+    },
+    [user?.uid]
+  );
+
   // Calculate age from birthdate
   const calculateAge = (birthdate: string): number | null => {
     if (!birthdate) return null;
@@ -80,27 +94,34 @@ export default function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
     return age;
   };
 
-  const handleSave = async () => {
-    if (!user?.uid) return;
+  // Format birthdate for display (MM/DD/YYYY)
+  const formatBirthdate = (dateStr: string): string => {
+    if (!dateStr) return 'Not set';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+  };
 
-    setSaving(true);
-    try {
-      const db = getFirebaseDb();
-      const totalHeightInches = heightFeet * 12 + heightInches;
+  // Handlers
+  const handleBirthdateChange = (value: string) => {
+    setProfile({ ...profile, birthdate: value });
+    saveField('birthdate', value || null);
+  };
 
-      await updateDoc(doc(db, 'users', user.uid), {
-        'profile.birthdate': profile.birthdate || null,
-        'profile.gender': profile.gender || null,
-        'profile.heightInches': totalHeightInches || null,
-        'profile.currentWeight': profile.currentWeight || null,
-      });
+  const handleGenderChange = (value: string) => {
+    setProfile({ ...profile, gender: value });
+    saveField('gender', value || null);
+  };
 
-      onClose();
-    } catch (error) {
-      console.error('Failed to save profile:', error);
-    } finally {
-      setSaving(false);
-    }
+  const handleHeightChange = (feet: number, inches: number) => {
+    setHeightFeet(feet);
+    setHeightInches(inches);
+    const totalInches = feet * 12 + inches;
+    saveField('heightInches', totalInches || null);
+  };
+
+  const handleWeightChange = (value: number | undefined) => {
+    setProfile({ ...profile, currentWeight: value });
+    saveField('currentWeight', value || null);
   };
 
   if (!isOpen) return null;
@@ -136,127 +157,151 @@ export default function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
           </div>
 
           {/* Content */}
-          <div className="px-6 py-4">
+          <div className="px-6 py-4 space-y-6">
             {loading ? (
               <div className="flex items-center justify-center h-48">
                 <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
               </div>
             ) : (
-              <div className="space-y-6">
-                {/* Profile Fields - no avatar header, just editable fields */}
-                <div className="space-y-4">
-                  {/* Birthdate */}
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                      Date of Birth
-                    </label>
-                    <div className="flex items-center justify-between">
+              <>
+                {/* ACCOUNT Section */}
+                <section>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                    Account
+                  </h3>
+                  <div className="bg-gray-50 rounded-xl overflow-hidden divide-y divide-gray-200">
+                    {/* Gym - read-only */}
+                    <div className="flex items-center justify-between px-4 py-3">
+                      <span className="text-sm text-gray-900">Gym</span>
+                      <span className="text-sm text-gray-500">None</span>
+                    </div>
+                    {/* Trainer - read-only */}
+                    <div className="flex items-center justify-between px-4 py-3">
+                      <span className="text-sm text-gray-900">Trainer</span>
+                      <span className="text-sm text-gray-500">None</span>
+                    </div>
+                    {/* Plan - read-only */}
+                    <div className="flex items-center justify-between px-4 py-3">
+                      <span className="text-sm text-gray-900">Plan</span>
+                      <span className="text-sm text-gray-500">Free</span>
+                    </div>
+                  </div>
+                </section>
+
+                {/* PROFILE Section */}
+                <section>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                    Profile
+                  </h3>
+                  <div className="bg-gray-50 rounded-xl overflow-hidden divide-y divide-gray-200">
+                    {/* Birthdate */}
+                    <ProfileRow
+                      label="Date of Birth"
+                      value={formatBirthdate(profile.birthdate || '')}
+                      badge={age !== null ? `${age} years` : undefined}
+                    >
                       <input
                         type="date"
                         value={profile.birthdate || ''}
-                        onChange={(e) => setProfile({ ...profile, birthdate: e.target.value })}
-                        className="flex-1 bg-transparent text-sm outline-none"
-                        style={{ color: colors.primaryText }}
+                        onChange={(e) => handleBirthdateChange(e.target.value)}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
                       />
-                      {age !== null && (
-                        <span className="text-sm px-3 py-1 bg-gray-200 rounded-full" style={{ color: colors.secondaryText }}>
-                          {age} years
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                    </ProfileRow>
 
-                  {/* Gender */}
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                      Gender
-                    </label>
-                    <select
-                      value={profile.gender || ''}
-                      onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
-                      className="w-full bg-transparent text-sm outline-none cursor-pointer"
-                      style={{ color: colors.primaryText }}
+                    {/* Gender */}
+                    <ProfileRow
+                      label="Gender"
+                      value={GENDER_OPTIONS.find(g => g.value === profile.gender)?.label || 'Prefer not to say'}
                     >
-                      {GENDER_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                      <select
+                        value={profile.gender || ''}
+                        onChange={(e) => handleGenderChange(e.target.value)}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                      >
+                        {GENDER_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </ProfileRow>
 
-                  {/* Height */}
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                      Height
-                    </label>
-                    <div className="flex items-center gap-3">
+                    {/* Height */}
+                    <div className="flex items-center justify-between px-4 py-3">
+                      <span className="text-sm text-gray-900">Height</span>
                       <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          min="3"
-                          max="8"
+                        <select
                           value={heightFeet}
-                          onChange={(e) => setHeightFeet(parseInt(e.target.value) || 0)}
-                          className="w-16 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-center"
-                          style={{ color: colors.primaryText }}
-                        />
-                        <span className="text-sm" style={{ color: colors.secondaryText }}>ft</span>
+                          onChange={(e) => handleHeightChange(parseInt(e.target.value) || 5, heightInches)}
+                          className="bg-white border border-gray-300 rounded-lg px-2 py-1 text-sm text-gray-900"
+                        >
+                          {[3, 4, 5, 6, 7, 8].map((ft) => (
+                            <option key={ft} value={ft}>{ft} ft</option>
+                          ))}
+                        </select>
+                        <select
+                          value={heightInches}
+                          onChange={(e) => handleHeightChange(heightFeet, parseInt(e.target.value) || 0)}
+                          className="bg-white border border-gray-300 rounded-lg px-2 py-1 text-sm text-gray-900"
+                        >
+                          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((inches) => (
+                            <option key={inches} value={inches}>{inches} in</option>
+                          ))}
+                        </select>
                       </div>
+                    </div>
+
+                    {/* Weight */}
+                    <div className="flex items-center justify-between px-4 py-3">
+                      <span className="text-sm text-gray-900">Weight</span>
                       <div className="flex items-center gap-2">
                         <input
                           type="number"
-                          min="0"
-                          max="11"
-                          value={heightInches}
-                          onChange={(e) => setHeightInches(parseInt(e.target.value) || 0)}
-                          className="w-16 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-center"
-                          style={{ color: colors.primaryText }}
+                          min="50"
+                          max="500"
+                          value={profile.currentWeight || ''}
+                          onChange={(e) => handleWeightChange(parseInt(e.target.value) || undefined)}
+                          placeholder="—"
+                          className="w-16 bg-white border border-gray-300 rounded-lg px-2 py-1 text-sm text-gray-900 text-right"
                         />
-                        <span className="text-sm" style={{ color: colors.secondaryText }}>in</span>
+                        <span className="text-sm text-gray-500">lbs</span>
                       </div>
                     </div>
                   </div>
-
-                  {/* Weight */}
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                      Weight
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        min="50"
-                        max="500"
-                        value={profile.currentWeight || ''}
-                        onChange={(e) => setProfile({ ...profile, currentWeight: parseInt(e.target.value) || undefined })}
-                        placeholder="Enter weight"
-                        className="w-24 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                        style={{ color: colors.primaryText }}
-                      />
-                      <span className="text-sm" style={{ color: colors.secondaryText }}>lbs</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Save Button */}
-                <button
-                  onClick={handleSave}
-                  disabled={saving || loading}
-                  className="w-full py-3 rounded-xl font-medium text-white transition-colors disabled:opacity-50"
-                  style={{ backgroundColor: colors.accentBlue }}
-                >
-                  {saving ? (
-                    <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                  ) : (
-                    'Save Changes'
-                  )}
-                </button>
-              </div>
+                </section>
+              </>
             )}
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Helper component for profile row with hidden input overlay
+interface ProfileRowProps {
+  label: string;
+  value: string;
+  badge?: string;
+  children: React.ReactNode;
+}
+
+function ProfileRow({ label, value, badge, children }: ProfileRowProps) {
+  return (
+    <div className="relative flex items-center justify-between px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer">
+      <span className="text-sm text-gray-900">{label}</span>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-gray-500">{value}</span>
+        {badge && (
+          <span className="text-xs px-2 py-0.5 bg-gray-200 rounded-full text-gray-600">
+            {badge}
+          </span>
+        )}
+        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+      {children}
     </div>
   );
 }

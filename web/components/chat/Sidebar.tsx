@@ -207,35 +207,6 @@ export default function Sidebar({ isOpen, onClose, isMobile, refreshKey = 0 }: S
               {/* Settings Dropdown - Claude style */}
               {showSettingsMenu && (
                 <div className="absolute bottom-full right-0 mb-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
-                  {/* Gym - read-only for now */}
-                  <div className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    <span>Gym</span>
-                    <span className="ml-auto text-xs text-gray-400">None</span>
-                  </div>
-
-                  {/* Trainer - read-only for now */}
-                  <div className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    <span>Trainer</span>
-                    <span className="ml-auto text-xs text-gray-400">None</span>
-                  </div>
-
-                  {/* Plan - read-only for now */}
-                  <div className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                    </svg>
-                    <span>Plan</span>
-                    <span className="ml-auto text-xs text-gray-400">Free</span>
-                  </div>
-
-                  <div className="border-t border-gray-100 my-1" />
-
                   {/* Profile */}
                   <button
                     onClick={() => {
