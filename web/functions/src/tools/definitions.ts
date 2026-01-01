@@ -43,16 +43,25 @@ export const showSchedule: ToolDefinition = {
 export const createWorkout: ToolDefinition = {
   type: 'function',
   name: 'create_workout',
-  description: `Create a new workout for the user. You MUST select exercises from the EXERCISE OPTIONS section in your context.
+  description: `⚠️ STRICT REQUIREMENT: Only call if user message contains one of these EXACT verbs: "create", "make", "build", "generate" PLUS the word "workout".
 
-CRITICAL SELECTION RULES:
-1. ALWAYS include ★ FAVORITES when their muscle group matches the workout
-2. PREFER recent exercises with high completion rate
-3. ONLY use exercise IDs from your context tables - other IDs will fail validation
-4. Exercise count: 30min→3, 45min→4, 60min→5, 75min→6, 90min→7 exercises
-5. NEVER use excluded exercises (marked with ❌)
+❌ DO NOT CALL FOR:
+- "Hi" or greetings → respond with text
+- "Show schedule" → use show_schedule instead
+- "My 1RM is..." → use update_exercise_target instead
+- "Skip workout" → use skip_workout instead
+- Questions like "what muscles..." → respond with text
+- Anything without "create/make/build workout"
 
-After creating the workout, tell the user they can modify it if they want different exercises.`,
+✅ ONLY CALL WHEN user literally says things like:
+- "Create a push workout"
+- "Make me a leg day"
+- "Build a 45 minute workout"
+
+If the user's message does NOT contain create/make/build + workout, respond conversationally instead.
+
+---
+Exercise selection: Use IDs from EXERCISE OPTIONS context. Count: 30min→3, 45min→4, 60min→5 exercises.`,
   parameters: {
     type: 'object',
     properties: {

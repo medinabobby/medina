@@ -223,7 +223,7 @@ async function writeToFirestore(
   // Write instances
   for (const instance of instances) {
     const instanceRef = db
-      .collection(`users/${userId}/workouts/${workoutId}/instances`)
+      .collection(`users/${userId}/workouts/${workoutId}/exerciseInstances`)
       .doc(instance.id);
     batch.set(instanceRef, instance);
   }
@@ -231,7 +231,7 @@ async function writeToFirestore(
   // Write sets (grouped by instance)
   for (const setDoc of sets) {
     const setRef = db
-      .collection(`users/${userId}/workouts/${workoutId}/instances/${setDoc.instanceId}/sets`)
+      .collection(`users/${userId}/workouts/${workoutId}/exerciseInstances/${setDoc.instanceId}/sets`)
       .doc(setDoc.id);
     batch.set(setRef, setDoc);
   }

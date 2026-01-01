@@ -30,11 +30,11 @@ Returns next scheduled workout automatically`;
 // Workout Creation
 // ============================================================================
 
-export const CREATE_WORKOUT = `**create_workout** (DEFAULT for workout requests)
+export const CREATE_WORKOUT = `**create_workout** (ONLY when user explicitly asks to CREATE/MAKE/BUILD a workout)
+TRIGGERS: "create a workout", "make me a push day", "build a leg workout", "give me a chest routine"
+NOT FOR: questions, greetings, schedule requests, profile updates, fitness advice
 SPLIT MAPPING: legs/lower→"legs", upper→"upper", arms→"arms", back+biceps→"pull", chest+triceps→"push"
-MOVEMENT PATTERNS: Only when user says "squat pull workout", "hinge day" (not "lower body"!)
-DON'T PRE-DESCRIBE: Wait for result, then describe ACTUAL created exercises
-EXERCISE COUNT: Only when user explicitly says number (e.g., "4 exercises")`;
+DON'T PRE-DESCRIBE: Wait for result, then describe ACTUAL created exercises`;
 
 export const CREATE_CUSTOM_WORKOUT = `**create_custom_workout**
 Only when user names SPECIFIC exercises: "bench press and squats"
@@ -71,8 +71,11 @@ export const DELETE_PLAN = `**delete_plan**: Only DRAFT/COMPLETED plans, require
 // Profile & Options
 // ============================================================================
 
-export const UPDATE_PROFILE = `**update_profile**: Call IMMEDIATELY when user shares personal info
+export const UPDATE_PROFILE = `**update_profile**: Only call when user EXPLICITLY asks to save/update profile
+TRIGGER: "save this to my profile", "update my weight", "yes" (after you asked)
+NOT TRIGGER: User just stating info ("I'm 5'11") - acknowledge and ASK first
 Height: 6'2" = 74 inches | Goals: strength, muscleGain, fatLoss, endurance, generalFitness
+AFTER UPDATE: Always confirm "Done! I've updated your profile with [what changed]."
 SCHEDULE + PLAN: First update_profile, then confirm plan, then create_plan`;
 
 export const SUGGEST_OPTIONS = `**suggest_options**: Present action chips (NOT numbered lists)

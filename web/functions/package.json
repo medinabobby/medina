@@ -13,7 +13,12 @@
     "seed": "npx ts-node src/seed.ts",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "eval": "npx ts-node src/evaluation/cli.ts",
+    "eval:info": "npx ts-node src/evaluation/cli.ts info",
+    "eval:run": "npx ts-node src/evaluation/cli.ts run",
+    "eval:compare": "npx ts-node src/evaluation/cli.ts compare",
+    "eval:memo": "npx ts-node src/evaluation/cli.ts memo"
   },
   "engines": {
     "node": "20"

@@ -1,0 +1,199 @@
+#!/usr/bin/env npx ts-node
+/**
+ * AI Model Evaluation CLI
+ *
+ * v243: Command-line interface for running evaluations.
+ *
+ * Usage:
+ *   # Run evaluation against a model
+ *   npx ts-node src/evaluation/cli.ts run --model gpt-4o-mini --endpoint https://your-endpoint
+ *
+ *   # Compare two saved results
+ *   npx ts-node src/evaluation/cli.ts compare --baseline results-gpt-4o-mini.json --comparison results-gpt-4o.json
+ *
+ *   # Generate memo from comparison
+ *   npx ts-node src/evaluation/cli.ts memo --baseline results-gpt-4o-mini.json --comparison results-gpt-4o.json
+ */
+
+import * as fs from 'fs';
+import { runEvaluation, compareEvaluations, EvalSummary } from './runner';
+import { generateExecutiveMemo, generateSingleModelSummary } from './memo';
+import { getTestSuiteSummary } from './testSuite';
+
+// Parse command line arguments
+const args = process.argv.slice(2);
+const command = args[0];
+
+function getArg(name: string): string | undefined {
+  const index = args.indexOf(`--${name}`);
+  if (index === -1 || index + 1 >= args.length) return undefined;
+  return args[index + 1];
+}
+
+function printUsage() {
+  console.log(`
+AI Model Evaluation CLI
+
+Commands:
+  info                         Show test suite summary
+  run                          Run evaluation against a model
+  compare                      Compare two saved results
+  memo                         Generate executive memo
+
+Options for 'run':
+  --model <name>               Model to test (gpt-4o-mini, gpt-4o, etc.)
+  --endpoint <url>             API endpoint URL
+  --token <token>              Auth token (or set EVAL_AUTH_TOKEN env var)
+  --output <file>              Output JSON file (default: results-{model}.json)
+  --delay <ms>                 Delay between tests (default: 1000)
+
+Options for 'compare' and 'memo':
+  --baseline <file>            Baseline results JSON file
+  --comparison <file>          Comparison results JSON file
+  --output <file>              Output file (default: stdout for memo)
+
+Examples:
+  npx ts-node src/evaluation/cli.ts info
+  npx ts-node src/evaluation/cli.ts run --model gpt-4o-mini --endpoint https://us-central1-medina-ai.cloudfunctions.net/chat
+  npx ts-node src/evaluation/cli.ts memo --baseline results-gpt-4o-mini.json --comparison results-gpt-4o.json > memo.md
+`);
+}
+
+async function main() {
+  if (!command || command === 'help' || command === '--help') {
+    printUsage();
+    process.exit(0);
+  }
+
+  switch (command) {
+    case 'info': {
+      const summary = getTestSuiteSummary();
+      console.log('\n📋 Test Suite Summary\n');
+      console.log(`Total tests: ${summary.total}`);
+      console.log('\nBy category:');
+      for (const [category, count] of Object.entries(summary.byCategory)) {
+        console.log(`  ${category}: ${count}`);
+      }
+      console.log('');
+      break;
+    }
+
+    case 'run': {
+      const model = getArg('model');
+      const endpoint = getArg('endpoint');
+      const token = getArg('token') || process.env.EVAL_AUTH_TOKEN;
+      const output = getArg('output') || `results-${model}.json`;
+      const delay = parseInt(getArg('delay') || '1000', 10);
+
+      if (!model) {
+        console.error('Error: --model is required');
+        process.exit(1);
+      }
+      if (!endpoint) {
+        console.error('Error: --endpoint is required');
+        process.exit(1);
+      }
+      if (!token) {
+        console.error('Error: --token is required (or set EVAL_AUTH_TOKEN env var)');
+        process.exit(1);
+      }
+
+      console.log(`\n🚀 Running evaluation`);
+      console.log(`   Model: ${model}`);
+      console.log(`   Endpoint: ${endpoint}`);
+      console.log(`   Output: ${output}`);
+      console.log(`   Delay: ${delay}ms\n`);
+
+      const results = await runEvaluation(model, endpoint, token, {
+        delayBetweenTests: delay,
+      });
+
+      // Save results
+      fs.writeFileSync(output, JSON.stringify(results, null, 2));
+      console.log(`\n✅ Results saved to ${output}`);
+
+      // Print summary
+      console.log('\n📊 Summary:');
+      console.log(`   Tool Calling Accuracy: ${(results.toolCallingAccuracy * 100).toFixed(0)}%`);
+      console.log(`   Fitness Accuracy: ${(results.fitnessAccuracyScore * 100).toFixed(0)}%`);
+      console.log(`   Tone Score: ${(results.toneScore * 100).toFixed(0)}%`);
+      console.log(`   Speed Pass Rate: ${(results.speedPassRate * 100).toFixed(0)}%`);
+      console.log(`   Avg Response Time: ${results.avgTotalResponseTime.toFixed(0)}ms`);
+      console.log(`   Total Cost: $${results.totalCost.toFixed(4)}`);
+      console.log('');
+      break;
+    }
+
+    case 'compare': {
+      const baselineFile = getArg('baseline');
+      const comparisonFile = getArg('comparison');
+
+      if (!baselineFile || !comparisonFile) {
+        console.error('Error: --baseline and --comparison are required');
+        process.exit(1);
+      }
+
+      const baseline: EvalSummary = JSON.parse(fs.readFileSync(baselineFile, 'utf-8'));
+      const comparison: EvalSummary = JSON.parse(fs.readFileSync(comparisonFile, 'utf-8'));
+
+      const comp = compareEvaluations(baseline, comparison);
+
+      console.log(`\n📊 Comparison: ${baseline.model} vs ${comparison.model}\n`);
+      console.log('Deltas:');
+      console.log(`   Tool Calling: ${(comp.deltas.toolCallingAccuracy * 100).toFixed(1)}%`);
+      console.log(`   Fitness Accuracy: ${(comp.deltas.fitnessAccuracyScore * 100).toFixed(1)}%`);
+      console.log(`   Tone Score: ${(comp.deltas.toneScore * 100).toFixed(1)}%`);
+      console.log(`   Speed Pass Rate: ${(comp.deltas.speedPassRate * 100).toFixed(1)}%`);
+      console.log(`   Response Time: ${comp.deltas.avgResponseTime.toFixed(0)}ms`);
+      console.log(`   Cost per Request: $${comp.deltas.avgCostPerRequest.toFixed(6)}`);
+      console.log('');
+      break;
+    }
+
+    case 'memo': {
+      const baselineFile = getArg('baseline');
+      const comparisonFile = getArg('comparison');
+      const outputFile = getArg('output');
+
+      if (!baselineFile || !comparisonFile) {
+        console.error('Error: --baseline and --comparison are required');
+        process.exit(1);
+      }
+
+      const baseline: EvalSummary = JSON.parse(fs.readFileSync(baselineFile, 'utf-8'));
+      const comparison: EvalSummary = JSON.parse(fs.readFileSync(comparisonFile, 'utf-8'));
+
+      const memo = generateExecutiveMemo(baseline, comparison);
+
+      if (outputFile) {
+        fs.writeFileSync(outputFile, memo);
+        console.log(`✅ Memo saved to ${outputFile}`);
+      } else {
+        console.log(memo);
+      }
+      break;
+    }
+
+    case 'summary': {
+      const inputFile = getArg('input');
+      if (!inputFile) {
+        console.error('Error: --input is required');
+        process.exit(1);
+      }
+
+      const summary: EvalSummary = JSON.parse(fs.readFileSync(inputFile, 'utf-8'));
+      console.log(generateSingleModelSummary(summary));
+      break;
+    }
+
+    default:
+      console.error(`Unknown command: ${command}`);
+      printUsage();
+      process.exit(1);
+  }
+}
+
+main().catch((error) => {
+  console.error('Error:', error);
+  process.exit(1);
+});

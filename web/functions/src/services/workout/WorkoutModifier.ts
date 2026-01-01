@@ -223,7 +223,7 @@ async function loadInstances(
   workoutId: string
 ): Promise<ExerciseInstanceDocument[]> {
   const snap = await db
-    .collection(`users/${userId}/workouts/${workoutId}/instances`)
+    .collection(`users/${userId}/workouts/${workoutId}/exerciseInstances`)
     .orderBy("position")
     .get();
 
@@ -290,7 +290,7 @@ async function updateInstanceTargetWeights(
   newIntensity: number
 ): Promise<void> {
   const instancesSnap = await db
-    .collection(`users/${userId}/workouts/${workoutId}/instances`)
+    .collection(`users/${userId}/workouts/${workoutId}/exerciseInstances`)
     .get();
 
   if (instancesSnap.empty) return;
@@ -344,7 +344,7 @@ async function applySubstitutions(
       // Update the instance
       const instanceId = `instance_${workout.id}_${sub.position}`;
       const instanceRef = db
-        .collection(`users/${userId}/workouts/${workout.id}/instances`)
+        .collection(`users/${userId}/workouts/${workout.id}/exerciseInstances`)
         .doc(instanceId);
 
       batch.update(instanceRef, {
@@ -387,7 +387,7 @@ async function rebuildWorkout(
 ): Promise<WorkoutDocument> {
   // Delete existing instances
   const instancesSnap = await db
-    .collection(`users/${userId}/workouts/${workout.id}/instances`)
+    .collection(`users/${userId}/workouts/${workout.id}/exerciseInstances`)
     .get();
 
   const deleteBatch = db.batch();

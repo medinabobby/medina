@@ -7,6 +7,7 @@ import type { Plan } from '@/lib/types';
 import PlansFolder from './folders/PlansFolder';
 import LibraryFolder from './folders/LibraryFolder';
 import TrainingPreferencesModal from '@/components/TrainingPreferencesModal';
+import ProfilePanel from '@/components/profile/ProfilePanel';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ export default function Sidebar({ isOpen, onClose, isMobile, refreshKey = 0 }: S
   const [searchQuery, setSearchQuery] = useState('');
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showTrainingPreferences, setShowTrainingPreferences] = useState(false);
+  const [showProfilePanel, setShowProfilePanel] = useState(false);
   const settingsMenuRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -208,6 +210,20 @@ export default function Sidebar({ isOpen, onClose, isMobile, refreshKey = 0 }: S
 
                   <div className="border-t border-gray-100 my-1" />
 
+                  {/* Profile */}
+                  <button
+                    onClick={() => {
+                      setShowSettingsMenu(false);
+                      setShowProfilePanel(true);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Profile
+                  </button>
+
                   {/* Training Preferences */}
                   <button
                     onClick={() => {
@@ -273,6 +289,24 @@ export default function Sidebar({ isOpen, onClose, isMobile, refreshKey = 0 }: S
         isOpen={showTrainingPreferences}
         onClose={() => setShowTrainingPreferences(false)}
       />
+
+      {/* Profile Panel - slides in from right */}
+      {showProfilePanel && (
+        <div className="fixed inset-0 z-50">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowProfilePanel(false)}
+          />
+          {/* Panel */}
+          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl">
+            <ProfilePanel
+              isOpen={showProfilePanel}
+              onClose={() => setShowProfilePanel(false)}
+            />
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

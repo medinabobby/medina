@@ -181,6 +181,13 @@ export const chat = onRequest(
         return;
       }
 
+      // v243: Allow model override via header for evaluation testing
+      const modelOverride = req.headers["x-model-override"] as string | undefined;
+      const selectedModel = modelOverride || "gpt-4o-mini";
+      if (modelOverride) {
+        console.log(`Model override: ${modelOverride}`);
+      }
+
       // 3. Load user profile from Firestore
       const db = adminSdk.firestore();
       const user = await loadUserProfile(uid, db);
@@ -214,7 +221,7 @@ export const chat = onRequest(
         }));
 
         requestOptions = {
-          model: "gpt-4o-mini",
+          model: selectedModel,
           previous_response_id: body.previousResponseId,
           input: formattedOutputs,
           stream: true,
@@ -227,7 +234,7 @@ export const chat = onRequest(
         }));
 
         requestOptions = {
-          model: "gpt-4o-mini",
+          model: selectedModel,
           input,
           instructions: systemPrompt,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -422,7 +429,7 @@ export const chat = onRequest(
         if (toolOutputs.length > 0) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const continueOptions: any = {
-            model: "gpt-4o-mini",
+            model: selectedModel,
             previous_response_id: currentResponseId,
             input: toolOutputs,
             stream: true,

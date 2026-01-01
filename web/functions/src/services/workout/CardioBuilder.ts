@@ -371,7 +371,7 @@ async function createCardioInstances(
     instances.push(instance);
 
     const instanceRef = db
-      .collection(`users/${userId}/workouts/${workoutId}/instances`)
+      .collection(`users/${userId}/workouts/${workoutId}/exerciseInstances`)
       .doc(instanceId);
 
     batch.set(instanceRef, instance);
