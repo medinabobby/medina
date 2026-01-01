@@ -75,6 +75,53 @@ Files to check for parity:
 | Sidebar refresh | `ChatViewModel.swift` | `Sidebar.tsx`, `ChatLayout.tsx` |
 | API auth | `FirebaseAPIClient.swift` | Uses `getIdToken()` directly |
 
+## AI Behavior Rules (v247)
+
+The AI assistant follows specific rules for when to act immediately vs ask for confirmation.
+
+### When to ACT Immediately
+
+| User Says | Tool | Why |
+|-----------|------|-----|
+| "Update my profile to 4 days" | `update_profile` | Explicit command |
+| "Save 4 days to my profile" | `update_profile` | Explicit command |
+| "Create a push workout" | `create_workout` | Single-param, low stakes |
+| "Skip today's workout" | `skip_workout` | Explicit, reversible |
+| "Add bench press to my library" | `add_to_library` | Explicit, reversible |
+| "My bench 1RM is 225" | `update_exercise_target` | User providing data |
+| "Show my schedule" | `show_schedule` | Read-only |
+
+**After acting:** Confirm what was done + remind user they can change in settings.
+
+### When to ASK First
+
+| User Says | Why Confirm |
+|-----------|-------------|
+| "I want to train 4 days" | Preference statement, not command |
+| "I'm 5'11 and 180 lbs" | User stating info, not requesting save |
+| "Create a 12-week plan" | Multi-param tool, needs details first |
+| "Delete my plan" | Destructive action |
+| "Activate this plan" | Multi-week commitment |
+
+### When to ADVISE First
+
+| User Says | Why Advise |
+|-----------|------------|
+| Going from 2→7 days/week | Major change, overtraining risk |
+| "Gain 50lbs muscle in 3 months" | Unrealistic expectation |
+| Training through injury | Safety concern |
+
+### Synonym Handling
+
+User terms are silently mapped to Medina concepts (no correction needed):
+
+| User Says | Maps To | Example Response |
+|-----------|---------|------------------|
+| "program" | plan | "I'll create a training plan..." |
+| "routine" | workout/plan | Context determines which |
+| "schedule" | show_schedule | "Here's your schedule..." |
+| "proposal" | plan | "Let me build a plan..." |
+
 ## Current Version
 
-v235
+v247

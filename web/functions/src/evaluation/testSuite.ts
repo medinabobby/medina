@@ -1,13 +1,20 @@
 /**
  * AI Model Evaluation Test Suite
  *
- * v243: Test cases for comparing AI models on fitness coaching tasks.
+ * v247: Test cases for comparing AI models on fitness coaching tasks.
  *
  * Categories:
  * - tool_calling: Verify correct tool invocations
  * - fitness_accuracy: Verify fitness knowledge
  * - tone: Verify coaching style and off-topic handling
  * - speed: Verify response time for simple queries
+ *
+ * Intent Classification (v247):
+ * - Explicit commands → immediate tool execution
+ * - Preference statements → confirmation first (expectedTool: null)
+ * - Multi-param requests → clarifying questions (expectedTool: null)
+ * - Data provision → immediate tool execution
+ * - Destructive actions → confirmation first (expectedTool: null)
  */
 
 export interface TestCase {
@@ -57,8 +64,8 @@ export const TEST_CASES: TestCase[] = [
     id: 'TC05',
     category: 'tool_calling',
     prompt: 'Create a 12-week strength program',
-    expectedTool: 'create_plan',
-    description: 'Should call create_plan with durationWeeks',
+    expectedTool: null,
+    description: 'Multi-param request - AI should ask clarifying questions (goal, days/week) before creating plan',
   },
   {
     id: 'TC06',
@@ -92,8 +99,8 @@ export const TEST_CASES: TestCase[] = [
     id: 'TC10',
     category: 'tool_calling',
     prompt: 'I want to train 4 days per week',
-    expectedTool: 'update_profile',
-    description: 'Should call update_profile to save schedule preference',
+    expectedTool: null,
+    description: 'Preference statement - AI should ask confirmation before updating profile ("Want me to save this?")',
   },
 
   // =========================================================================
@@ -269,6 +276,96 @@ export const TEST_CASES: TestCase[] = [
     expectedTool: null,  // Should NOT call any tool
     maxResponseTime: 2000,
     description: 'Simple acknowledgment should be fast',
+  },
+
+  // =========================================================================
+  // EXPLICIT COMMAND TESTS (v247)
+  // Verify explicit commands trigger immediate tool execution
+  // =========================================================================
+  {
+    id: 'TC11',
+    category: 'tool_calling',
+    prompt: 'Update my profile to train 4 days per week',
+    expectedTool: 'update_profile',
+    description: 'Explicit command - should update immediately (compare to TC10 preference statement)',
+  },
+  {
+    id: 'TC12',
+    category: 'tool_calling',
+    prompt: 'Save my schedule preference as Monday, Wednesday, Friday',
+    expectedTool: 'update_profile',
+    description: 'Explicit save command - should update profile immediately',
+  },
+
+  // =========================================================================
+  // PLAN MANAGEMENT TESTS (v247)
+  // Verify destructive/commitment actions require confirmation
+  // =========================================================================
+  {
+    id: 'PL01',
+    category: 'tool_calling',
+    prompt: 'Delete my current plan',
+    expectedTool: null,
+    description: 'Destructive action - AI should ask confirmation before deleting',
+  },
+  {
+    id: 'PL02',
+    category: 'tool_calling',
+    prompt: 'Activate the strength plan',
+    expectedTool: null,
+    description: 'Multi-week commitment - AI should confirm before activating',
+  },
+
+  // =========================================================================
+  // SYNONYM TESTS (v247)
+  // Verify user terms are silently mapped to Medina concepts
+  // =========================================================================
+  {
+    id: 'SY01',
+    category: 'tool_calling',
+    prompt: 'Create a 12-week program for muscle gain',
+    expectedTool: null,
+    description: 'Synonym "program" → plan; multi-param request should ask questions first',
+  },
+  {
+    id: 'SY02',
+    category: 'tool_calling',
+    prompt: 'Show my routine for this week',
+    expectedTool: 'show_schedule',
+    description: 'Synonym "routine" → schedule; should show schedule immediately',
+  },
+
+  // =========================================================================
+  // EDGE CASE TESTS (v247)
+  // Verify handling of ambiguous or extreme requests
+  // =========================================================================
+  {
+    id: 'ED01',
+    category: 'tool_calling',
+    prompt: 'Update my profile',
+    expectedTool: null,
+    description: 'Incomplete command - AI should ask what to update',
+  },
+  {
+    id: 'ED02',
+    category: 'tool_calling',
+    prompt: 'Create a workout',
+    expectedTool: 'create_workout',
+    description: 'Minimal command - should create workout using profile defaults',
+  },
+  {
+    id: 'ED03',
+    category: 'tool_calling',
+    prompt: 'I want to go from 2 to 7 days per week',
+    expectedTool: null,
+    description: 'Major change - AI should advise about overtraining risks before updating',
+  },
+  {
+    id: 'ED04',
+    category: 'tool_calling',
+    prompt: 'Remove bench press from my library',
+    expectedTool: 'remove_from_library',
+    description: 'Explicit removal command - reversible, should execute immediately',
   },
 ];
 

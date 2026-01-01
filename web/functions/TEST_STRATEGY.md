@@ -1,6 +1,6 @@
 # Backend Test Strategy
 
-**Version:** v242 (December 31, 2025)
+**Version:** v247 (January 1, 2026)
 
 > **See also:** [TESTING.md](../../../TESTING.md) for cross-platform testing strategy
 
@@ -216,6 +216,74 @@ Firebase Console → Functions → Logs → Filter: "chat"
 ```
 Firebase Console → Firestore → users/{uid}/
 ```
+
+---
+
+## AI Evaluation Framework (v247)
+
+Automated benchmark to validate AI tool selection behavior.
+
+### Tool Detection
+
+Server emits `tool_executed` SSE event when tools run:
+
+```typescript
+res.write(`data: ${JSON.stringify({
+  type: "tool_executed",
+  name: toolCall.name,
+  success: !!result,
+  callId: toolCall.id,
+})}\n\n`);
+```
+
+**No text pattern matching needed** - definitive detection from server.
+
+### Intent → Action Mapping
+
+| User Says | Expected Tool | Why |
+|-----------|---------------|-----|
+| "Update my profile to train 4 days" | `update_profile` | Explicit command |
+| "I want to train 4 days" | `null` | Preference statement - needs confirmation |
+| "My bench 1RM is 225 lbs" | `update_exercise_target` | User providing data |
+| "Create a 12-week plan" | `null` | Multi-param - ask questions first |
+| "Skip today's workout" | `skip_workout` | Explicit command |
+| "Delete my plan" | `null` | Destructive - needs confirmation |
+| "Show my schedule" | `show_schedule` | Read-only request |
+
+### Running the Benchmark
+
+```bash
+cd web/functions
+
+# Run all tests
+npm run eval:run
+
+# Run specific category
+npm run eval:run -- --category tool_calling
+
+# Run against specific model
+npm run eval:run -- --model gpt-4o-mini
+
+# View results
+npm run eval:info -- --results results.json
+```
+
+### Test Categories
+
+| Category | Tests | Description |
+|----------|-------|-------------|
+| tool_calling | 10 | Single-turn tool invocation |
+| fitness_accuracy | 10 | Knowledge questions |
+| tone | 5 | Style and personality |
+| speed | 5 | Response latency |
+
+### Interpreting Results
+
+- **Tool accuracy 80%+**: Good, investigate specific failures
+- **`expectedTool: null` with tool called**: AI acted without confirmation (may be wrong)
+- **`expectedTool: X` with null**: AI asked for confirmation (may be correct behavior)
+
+**Key insight:** A "failed" test may indicate the test expectation is wrong, not the AI behavior. See TESTING.md for intent classification rules.
 
 ---
 

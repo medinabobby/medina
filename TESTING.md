@@ -1,6 +1,6 @@
 # Medina Testing Strategy
 
-**Last updated:** December 31, 2025 | **Version:** v242
+**Last updated:** January 1, 2026 | **Version:** v247
 
 Cross-platform testing strategy for iOS, Web, and Backend.
 
@@ -42,6 +42,37 @@ With our **server-first architecture**, most business logic runs on Firebase Fun
 - Testing once at the backend covers both platforms
 - Client tests focus on platform-specific UI/UX
 - Future Android app gets tested logic for free
+
+---
+
+## AI Behavior Expectations (v247)
+
+Tests must account for multi-turn confirmation flows. Not every user message should trigger an immediate tool call.
+
+### Intent Classification → Test Expectations
+
+| User Intent Type | Example | Expected First Response | Test Expectation |
+|------------------|---------|------------------------|------------------|
+| Explicit Command | "Update my profile to 4 days" | Tool execution | `expectedTool: "update_profile"` |
+| Data Provision | "My bench 1RM is 225 lbs" | Tool execution | `expectedTool: "update_exercise_target"` |
+| Preference Statement | "I want to train 4 days" | Confirmation request | `expectedTool: null` |
+| Multi-param Request | "Create a 12-week plan" | Clarifying questions | `expectedTool: null` |
+| Destructive Action | "Delete my plan" | Confirmation request | `expectedTool: null` |
+
+### Single-Turn vs Multi-Turn Tests
+
+**Single-turn tests** expect immediate tool execution:
+- User gives explicit command → AI executes tool
+- Example: "Skip today's workout" → `skip_workout` tool called
+
+**Multi-turn tests** expect confirmation or clarification first:
+- User states preference → AI asks to confirm
+- User requests complex action → AI gathers required parameters
+- Example: "I want to train 4 days" → AI asks "Want me to update your profile?"
+
+### Why This Matters
+
+A test that expects `update_profile` for "I want to train 4 days" will fail - but that's a **test bug**, not an AI bug. The AI correctly asks for confirmation before modifying user data.
 
 ---
 

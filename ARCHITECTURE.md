@@ -1,6 +1,6 @@
 # Medina Architecture
 
-**Last updated:** December 31, 2025 | **Version:** v246
+**Last updated:** January 1, 2026 | **Version:** v247
 
 Medina is an AI fitness coach with iOS and web clients sharing a Firebase backend.
 
@@ -86,6 +86,39 @@ This enables:
 │   OpenAI API (gpt-4o-mini, TTS, Vision)                         │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## AI Intent Classification (v247)
+
+When the AI receives user input, it classifies intent to determine the correct action:
+
+### Classification → Action Matrix
+
+| Intent Type | Example | AI Action |
+|-------------|---------|-----------|
+| Explicit Command | "Update my profile to 4 days" | Execute tool immediately |
+| Preference Statement | "I want to train 4 days" | Ask confirmation first |
+| Information Sharing | "I'm 5'11 and 180 lbs" | Acknowledge, ask to save |
+| Data Provision | "My bench 1RM is 225" | Save immediately (user providing data) |
+| Multi-param Request | "Create a 12-week plan" | Gather required params first |
+| Destructive Action | "Delete my plan" | Always confirm |
+| Advisory Trigger | "Train 7 days a week" | Advise before acting |
+
+### Synonym Mapping
+
+User terms are silently mapped to Medina concepts (no correction needed):
+
+| User Says | Maps To | AI Response Example |
+|-----------|---------|---------------------|
+| "program" | plan | "I'll create a training plan..." |
+| "routine" | workout/plan | Context-dependent |
+| "schedule" | show_schedule | "Here's your schedule..." |
+| "proposal" | plan | "Let me build a plan..." |
+
+### Tool Detection (v247)
+
+Server emits `tool_executed` SSE event when tools run - benchmark uses this for definitive detection instead of text pattern matching.
 
 ---
 
