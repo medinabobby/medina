@@ -8,9 +8,9 @@
 
 | Platform | Version | Status |
 |----------|---------|--------|
-| iOS | v250 | TestFlight (passthrough client) |
-| Web | v250 | Production |
-| Backend | v250 | **22/22 tools complete** |
+| iOS | v251 | TestFlight (passthrough client) |
+| Web | v251 | Production |
+| Backend | v251 | **22/22 tools complete** |
 
 ---
 
@@ -87,25 +87,24 @@ All tools now run on Firebase Functions. iOS is a pure passthrough client.
 
 ## Next Priorities
 
-1. **Server-side workout creation** - Move WorkoutCreationService to Firebase Functions
-2. **Server-side workout modification** - Move WorkoutModificationService to Firebase
-3. **Web workout execution UI** - Start workout from card, log sets
-4. **Analytics charts** - Add visualization to analyze_training_data
+1. **AI performance optimization** - Benchmark slowest tool calls, optimize response times
+2. **Analytics charts** - Add visualization to analyze_training_data
+3. **Web workout execution UI** - Start workout from card, log sets (lower priority)
 
-### Server Migration Roadmap
+### Server Migration Status
 
-Goal: iOS becomes pure UI shell. All business logic on Firebase Functions.
+**COMPLETE** - All business logic now runs on Firebase Functions. iOS is pure UI shell.
 
-| Service | LOC | Status | Target Endpoint |
-|---------|-----|--------|-----------------|
-| WorkoutCreationService | ~400 | Planned | `/api/createWorkout` |
-| WorkoutModificationService | ~300 | Planned | `/api/modifyWorkout` |
-| ProtocolAssignmentService | ~250 | Planned | (merged into createWorkout) |
-| InstanceInitializationService | ~300 | Planned | (merged into createWorkout) |
-| DurationAwareWorkoutBuilder | ~350 | Planned | (merged into createWorkout) |
+| Service | LOC | Status | Firebase Location |
+|---------|-----|--------|-------------------|
+| WorkoutCreationService | ~400 | **COMPLETE** | `tools/createWorkout.ts` |
+| WorkoutModificationService | ~300 | **COMPLETE** | `tools/modifyWorkout.ts` |
+| ProtocolAssignmentService | ~250 | **COMPLETE** | Merged into createWorkout/createPlan |
+| InstanceInitializationService | ~300 | **COMPLETE** | Merged into createWorkout/createPlan |
+| DurationAwareWorkoutBuilder | ~350 | **COMPLETE** | Merged into createWorkout/createPlan |
 
-**Benefits:**
-- Cross-platform parity (iOS, Web, Android share identical logic)
+**Benefits achieved:**
+- Cross-platform parity (iOS, Web share identical logic)
 - Instant updates (no App Store approval for bug fixes)
 - Single optimization point (improve once, benefit all platforms)
 
@@ -217,6 +216,7 @@ All iOS business logic migrated to Firebase Functions. iOS is pure passthrough c
 
 | Feature | Date | Notes |
 |---------|------|-------|
+| **Web Profile Modal Redesign (v251)** | Jan 1 | Redesigned ProfilePanel to match TrainingPreferences style. Added ACCOUNT section (Gym/Trainer/Plan). Row-based layout with auto-save. Removed giant blue Save button. Simplified settings dropdown. |
 | **iOS/Web Sidebar & Settings Parity (v250)** | Jan 1 | Added Schedule folder to iOS sidebar. Added dumbbell icon to Web Exercises. Added Gym/Trainer/Plan rows to Web settings dropdown. Plans folder always shows on iOS. Consistent UX across platforms. |
 | **iOS Settings & Profile Cleanup (v248-249)** | Jan 1 | Fixed iOS Settings: member NAME not email, always show Gym/Trainer/Member rows. Simplified iOS Profile header (smaller avatar in edit mode). Removed redundant Legal section. Fixed email truncation. Converted Web Profile to centered modal, removed avatar header. |
 | **Web Schedule Folder (v248)** | Jan 1 | Added ScheduleFolder to web sidebar showing this week's workouts with day labels (Today, Tomorrow, Wed) and status dots. ScheduleDetailModal for full week view. |
