@@ -1,6 +1,6 @@
 # Medina Roadmap
 
-**Last Updated:** December 30, 2025
+**Last Updated:** December 31, 2025
 
 ---
 
@@ -8,9 +8,9 @@
 
 | Platform | Version | Status |
 |----------|---------|--------|
-| iOS | v235 | TestFlight (passthrough client) |
-| Web | v235 | Production |
-| Backend | v235 | **22/22 tools complete** |
+| iOS | v246 | TestFlight (passthrough client) |
+| Web | v246 | Production |
+| Backend | v246 | **22/22 tools complete** |
 
 ---
 
@@ -75,6 +75,8 @@ All tools now run on Firebase Functions. iOS is a pure passthrough client.
 | Modify workout | Yes | Yes | Via chat |
 | Change protocol | Yes | Yes | Via chat |
 | Training analytics | Yes | Yes | Text-based MVP |
+| Profile editing | Yes | Yes | Settings → Profile panel |
+| Training preferences | Yes | Yes | Settings → Training Preferences |
 | Workout execution UI | Yes | No | **iOS only** - set logging, timer, etc. |
 | Voice mode | Yes | No | **iOS only** - TTS/STT during workout |
 | Apple Health | Yes | N/A | Platform-specific |
@@ -215,6 +217,7 @@ All iOS business logic migrated to Firebase Functions. iOS is pure passthrough c
 
 | Feature | Date | Notes |
 |---------|------|-------|
+| **Profile Panel + AI Eval Framework (v246)** | Dec 31 | Added ProfilePanel to web with birthdate/gender/height/weight. AI now asks before saving profile info. Added 30-test evaluation framework for benchmarking AI models. Fixed Firestore collection path (instances→exerciseInstances). |
 | **Cross-client parity fixes (v235)** | Dec 30 | Fixed status dot colors (active=blue, completed=green, draft=grey) on both iOS and Web. Added sidebar refresh on plan creation for Web. Fixed iOS token race condition. Added cross-client verification docs to CLAUDE.md and TESTING.md. |
 | **ExerciseSelectionService consolidation (v232)** | Dec 30 | Deleted ExerciseSelectionService.swift (~600 LOC) - methods were unused, logic duplicated in RuntimeExerciseSelector. Moved `lastError` to RuntimeExerciseSelector. |
 | **iOS Services cleanup (v232)** | Dec 30 | Deleted 2 dead files (~500 LOC): ExerciseSummaryService.swift (unused), TrainerSidebarSections.swift (obsolete - replaced by SidebarFilterSection). Trainer functionality preserved. |
