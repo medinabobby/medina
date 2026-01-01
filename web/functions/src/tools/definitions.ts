@@ -13,22 +13,39 @@ import {ToolDefinition} from '../types/chat';
 
 /**
  * Show user's workout schedule
+ * v248: Smart responses based on query type
  */
 export const showSchedule: ToolDefinition = {
   type: 'function',
   name: 'show_schedule',
-  description:
-    "Show user's workout schedule for a time period. Use this when the user asks to see their schedule, workouts, or calendar.",
+  description: `Show user's workout schedule. Supports different query types:
+- "Show my schedule" → full week view with calendar card
+- "When is leg day?" → short answer like "Tuesday" or "No leg day scheduled"
+- "What's my next workout?" → just the next upcoming workout
+
+Use query_type to control response format. Always shows FUTURE dates (today forward).`,
   parameters: {
     type: 'object',
     properties: {
       period: {
         type: 'string',
         enum: ['week', 'month'],
-        description: 'Time period to show schedule for (week or month)',
+        description: 'Time period to show schedule for (week or month). Default: week.',
+      },
+      query_type: {
+        type: 'string',
+        enum: ['full', 'next_workout', 'specific_day'],
+        description: `Response format:
+- 'full': Show complete schedule with calendar card (default for "show my schedule")
+- 'next_workout': Just the next upcoming workout (for "what's my next workout?")
+- 'specific_day': Find a specific split day (for "when is leg day?")`,
+      },
+      day_query: {
+        type: 'string',
+        description: "For query_type='specific_day': The split/day to find (e.g., 'legs', 'push', 'upper', 'Monday')",
       },
     },
-    required: ['period'],
+    required: [],
   },
 };
 

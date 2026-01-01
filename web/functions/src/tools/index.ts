@@ -46,6 +46,23 @@ export interface PlanCardData {
 }
 
 /**
+ * v248: Schedule card data for calendar display
+ * Sent as SSE event to trigger schedule card rendering on clients
+ */
+export interface ScheduleCardData {
+  weekStart: string;
+  weekEnd: string;
+  workouts: Array<{
+    id: string;
+    name: string;
+    date: string;
+    dayOfWeek: string;
+    status: 'scheduled' | 'completed' | 'skipped' | 'inProgress';
+    splitDay: string;
+  }>;
+}
+
+/**
  * Context passed to all handlers
  */
 export interface HandlerContext {
@@ -67,6 +84,8 @@ export interface HandlerResult {
   workoutCard?: WorkoutCardData;
   /** v210: Optional plan card to display inline */
   planCard?: PlanCardData;
+  /** v248: Optional schedule card for calendar display */
+  scheduleCard?: ScheduleCardData;
 }
 
 /**
