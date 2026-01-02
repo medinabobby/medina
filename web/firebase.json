@@ -32,6 +32,10 @@
       {
         "source": "/api/chat",
         "function": "chat"
+      },
+      {
+        "source": "/api/vision",
+        "function": "vision"
       }
     ],
     "headers": [

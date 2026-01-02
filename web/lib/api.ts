@@ -129,7 +129,7 @@ const API_URLS = {
   import: 'https://importcsv-dpkc2km3oa-uc.a.run.app',
   selectExercises: 'https://selectexercises-dpkc2km3oa-uc.a.run.app',
   tts: 'https://tts-dpkc2km3oa-uc.a.run.app',
-  vision: 'https://vision-dpkc2km3oa-uc.a.run.app',
+  vision: '/api/vision',  // Routed via Firebase Hosting to avoid CORS
   chatSimple: 'https://chatsimple-dpkc2km3oa-uc.a.run.app',
 };
 
