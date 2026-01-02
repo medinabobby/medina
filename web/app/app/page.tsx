@@ -4,7 +4,9 @@ import { useState, useCallback, useEffect } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { useAuth } from '@/components/AuthProvider';
 import { sendMessage, StreamEvent, WorkoutCardData, PlanCardData, ScheduleCardData } from '@/lib/chat';
+import { analyzeImage } from '@/lib/api';
 import type { ChatMessage } from '@/lib/types';
+import type { AttachedFile } from '@/components/chat/ChatInput';
 
 // v226: Server-side suggestion chips
 interface SuggestionChip {
@@ -136,13 +138,61 @@ function ChatArea() {
     }
   }, []);
 
-  const handleSend = async (userMessage: string) => {
+  // v254: Process image attachments with vision API
+  const processImageAttachments = async (
+    attachments: AttachedFile[],
+    token: string
+  ): Promise<string[]> => {
+    const results: string[] = [];
+
+    for (const attachment of attachments) {
+      if (attachment.type === 'image') {
+        try {
+          // Extract base64 data (remove data:image/...;base64, prefix)
+          const base64 = attachment.preview.split(',')[1];
+
+          console.log('[Chat] v254: Processing image with vision API:', attachment.file.name);
+
+          const visionResult = await analyzeImage(
+            token,
+            base64,
+            `Extract all workout data from this image. Include:
+- Exercise names (be specific)
+- Sets, reps, and weights if visible
+- Any dates or timestamps
+- Any notes or instructions
+
+Return the data in a structured format.`,
+            { jsonMode: true }
+          );
+
+          results.push(visionResult);
+          console.log('[Chat] v254: Vision result received');
+        } catch (err) {
+          console.error('[Chat] v254: Vision API error:', err);
+          results.push(`[Error processing image: ${attachment.file.name}]`);
+        }
+      }
+    }
+
+    return results;
+  };
+
+  const handleSend = async (userMessage: string, attachments?: AttachedFile[]) => {
     if (isLoading) return;
 
     setError(null);
 
-    // Add user message immediately
-    const newMessages: ChatMessage[] = [...messages, { role: 'user', content: userMessage }];
+    // v254: Build message content with attachment context
+    let messageContent = userMessage;
+    let visionContext = '';
+
+    // Add user message immediately (show what user typed + attachment indicator)
+    const displayMessage = attachments?.length
+      ? `${userMessage}${userMessage ? '\n\n' : ''}[${attachments.length} file${attachments.length > 1 ? 's' : ''} attached]`
+      : userMessage;
+
+    const newMessages: ChatMessage[] = [...messages, { role: 'user', content: displayMessage }];
     setMessages(newMessages);
     setIsLoading(true);
     setStreamingText('');
@@ -153,10 +203,34 @@ function ChatArea() {
         throw new Error('Not authenticated');
       }
 
+      // v254: Process image attachments with vision API
+      if (attachments?.length) {
+        const imageAttachments = attachments.filter(a => a.type === 'image');
+        const csvAttachments = attachments.filter(a => a.type === 'csv');
+
+        if (imageAttachments.length > 0) {
+          console.log('[Chat] v254: Processing', imageAttachments.length, 'image(s)');
+          const visionResults = await processImageAttachments(imageAttachments, token);
+
+          if (visionResults.length > 0) {
+            visionContext = `\n\n[Extracted from attached image${visionResults.length > 1 ? 's' : ''}:\n${visionResults.join('\n---\n')}\n]`;
+          }
+        }
+
+        if (csvAttachments.length > 0) {
+          // For CSV, we could read the file content, but for now just indicate it's attached
+          // Full CSV import should use the dedicated import flow
+          visionContext += `\n\n[CSV file attached: ${csvAttachments.map(a => a.file.name).join(', ')}]`;
+        }
+      }
+
+      // Combine user message with vision context
+      messageContent = userMessage + visionContext;
+
       // Send only the new user message (backend has conversation history via responseId)
       const messagesToSend: ChatMessage[] = responseId
-        ? [{ role: 'user', content: userMessage }]
-        : newMessages;
+        ? [{ role: 'user', content: messageContent }]
+        : [...messages, { role: 'user', content: messageContent }];
 
       let fullText = '';
       let newResponseId: string | undefined;

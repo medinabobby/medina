@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, KeyboardEvent } from 'react';
+import { useState, useRef, useEffect, KeyboardEvent, DragEvent } from 'react';
 import { colors } from '@/lib/colors';
 
 // v226: Suggestion chip with label (display) and command (sent to AI)
@@ -9,17 +9,40 @@ interface SuggestionChip {
   command: string;
 }
 
+// v254: Attached file for vision/import
+export interface AttachedFile {
+  file: File;
+  preview: string;  // Data URL for image preview
+  type: 'image' | 'csv';
+}
+
 interface ChatInputProps {
-  onSend: (message: string) => void;
+  onSend: (message: string, attachments?: AttachedFile[]) => void;
   isLoading: boolean;
   suggestions?: SuggestionChip[];
+}
+
+// Helper to read file as data URL
+function readAsDataURL(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 export default function ChatInput({ onSend, isLoading, suggestions = [] }: ChatInputProps) {
   const [input, setInput] = useState('');
   const [showPlusMenu, setShowPlusMenu] = useState(false);
+  const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const plusMenuRef = useRef<HTMLDivElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
 
   // Close plus menu when clicking outside
   useEffect(() => {
@@ -43,11 +66,82 @@ export default function ChatInput({ onSend, isLoading, suggestions = [] }: ChatI
     }
   }, [input]);
 
+  // v254: Process selected files
+  const processFiles = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+
+    for (const file of fileArray) {
+      // Check file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        console.warn('File too large:', file.name);
+        continue;
+      }
+
+      if (file.type.startsWith('image/')) {
+        const preview = await readAsDataURL(file);
+        setAttachedFiles(prev => [...prev, { file, preview, type: 'image' }]);
+      } else if (file.name.endsWith('.csv')) {
+        setAttachedFiles(prev => [...prev, { file, preview: '', type: 'csv' }]);
+      }
+    }
+  };
+
+  // v254: Handle file selection from input
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.length) {
+      await processFiles(e.target.files);
+    }
+    // Reset input so same file can be selected again
+    e.target.value = '';
+  };
+
+  // v254: Remove attachment
+  const removeAttachment = (index: number) => {
+    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // v254: Drag and drop handlers
+  const handleDragEnter = (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set dragging to false if we're leaving the drop zone entirely
+    if (!dropZoneRef.current?.contains(e.relatedTarget as Node)) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDragOver = (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = async (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (e.dataTransfer.files?.length) {
+      await processFiles(e.dataTransfer.files);
+    }
+  };
+
   const handleSubmit = () => {
     const trimmed = input.trim();
-    if (!trimmed || isLoading) return;
-    onSend(trimmed);
+    const hasAttachments = attachedFiles.length > 0;
+
+    // Allow send if there's text OR attachments
+    if ((!trimmed && !hasAttachments) || isLoading) return;
+
+    onSend(trimmed, hasAttachments ? attachedFiles : undefined);
     setInput('');
+    setAttachedFiles([]);
+
     // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -66,10 +160,49 @@ export default function ChatInput({ onSend, isLoading, suggestions = [] }: ChatI
     onSend(chip.command);
   };
 
+  const canSend = (input.trim() || attachedFiles.length > 0) && !isLoading;
+
   return (
-    <div className="border-t border-gray-200 bg-white">
+    <div
+      ref={dropZoneRef}
+      className="border-t border-gray-200 bg-white relative"
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* v254: Drag overlay */}
+      {isDragging && (
+        <div className="absolute inset-0 bg-blue-50/90 border-2 border-dashed border-blue-400 rounded-lg flex items-center justify-center z-50 pointer-events-none">
+          <div className="text-center">
+            <svg className="w-12 h-12 mx-auto text-blue-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <p className="text-blue-600 font-medium">Drop files to import</p>
+            <p className="text-blue-500 text-sm">Images or CSV files</p>
+          </div>
+        </div>
+      )}
+
+      {/* Hidden file inputs */}
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".csv,.xlsx,.xls"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+
       {/* Suggestion chips */}
-      {!isLoading && suggestions.length > 0 && (
+      {!isLoading && suggestions.length > 0 && attachedFiles.length === 0 && (
         <div className="px-4 pt-3 pb-2">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
             {suggestions.map((chip, index) => (
@@ -81,6 +214,51 @@ export default function ChatInput({ onSend, isLoading, suggestions = [] }: ChatI
                 {chip.label}
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* v254: Attachment preview */}
+      {attachedFiles.length > 0 && (
+        <div className="px-4 pt-3">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex gap-2 flex-wrap">
+              {attachedFiles.map((attached, index) => (
+                <div key={index} className="relative group">
+                  {attached.type === 'image' ? (
+                    <div className="relative">
+                      <img
+                        src={attached.preview}
+                        alt={attached.file.name}
+                        className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity" />
+                    </div>
+                  ) : (
+                    <div className="w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex flex-col items-center justify-center p-2">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span className="text-xs text-gray-500 truncate w-full text-center mt-1">
+                        {attached.file.name.length > 10
+                          ? attached.file.name.slice(0, 7) + '...'
+                          : attached.file.name}
+                      </span>
+                    </div>
+                  )}
+                  {/* Remove button */}
+                  <button
+                    onClick={() => removeAttachment(index)}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-md transition-colors opacity-0 group-hover:opacity-100"
+                    title="Remove"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -102,33 +280,32 @@ export default function ChatInput({ onSend, isLoading, suggestions = [] }: ChatI
                 </svg>
               </button>
 
-              {/* Plus menu popover */}
+              {/* v254: Redesigned plus menu - Photos & Files */}
               {showPlusMenu && (
                 <div className="absolute bottom-full left-0 mb-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-50">
                   <button
                     onClick={() => {
                       setShowPlusMenu(false);
-                      // TODO: Implement file import
+                      imageInputRef.current?.click();
                     }}
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    Import file
+                    Photos
                   </button>
                   <button
                     onClick={() => {
                       setShowPlusMenu(false);
-                      // TODO: Implement camera/photo
+                      fileInputRef.current?.click();
                     }}
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Take photo
+                    Files
                   </button>
                 </div>
               )}
@@ -140,7 +317,7 @@ export default function ChatInput({ onSend, isLoading, suggestions = [] }: ChatI
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Message Medina..."
+              placeholder={attachedFiles.length > 0 ? "Add a message about these files..." : "Message Medina..."}
               rows={1}
               disabled={isLoading}
               className="flex-1 bg-transparent border-0 resize-none focus:outline-none text-gray-800 placeholder-gray-400 py-2 max-h-[200px]"
@@ -160,12 +337,12 @@ export default function ChatInput({ onSend, isLoading, suggestions = [] }: ChatI
             {/* Send button */}
             <button
               onClick={handleSubmit}
-              disabled={!input.trim() || isLoading}
+              disabled={!canSend}
               className="flex-shrink-0 p-2 rounded-full transition-colors"
               style={{
-                backgroundColor: input.trim() && !isLoading ? colors.accentBlue : '#d1d5db',
-                color: input.trim() && !isLoading ? 'white' : '#6b7280',
-                cursor: input.trim() && !isLoading ? 'pointer' : 'not-allowed',
+                backgroundColor: canSend ? colors.accentBlue : '#d1d5db',
+                color: canSend ? 'white' : '#6b7280',
+                cursor: canSend ? 'pointer' : 'not-allowed',
               }}
               title="Send message"
             >
@@ -184,7 +361,10 @@ export default function ChatInput({ onSend, isLoading, suggestions = [] }: ChatI
 
           {/* Helper text */}
           <p className="text-xs text-gray-400 text-center mt-2">
-            Press Enter to send, Shift+Enter for new line
+            {attachedFiles.length > 0
+              ? `${attachedFiles.length} file${attachedFiles.length > 1 ? 's' : ''} attached. Press Enter to send.`
+              : 'Press Enter to send, Shift+Enter for new line'
+            }
           </p>
         </div>
       </div>
