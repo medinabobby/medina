@@ -183,6 +183,7 @@ export interface WorkoutBuildResult {
   sets: ExerciseSetDocument[];
   actualDuration: number; // minutes
   exerciseCount: number;
+  nameMatches?: NameMatch[]; // v258: Track name-to-ID matches for vision import
 }
 
 // ============================================================================
@@ -202,6 +203,16 @@ export interface ExerciseSelectionRequest {
 }
 
 /**
+ * v258: Track when exercise names are matched to different IDs
+ * Used to inform user when vision import standardizes exercise names
+ */
+export interface NameMatch {
+  requestedName: string;  // What was requested (e.g., "shoulder press")
+  matchedId: string;      // What we matched to (e.g., "overhead_press")
+  matchedName: string;    // Display name (e.g., "Overhead Press")
+}
+
+/**
  * Result of exercise selection
  */
 export interface ExerciseSelectionResult {
@@ -209,6 +220,7 @@ export interface ExerciseSelectionResult {
   wasSupplemented: boolean; // True if library exercises were added
   aiExerciseCount: number;
   supplementedCount: number;
+  nameMatches?: NameMatch[]; // v258: Track name-to-ID matches for vision import
 }
 
 // ============================================================================

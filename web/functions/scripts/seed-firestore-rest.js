@@ -11,7 +11,8 @@ const path = require('path');
 const https = require('https');
 
 const PROJECT_ID = 'medinaintelligence';
-const EXERCISES_PATH = path.join(__dirname, '../../../medina/Resources/Data/exercises.json');
+// v257: Using comprehensive exercise database in functions/data
+const EXERCISES_PATH = path.join(__dirname, '../data/exercises.json');
 
 // Read token from firebase-tools config
 const configPath = path.join(process.env.HOME, '.config/configstore/firebase-tools.json');

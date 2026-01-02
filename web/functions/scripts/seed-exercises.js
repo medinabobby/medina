@@ -14,8 +14,8 @@ const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 
-// Path to exercises.json in the iOS project
-const EXERCISES_PATH = path.join(__dirname, '../../../medina/Resources/Data/exercises.json');
+// Path to exercises.json - v257: Using comprehensive exercise database in functions/data
+const EXERCISES_PATH = path.join(__dirname, '../data/exercises.json');
 
 // Initialize Firebase Admin
 // Uses Application Default Credentials when running locally with 'firebase login'

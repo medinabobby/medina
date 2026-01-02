@@ -141,6 +141,8 @@ export async function buildStrengthWorkout(
     sets: instanceResult.sets,
     actualDuration: protocolResult.estimatedDuration,
     exerciseCount: selectionResult.exercises.length,
+    // v258: Pass through name matches for substitution reporting
+    nameMatches: selectionResult.nameMatches,
   };
 }
 

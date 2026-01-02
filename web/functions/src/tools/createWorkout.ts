@@ -188,9 +188,12 @@ export async function createWorkoutHandler(
       programId,
     });
 
-    const {workout, exerciseCount, actualDuration} = result;
+    const {workout, exerciseCount, actualDuration, nameMatches} = result;
 
     console.log(`[create_workout] Created workout ${workout.id} with ${exerciseCount} exercises`);
+    if (nameMatches && nameMatches.length > 0) {
+      console.log(`[create_workout] Name matches: ${nameMatches.map((m) => `${m.requestedName} → ${m.matchedId}`).join(", ")}`);
+    }
 
     // Format success response
     const dateString = formatDate(scheduledDate);
@@ -238,13 +241,22 @@ ${instancesWithTargets.length} of ${exerciseCount} exercises have 1RM data - tar
       output += `\n\nNOTE: No 1RM data found for these exercises. You can add your maxes to get personalized target weights.`;
     }
 
+    // v258: Include name matches for substitution reporting
+    if (nameMatches && nameMatches.length > 0) {
+      output += `\n\nNAME_STANDARDIZATIONS:`;
+      for (const match of nameMatches) {
+        output += `\n- "${match.requestedName}" → ${match.matchedName}`;
+      }
+    }
+
     output += `
 
 RESPONSE_GUIDANCE:
 1. Confirm the workout was created with the exercise selection
 2. Mention the date and exercise count
 3. Remind user they can modify if they want different exercises
-4. Tell them they can tap the workout card below to review`;
+4. Tell them they can tap the workout card below to review
+5. If NAME_STANDARDIZATIONS section exists, briefly mention you standardized exercise names (e.g., "I matched 'Shoulder Press' to Overhead Press")`;
 
     // Build suggestion chips
     const chips: SuggestionChip[] = [

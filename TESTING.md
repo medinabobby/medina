@@ -76,6 +76,98 @@ A test that expects `update_profile` for "I want to train 4 days" will fail - bu
 
 ---
 
+## AI Performance Evaluation (v251)
+
+### Overview
+
+The AI evaluation framework benchmarks model performance across **40 tests** in 4 categories.
+
+**Location:** `web/functions/src/evaluation/`
+
+### Running Evaluations
+
+```bash
+cd web/functions
+
+# Show test suite info
+npm run eval:info
+
+# Run full evaluation against production
+EVAL_AUTH_TOKEN="<firebase-token>" npm run eval:run -- --model gpt-4o-mini --endpoint https://us-central1-medinaintelligence.cloudfunctions.net/chat
+
+# Compare two result files
+npm run eval:compare -- results-a.json results-b.json
+```
+
+### Latency Categories
+
+**Key insight:** Different query types have fundamentally different latency profiles. Measure and optimize within each category, not overall averages.
+
+| Category | Tests | Expected Latency | Outlier Threshold |
+|----------|-------|------------------|-------------------|
+| **Basic Queries** | 25 | 1-2.5s | >3s |
+| **Tool Calls** | 15 | 3-8s | >10s |
+| **Vision** (future) | - | 5-15s | >20s |
+
+### Basic Query Tests (No Tools)
+
+Tests that should be fast - AI generates text response only:
+
+| Test ID | Prompt Type | Notes |
+|---------|-------------|-------|
+| SP01, SP05 | Greetings/Thanks | Simplest, fastest |
+| SP03 | Simple question | No Firestore lookup |
+| TC05, TC07, TC10 | Confirmation prompts | AI asks before acting |
+| TC09, PL01-02, ED01, ED03, SY01 | Complex requests | May need clarification |
+| FA01-FA10 | Fitness knowledge | No tools needed |
+| TN01-TN05 | Tone/style | Coaching responses |
+
+### Tool Call Tests (Firestore Operations)
+
+Tests where AI executes tools - includes Firestore read/write latency:
+
+| Test ID | Tool | Notes |
+|---------|------|-------|
+| TC01, SP04 | `create_workout` | Slowest - many Firestore writes |
+| TC02, SP02, SY02 | `show_schedule` | Firestore reads |
+| TC03 | `update_exercise_target` | Single write |
+| TC04 | `skip_workout` | Single write |
+| TC06 | `add_to_library` | Single write |
+| TC08 | `get_substitution_options` | Firestore reads |
+| TC11-12 | `update_profile` | Single write |
+| ED02, ED04 | Various | Edge cases |
+
+### Success Metrics
+
+| Metric | Target | Current |
+|--------|--------|---------|
+| Tool Calling Accuracy | ≥95% | 90% |
+| Basic Query Avg Latency | <2s | TBD |
+| Tool Call Avg Latency | <5s | TBD |
+| Speed Test Pass Rate | ≥80% | 60% |
+
+### Model Comparison Strategy
+
+1. **Baseline**: Run all 40 tests against current model (gpt-4o-mini)
+2. **Compare**: Run same tests against alternative (gpt-4o)
+3. **Analyze**: Compare by category - tool accuracy, latency, cost
+4. **Guard**: No regression in tool calling accuracy (<90% = fail)
+
+### Optimization Priority
+
+Focus on **outliers within each category**:
+
+1. **Basic query outliers (>3s)**: TC09 (12s - long explanation), review prompt for conciseness
+2. **Tool call outliers (>10s)**: TC01 (7.7s - create_workout), optimize Firestore operations
+
+### Results Storage
+
+Evaluation results saved as JSON in `web/functions/`:
+- `results-<model>-<timestamp>.json` - Raw results
+- `EVAL_BASELINE.md` - Human-readable analysis
+
+---
+
 ## Current State (January 2026)
 
 ### iOS Tests

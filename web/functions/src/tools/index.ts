@@ -118,6 +118,7 @@ const HANDLED_TOOLS = new Set([
   "start_workout",
   "end_workout",
   "create_workout",
+  "create_custom_workout", // v255: Alias to create_workout for vision import
   "create_plan",
   // Phase 2: Library handlers
   "add_to_library",
@@ -164,6 +165,7 @@ async function loadHandler(toolName: string): Promise<ToolHandler | null> {
     "start_workout": "./startWorkout",
     "end_workout": "./endWorkout",
     "create_workout": "./createWorkout",
+    "create_custom_workout": "./createWorkout", // v255: Alias to create_workout
     "create_plan": "./createPlan",
     "add_to_library": "./addToLibrary",
     "remove_from_library": "./removeFromLibrary",
@@ -178,6 +180,11 @@ async function loadHandler(toolName: string): Promise<ToolHandler | null> {
     "analyze_training_data": "./analyzeTrainingData",
   };
 
+  // v255: Some tools are aliases that use a different handler function name
+  const handlerNameOverrides: Record<string, string> = {
+    "create_custom_workout": "createWorkoutHandler",
+  };
+
   const modulePath = moduleMap[toolName];
   if (!modulePath) {
     return null;
@@ -187,7 +194,9 @@ async function loadHandler(toolName: string): Promise<ToolHandler | null> {
     // Dynamic import - deferred until first use
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const module = require(modulePath);
-    const handlerName = `${toolName.replace(/_([a-z])/g, (_, c) => c.toUpperCase())}Handler`;
+    // v255: Use override if available, otherwise compute from tool name
+    const handlerName = handlerNameOverrides[toolName] ||
+      `${toolName.replace(/_([a-z])/g, (_, c) => c.toUpperCase())}Handler`;
     const handler = module[handlerName];
 
     if (handler) {
