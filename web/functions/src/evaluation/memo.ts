@@ -1,6 +1,8 @@
 /**
  * Executive Memo Generator
  *
+ * v253: Adds onboarding friction, import tests, and tier analysis sections.
+ * v252: Adds multi-dimensional scoring (Tool Accuracy + Intent Detection).
  * v246: Generates markdown executive summary with LLM evaluation feedback.
  */
 
@@ -82,6 +84,100 @@ function getRecommendation(
 }
 
 /**
+ * v253: Generate new test category sections (onboarding, import, tier)
+ */
+function generateV253Sections(
+  baseline: EvalSummary,
+  comparison: EvalSummary,
+  comp: ReturnType<typeof compareEvaluations>
+): string {
+  let sections = '';
+
+  // Onboarding Friction Tests
+  const baseOnboarding = baseline.results.filter(r => r.category === 'onboarding');
+  const compOnboarding = comparison.results.filter(r => r.category === 'onboarding');
+
+  if (baseOnboarding.length > 0 || compOnboarding.length > 0) {
+    const baseAvgTime = baseOnboarding.length > 0
+      ? baseOnboarding.reduce((sum, r) => sum + r.totalResponseTime, 0) / baseOnboarding.length
+      : 0;
+    const compAvgTime = compOnboarding.length > 0
+      ? compOnboarding.reduce((sum, r) => sum + r.totalResponseTime, 0) / compOnboarding.length
+      : 0;
+    const basePassRate = baseOnboarding.length > 0
+      ? baseOnboarding.filter(r => r.toolAccuracy === 'pass').length / baseOnboarding.length
+      : 0;
+    const compPassRate = compOnboarding.length > 0
+      ? compOnboarding.filter(r => r.toolAccuracy === 'pass').length / compOnboarding.length
+      : 0;
+
+    sections += `
+### Onboarding Friction (v253)
+
+Zero-friction first value - how quickly can new users get started?
+
+| Metric | ${baseline.model} | ${comparison.model} |
+|--------|-------------------|---------------------|
+| Tests | ${baseOnboarding.length} | ${compOnboarding.length} |
+| Success Rate | ${(basePassRate * 100).toFixed(0)}% | ${(compPassRate * 100).toFixed(0)}% |
+| Avg Response Time | ${baseAvgTime.toFixed(0)}ms | ${compAvgTime.toFixed(0)}ms |
+
+`;
+  }
+
+  // Import Tests (vision + URL)
+  const baseImport = baseline.results.filter(r => r.category === 'import');
+  const compImport = comparison.results.filter(r => r.category === 'import');
+
+  if (baseImport.length > 0 || compImport.length > 0) {
+    const baseVision = baseImport.filter(r => r.testType === 'vision');
+    const compVision = compImport.filter(r => r.testType === 'vision');
+    const baseUrl = baseImport.filter(r => r.testType === 'url_import');
+    const compUrl = compImport.filter(r => r.testType === 'url_import');
+
+    const baseVisionScore = baseVision.length > 0
+      ? baseVision.reduce((sum, r) => sum + (r.extractionScore || 0), 0) / baseVision.length
+      : 0;
+    const compVisionScore = compVision.length > 0
+      ? compVision.reduce((sum, r) => sum + (r.extractionScore || 0), 0) / compVision.length
+      : 0;
+
+    sections += `
+### Import Tests (v253)
+
+Photo/screenshot and URL import workflows.
+
+| Type | ${baseline.model} Tests | ${baseline.model} Score | ${comparison.model} Tests | ${comparison.model} Score |
+|------|-------------------------|-------------------------|---------------------------|---------------------------|
+| Vision/Photo | ${baseVision.length} | ${(baseVisionScore * 100).toFixed(0)}% | ${compVision.length} | ${(compVisionScore * 100).toFixed(0)}% |
+| URL Import | ${baseUrl.length} | - | ${compUrl.length} | - |
+
+`;
+  }
+
+  // Tier Tests
+  const baseTier = baseline.results.filter(r => r.category === 'tier');
+  const compTier = comparison.results.filter(r => r.category === 'tier');
+
+  if (baseTier.length > 0 || compTier.length > 0) {
+    sections += `
+### Tier Analysis (v253)
+
+Model complexity routing recommendations.
+
+| Tier | ${baseline.model} Tests | ${comparison.model} Tests | Notes |
+|------|-------------------------|---------------------------|-------|
+| Fast (simple queries) | ${baseTier.filter(r => r.totalResponseTime < 2000).length} | ${compTier.filter(r => r.totalResponseTime < 2000).length} | <2s response |
+| Standard (tool calls) | ${baseTier.filter(r => r.totalResponseTime >= 2000 && r.totalResponseTime < 5000).length} | ${compTier.filter(r => r.totalResponseTime >= 2000 && r.totalResponseTime < 5000).length} | 2-5s response |
+| Smart (complex analysis) | ${baseTier.filter(r => r.totalResponseTime >= 5000).length} | ${compTier.filter(r => r.totalResponseTime >= 5000).length} | >5s response |
+
+`;
+  }
+
+  return sections;
+}
+
+/**
  * Generate executive memo markdown
  */
 export function generateExecutiveMemo(
@@ -117,7 +213,18 @@ export function generateExecutiveMemo(
 
 ## Key Findings
 
-### Basic Metrics
+### Multi-Dimensional Scoring (v252)
+
+| Metric | ${baseline.model} | ${comparison.model} | Delta |
+|--------|-------------------|---------------------|-------|
+| **Tool Accuracy Rate** | ${((baseline.toolAccuracyRate || 0) * 100).toFixed(0)}% | ${((comparison.toolAccuracyRate || 0) * 100).toFixed(0)}% | ${formatDelta(comp.deltas.toolAccuracyRate || 0)} |
+| **Intent Detection Rate** | ${((baseline.intentDetectionRate || 0) * 100).toFixed(0)}% | ${((comparison.intentDetectionRate || 0) * 100).toFixed(0)}% | ${formatDelta(comp.deltas.intentDetectionRate || 0)} |
+| **Combined Score** | ${((baseline.combinedScore || 0) * 100).toFixed(0)}% | ${((comparison.combinedScore || 0) * 100).toFixed(0)}% | ${formatDelta(comp.deltas.combinedScore || 0)} |
+
+> **Tool Accuracy Rate**: % of tests where the right tool eventually executed (after multi-turn if needed)
+> **Intent Detection Rate**: % of tests where AI correctly read the user's intent clarity (when to ask vs execute)
+
+### Legacy Quality Metrics
 
 | Metric | ${baseline.model} | ${comparison.model} | Delta |
 |--------|-------------------|---------------------|-------|
@@ -128,6 +235,15 @@ export function generateExecutiveMemo(
 | Avg Response Time | ${baseline.avgTotalResponseTime.toFixed(0)}ms | ${comparison.avgTotalResponseTime.toFixed(0)}ms | ${formatDelta(comp.deltas.avgResponseTime, false)}ms |
 | Avg Cost per Request | ${formatCost(baseline.avgCostPerRequest)} | ${formatCost(comparison.avgCostPerRequest)} | ${formatDelta(comp.deltas.avgCostPerRequest, false)} |
 
+### Latency by Category (v251)
+
+| Category | ${baseline.model} | ${comparison.model} | Improvement |
+|----------|-------------------|---------------------|-------------|
+| Basic Queries (${baseline.latencyByCategory?.basic?.count || 0} tests) | ${baseline.latencyByCategory?.basic?.avgResponseTime || 0}ms avg | ${comparison.latencyByCategory?.basic?.avgResponseTime || 0}ms avg | ${baseline.latencyByCategory?.basic && comparison.latencyByCategory?.basic ? `${((1 - comparison.latencyByCategory.basic.avgResponseTime / baseline.latencyByCategory.basic.avgResponseTime) * 100).toFixed(0)}% faster` : 'N/A'} |
+| Tool Calls (${baseline.latencyByCategory?.tool_call?.count || 0} tests) | ${baseline.latencyByCategory?.tool_call?.avgResponseTime || 0}ms avg | ${comparison.latencyByCategory?.tool_call?.avgResponseTime || 0}ms avg | ${baseline.latencyByCategory?.tool_call && comparison.latencyByCategory?.tool_call ? `${((1 - comparison.latencyByCategory.tool_call.avgResponseTime / baseline.latencyByCategory.tool_call.avgResponseTime) * 100).toFixed(0)}% faster` : 'N/A'} |
+| Basic Outliers (>${baseline.latencyByCategory?.basic?.outlierThreshold || 3000}ms) | ${baseline.latencyByCategory?.basic?.outlierCount || 0} | ${comparison.latencyByCategory?.basic?.outlierCount || 0} | ${(baseline.latencyByCategory?.basic?.outlierCount || 0) - (comparison.latencyByCategory?.basic?.outlierCount || 0)} fewer |
+| Tool Call Outliers (>${baseline.latencyByCategory?.tool_call?.outlierThreshold || 10000}ms) | ${baseline.latencyByCategory?.tool_call?.outlierCount || 0} | ${comparison.latencyByCategory?.tool_call?.outlierCount || 0} | ${(baseline.latencyByCategory?.tool_call?.outlierCount || 0) - (comparison.latencyByCategory?.tool_call?.outlierCount || 0)} fewer |
+
 ### LLM-as-Judge Scores (1-5 scale)
 
 | Dimension | ${baseline.model} | ${comparison.model} | Delta |
@@ -136,6 +252,8 @@ export function generateExecutiveMemo(
 | Fitness Accuracy | ${baseline.llmAccuracyScore.toFixed(1)} | ${comparison.llmAccuracyScore.toFixed(1)} | ${formatDelta(comp.deltas.llmAccuracyScore, false)} |
 | Tone & Style | ${baseline.llmToneScore.toFixed(1)} | ${comparison.llmToneScore.toFixed(1)} | ${formatDelta(comp.deltas.llmToneScore, false)} |
 | **Overall** | **${baseline.llmOverallScore.toFixed(1)}** | **${comparison.llmOverallScore.toFixed(1)}** | **${formatDelta(comp.deltas.llmOverallScore, false)}** |
+
+${generateV253Sections(baseline, comparison, comp)}
 
 ---
 
@@ -218,7 +336,7 @@ ${comp.sideBySide
 
 ---
 
-*Generated by Medina AI Evaluation Suite v246*
+*Generated by Medina AI Evaluation Suite v253*
 `;
 
   return memo;
@@ -306,7 +424,7 @@ ${summary.results
   .join('\n') || 'None - all tests passed!'}
 
 ---
-*Generated by Medina AI Evaluation Suite v246*
+*Generated by Medina AI Evaluation Suite v253*
 `;
 }
 

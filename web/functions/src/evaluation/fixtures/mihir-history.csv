@@ -1,0 +1,155 @@
+Workout #,Date,Exercise,Sets & Reps,Weight
+1,"Aug 18, 2025",Squats,3x8-10,2x20 lb kettlebells
+,,Deadlifts,3x8-10,90 lb kettlebell
+,,Bent-Over Rows,3x8-10,80 lb barbell
+,,Bench Press,3x8-10,"35, 40, 50 lb dumbbells"
+,,Overhead Press,3x8-10,20 lb kettlebell
+2,"Aug 20, 2025",Goblet Squat,"3x8, 1x10",60 lb kettlebell
+,,Deadlift,"2x8, 1x10",115 lb barbell
+,,Bench Press,"2x10, 1x6","45, 50, 55 lb dumbbells"
+,,Overhead Press,"1x10, 1x4",25 lb dumbbells
+,,Pendlay Row,"1x12, 1x10, 1x8","70, 90, 110 lb barbell"
+3,"Aug 23, 2025",Goblet Squat,"2x8, 1x10",60 lb kettlebell
+,,Deadlift,3x10,115 lb barbell
+,,Bench Press,"2x10, 1x8","45, 50, 55 lb dumbbells"
+,,Overhead Press,"1x10, 1x8, 1x10","20, 25, 25 lb dumbbells"
+,,Pendlay Row,"1x12, 1x10, 1x8","70, 90, 110 lb barbell"
+4,"Aug 25, 2025",Goblet Squat,"1x8, 2x10",60 lb kettlebell
+,,Deadlift,"1x10, 2x12",100 lb barbell
+,,Bench Press,"1x12, 1x10, 1x5","45, 50, 60 lb dumbbells"
+,,Overhead Press,"1x10, 1x6, 1x10","20, 30, 25 lb dumbbells"
+,,Pendlay Row,"1x12, 2x10","70, 90 lb barbell"
+,,Face Pulls,3x10,35 lb cable
+5,"Aug 28, 2025",Squats,"1x10, 1x10, 1x10","65, 85, 95 lb barbell"
+,,Deadlifts,"2x12, 1x10","115, 135 lb barbell"
+,,Bench Press,"1x11, 1x10, 1x8","45, 55, 60 lb dumbbells"
+,,Overhead Press,3x10,25 lb dumbbells
+,,Seated Row,"1x12, 1x12, 1x10","85, 100, 120 lb cable"
+,,Face Pulls,"1x10, 2x12",45 lb cable
+6,"Sep 2, 2025",Squats,"1x8, 2x10","95, 115 lb barbell"
+,,Deadlifts,"2x12, 1x13","115, 135 lb barbell"
+,,Bench Press,"1x12, 1x10, 1x8","50, 55, 60 lb dumbbells"
+,,Overhead Press,"1x12, 2x12","25, 30 lb dumbbells"
+,,Seated Row,"1x12, 1x12, 1x8","100, 110, 120 lb cable"
+,,Face Pulls,"1x12, 2x12","47.5, 52.5 lb cable"
+7,"Sep 4, 2025",Deadlifts,"2x12, 1x13, 1x14","115, 135 lb barbell"
+,,Bench Press,"1x12, 1x6, 1x8, 1x6","30, 60, 65 lb dumbbells"
+,,Squats,"2x8, 1x12",95 lb barbell
+,,Overhead Press,3x8,35 lb dumbbells
+,,Seated Row,"2x12, 1x10","110, 120 lb cable"
+,,Face Pulls,1x12,50 lb cable
+8,"Sep 8, 2025",Deadlifts,3x12,135 lb barbell
+,,Bench Press,"1x12, 1x7, 1x6, 1x10","35, 65, 65, 55 lb dumbbells"
+,,Squats,"2x10, 1x10","95, 115 lb barbell"
+,,Overhead Press,3x12,45 lb dumbbells
+,,Seated Row,3x12,120 lb cable
+,,Face Pulls,3x12,50 lb cable
+,,Medicine Ball Toss,3x12,12 lb
+9,"Sep 11, 2025",Deadlifts,"1x8, 1x10, 1x12",145 lb barbell
+,,Bench Press,"1x12, 1x8, 1x6, 1x10","35, 65, 65, 55 lb dumbbells"
+,,Squats,"1x8, 2x10",115 lb barbell
+,,Overhead Press,"1x12, 1x12, 1x10","45, 55, 55 lb dumbbells"
+,,Seated Row,"1x12, 1x12, 1x10",120 lb cable
+,,Face Pulls,"1x10, 2x12",52.5 lb cable
+,,Medicine Ball Toss,3x12,12 lb
+10,"Sep 13, 2025",Bench Press,"1x12, 1x10, 1x8, 1x9","40, 60, 60, 55 lb dumbbells"
+,,Deadlifts,"1x10, 2x12","135, 155 lb barbell"
+,,Seated Row,"1x12, 2x12","120, 125 lb cable"
+,,Squats,3x10,115 lb barbell
+,,Face Pulls,3x12,50 lb cable
+,,Overhead Press,"1x12, 1x12, 1x10","45, 55, 65 lb dumbbells"
+,,Medicine Ball Toss,3x12,12 lb
+11,"Sep 20, 2025",Bench Press,"1x12, 1x12, 1x10, 1x10","40, 50, 60, 55 lb dumbbells"
+,,Deadlifts,"1x12, 1x10, 1x14","135, 155, 155 lb barbell"
+,,Seated Row,3x12,120 lb cable
+,,Squats,"1x10, 2x12",95 lb barbell
+,,Face Pulls,3x12,50 lb cable
+,,Overhead Press,3x10,65 lb dumbbells
+,,Medicine Ball Toss,3x12,12 lb
+12,"Sep 23, 2025",Bench Press,"1x13, 1x12, 1x10, 1x10","40, 55, 60, 65 lb dumbbells"
+,,Deadlifts,"1x10, 1x10, 1x10","155, 165, 175 lb barbell"
+,,Seated Row,"1x10, 1x10, 1x10","120, 130, 130 lb cable"
+,,Squats,3x10,115 lb barbell
+,,Overhead Press,"1x10, 2x8","65, 75, 75 lb dumbbells"
+,,Face Pulls,3x12,50 lb cable
+13,"Sep 25, 2025",Bench Press,"1x12, 1x12, 1x10, 1x9","45, 55, 60, 65 lb dumbbells"
+,,Deadlifts,"1x10, 1x10, 1x15","155, 175, 185 lb barbell"
+,,Seated Row,"1x10, 1x10, 1x8","140, 140, 150 lb cable"
+,,Squats,"1x8, 1x8, 1x15","135, 135, 135 lb barbell"
+,,Face Pulls,3x12,50 lb cable
+,,Overhead Press,"1x12, 1x12, 1x10","55, 65, 65 lb dumbbells"
+14,"Sep 29, 2025",Bench Press,"1x10, 1x10, 1x10, 1x6","50, 60, 65, 70 lb dumbbells"
+,,Deadlifts,"1x10, 2x10","135, 185, 185 lb barbell"
+,,Seated Row,"1x10, 2x10","140, 150, 150 lb cable"
+,,Squats,"2x8, 1x15",135 lb barbell
+,,Face Pulls,3x12,50 lb cable
+,,Overhead Press,"1x10, 1x8","65, 75 lb dumbbells"
+15,"Oct 2, 2025",Bench Press,"1x12, 1x12, 1x10, 1x6","50, 60, 65, 70 lb dumbbells"
+,,Deadlifts,"1x10, 1x8, 1x10","155, 205, 205 lb barbell"
+,,Seated Row,"1x8, 2x8","160, 160 lb cable"
+,,Squats,"2x10, 1x12",135 lb barbell
+,,Face Pulls,3x10,50 lb cable
+,,Overhead Press,"1x10, 2x8","65, 85 lb dumbbells"
+16,"Oct 6, 2025",Squat,"1x8, 3x6","115, 155, 175 lb barbell"
+,,Bench Press,"1x10, 3x8","50, 65, 65 lb dumbbells"
+,,Lat Pulldown,3x10,"90, 100 lb cable"
+,,Seated Leg Curl,"1x12, 2x10","25, 45 lb machine"
+,,Overhead Press,3x10,"25, 30 lb barbell"
+,,Face Pulls,3x10,50 lb cable
+17,"Oct 9, 2025",Deadlift,"1x8, 3x5","135, 185 lb barbell"
+,,Overhead Press,3x6,40 lb barbell
+,,Seated Row,3x8,160 lb cable
+,,Seated Leg Curl,"1x10, 2x10",45 lb machine
+,,Bench Press,"1x10, 1x10, 2x8","50, 60, 65 lb dumbbells"
+,,Triceps Pushdown,"1x10, 1x10, 1x10","90, 110, 90 lb cable"
+,,Cable Twist,"1x10, 2x10","17.5, 22.5 lb cable"
+18,"Oct 14, 2025",Squat,"1x8, 3x5","115, 165 lb barbell"
+,,Bench Press,"1x10, 3x8","50, 65 lb dumbbells"
+,,Lat Pulldown,"2x10, 1x8",110 lb cable
+,,Seated Leg Curl,"1x10, 2x10","45, 55 lb machine"
+,,Overhead Press,3x10,"25, 30 lb dumbbell"
+,,Face Pulls,"1x10, 2x10","60, 80, 100 lb cable"
+,,Preacher Curl,3x8,"25, 20 lb dumbbell"
+19,"Oct 17, 2025",Deadlift,"1x5, 1x5, 3x5","45, 95, 135, 205 lb barbell"
+,,Overhead Press,"1x8, 1x5, 1x8, 1x7, 1x6","20, 30, 40, 40, 40 lb dumbbell"
+,,Seated Row,"1x10, 2x8",150 lb cable
+,,Lunge,"1x12, 1x12, 1x12","0, 30, 15 lb dumbbell"
+,,Bench Press,"1x10, 1x8, 2x8, 1x9","30, 50, 65, 70 lb dumbbell"
+,,Face Pull,3x10,"52.5, 50 lb cable"
+,,Triceps Pushdown,"1x10, 2x10","90, 110 lb cable"
+,,Cable Twist,3x10,"17.5, 22.5 lb cable"
+20,"Oct 23, 2025",Deadlift,"1x10, 1x5, 1x4, 3x5","45, 95, 135, 165, 205 lb barbell"
+,,Overhead Press (Barbell),"1x10, 2x8, 2x7, 1x6","20, 30, 40 lb barbell"
+,,Seated Row,"3x8, 1x9",160 lb cable
+,,Lunge,3x10,20 lb dumbbell
+,,Bench Press,"1x6, 1x8, 2x8, 1x9","50, 65, 70 lb dumbbell"
+,,Cable Torso Rotation,3x10,30 lb cable
+,,Triceps Pushdown,3x10,110 lb cable
+21,"Oct 27, 2025",Squat,"1x6, 1x5, 1x3, 2x5, 1x4","45, 95, 135, 165, 175 lb barbell"
+,,Bench Press,"1x10, 3x8","50, 70 lb dumbbell"
+,,Lat Pulldown,"1x10, 2x8","110, 120 lb cable"
+,,Seated Leg Curl,"1x10, 2x10","45, 55 lb machine"
+,,Overhead Press,3x8,40 lb dumbbell
+,,Lunge,3x12,20 lb dumbbell
+,,Dumbbell Bicep Curl,3x10,25 lb dumbbell
+22,"Oct 30, 2025",Deadlift,"1x10, 1x5, 1x3, 3x5","45, 95, 135, 185, 215 lb barbell"
+,,Overhead Press,"1x10, 1x8, 1x8, 1x6, 1x5","20, 30, 40, 40, 40 lb dumbbell"
+,,Seated Row,"1x10, 2x8","150, 160 lb cable"
+,,Lunge,3x10,20 lb dumbbell
+,,Bench Press,"1x10, 3x10","50, 65 lb dumbbell"
+,,Cable Torso Rotation,3x10,30 lb cable
+,,Triceps Pushdown,3x10,110 lb cable
+23,"Nov 4, 2025",Squat,"1x8, 1x5, 1x3, 3x5","45, 95, 135, 155, 175 lb barbell"
+,,Bench Press,"1x8, 3x9","60, 70 lb dumbbell"
+,,Lat Pulldown,"1x10, 2x10","120, 130 lb cable"
+,,Seated Leg Curl,3x12,55 lb machine
+,,Overhead Press,3x10,40 lb dumbbell
+,,Lunge,3x12,25 lb dumbbell
+,,Dumbbell Bicep Curl,3x10,25 lb dumbbell
+24,"Nov 6, 2025",Deadlift,"1x10, 1x5, 1x3, 3x5","45, 95, 135, 185, 225 lb barbell"
+,,Overhead Press,"1x8, 2x8, 2x6, 1x5","20, 30, 40 lb dumbbell"
+,,Seated Row,"3x10, 1x8","160, 160, 170 lb cable"
+,,Lunge,3x12,25 lb dumbbell
+,,Bench Press,"1x10, 3x10",65 lb dumbbell
+,,Cable Torso Rotation,3x10,30 lb cable
+,,Triceps Pushdown,3x12,110 lb cable

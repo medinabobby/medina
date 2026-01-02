@@ -74,6 +74,10 @@ async function main() {
       for (const [category, count] of Object.entries(summary.byCategory)) {
         console.log(`  ${category}: ${count}`);
       }
+      console.log('\nBy latency category:');
+      for (const [category, count] of Object.entries(summary.byLatencyCategory)) {
+        console.log(`  ${category}: ${count}`);
+      }
       console.log('');
       break;
     }
@@ -114,12 +118,24 @@ async function main() {
 
       // Print summary
       console.log('\n📊 Summary:');
-      console.log(`   Tool Calling Accuracy: ${(results.toolCallingAccuracy * 100).toFixed(0)}%`);
+      console.log('   ----------------------------------------');
+      console.log('   v252 MULTI-DIMENSIONAL SCORES:');
+      console.log(`   Tool Accuracy Rate:    ${(results.toolAccuracyRate * 100).toFixed(0)}%`);
+      console.log(`   Intent Detection Rate: ${(results.intentDetectionRate * 100).toFixed(0)}%`);
+      console.log(`   Combined Score:        ${(results.combinedScore * 100).toFixed(0)}%`);
+      console.log('   ----------------------------------------');
+      console.log(`   Legacy Tool Calling Accuracy: ${(results.toolCallingAccuracy * 100).toFixed(0)}%`);
       console.log(`   Fitness Accuracy: ${(results.fitnessAccuracyScore * 100).toFixed(0)}%`);
       console.log(`   Tone Score: ${(results.toneScore * 100).toFixed(0)}%`);
       console.log(`   Speed Pass Rate: ${(results.speedPassRate * 100).toFixed(0)}%`);
       console.log(`   Avg Response Time: ${results.avgTotalResponseTime.toFixed(0)}ms`);
       console.log(`   Total Cost: $${results.totalCost.toFixed(4)}`);
+
+      // v251: Show latency by category
+      console.log('\n⏱️  Latency by Category:');
+      const { basic, tool_call } = results.latencyByCategory;
+      console.log(`   Basic Queries (${basic.count} tests): avg ${basic.avgResponseTime}ms, p95 ${basic.p95ResponseTime}ms, ${basic.outlierCount} outliers`);
+      console.log(`   Tool Calls (${tool_call.count} tests): avg ${tool_call.avgResponseTime}ms, p95 ${tool_call.p95ResponseTime}ms, ${tool_call.outlierCount} outliers`);
       console.log('');
       break;
     }
@@ -139,13 +155,45 @@ async function main() {
       const comp = compareEvaluations(baseline, comparison);
 
       console.log(`\n📊 Comparison: ${baseline.model} vs ${comparison.model}\n`);
-      console.log('Deltas:');
+      console.log('v252 Multi-Dimensional Deltas:');
+      console.log(`   Tool Accuracy Rate:    ${(comp.deltas.toolAccuracyRate * 100).toFixed(1)}%`);
+      console.log(`   Intent Detection Rate: ${(comp.deltas.intentDetectionRate * 100).toFixed(1)}%`);
+      console.log(`   Combined Score:        ${(comp.deltas.combinedScore * 100).toFixed(1)}%`);
+      console.log('Legacy Deltas:');
       console.log(`   Tool Calling: ${(comp.deltas.toolCallingAccuracy * 100).toFixed(1)}%`);
       console.log(`   Fitness Accuracy: ${(comp.deltas.fitnessAccuracyScore * 100).toFixed(1)}%`);
       console.log(`   Tone Score: ${(comp.deltas.toneScore * 100).toFixed(1)}%`);
       console.log(`   Speed Pass Rate: ${(comp.deltas.speedPassRate * 100).toFixed(1)}%`);
       console.log(`   Response Time: ${comp.deltas.avgResponseTime.toFixed(0)}ms`);
       console.log(`   Cost per Request: $${comp.deltas.avgCostPerRequest.toFixed(6)}`);
+
+      // v259: Vision-specific comparison
+      console.log('\n=== VISION IMPORT METRICS (v259) ===');
+      const baseVision = baseline.latencyByCategory?.vision;
+      const compVision = comparison.latencyByCategory?.vision;
+      if (baseVision && compVision) {
+        console.log(`   ${baseline.model.padEnd(15)} | ${comparison.model}`);
+        console.log(`   Avg Latency:  ${baseVision.avgResponseTime.toFixed(0)}ms       | ${compVision.avgResponseTime.toFixed(0)}ms`);
+        console.log(`   P95 Latency:  ${baseVision.p95ResponseTime.toFixed(0)}ms       | ${compVision.p95ResponseTime.toFixed(0)}ms`);
+        console.log(`   Test Count:   ${baseVision.count}            | ${compVision.count}`);
+      }
+
+      // Show vision test side-by-side results
+      const visionTests = comp.sideBySide.filter(s =>
+        s.baseline.testType === 'vision' || s.testId.startsWith('VIS') || s.testId.startsWith('IM')
+      );
+      if (visionTests.length > 0) {
+        console.log('\n   Vision Test Results:');
+        console.log('   ID     | Intent          | ' + baseline.model.substring(0, 10) + ' | ' + comparison.model.substring(0, 10));
+        console.log('   -------|-----------------|----------|----------');
+        for (const test of visionTests) {
+          const bTool = test.baseline.toolCalled || 'none';
+          const bPass = test.baseline.toolCalledCorrectly ? '✅' : '❌';
+          const cPass = test.comparison.toolCalledCorrectly ? '✅' : '❌';
+          console.log(`   ${test.testId.padEnd(6)} | ${bTool.substring(0, 15).padEnd(15)} | ${bPass}        | ${cPass}`);
+        }
+      }
+
       console.log('');
       break;
     }
