@@ -162,7 +162,7 @@ function ChatArea() {
 - Any dates or timestamps
 - Any notes or instructions
 
-Return the data in a structured format.`,
+Return the data in JSON format.`,
             { jsonMode: true }
           );
 
