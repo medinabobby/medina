@@ -614,8 +614,8 @@ export const TEST_CASES: TestCase[] = [
 
   // =========================================================================
   // MISSING TOOL COVERAGE TESTS (v253)
-  // Cover the 4 tools not tested in v252: get_summary, analyze_training_data,
-  // send_message, create_custom_workout
+  // Cover the 3 tools not tested in v252: get_summary, analyze_training_data,
+  // send_message (v267: create_custom_workout consolidated into create_workout)
   // =========================================================================
   {
     id: 'MT01',
@@ -693,11 +693,10 @@ export const TEST_CASES: TestCase[] = [
     id: 'MT08',
     category: 'tool_calling',
     prompt: 'Create a workout with bench press, squats, and barbell rows',
-    expectedTool: 'create_custom_workout',
-    description: 'Explicit exercise list - should call create_custom_workout not create_workout',
+    expectedTool: 'create_workout',  // v267: create_custom_workout consolidated into create_workout
+    description: 'Explicit exercise list - create_workout handles specific exercises too',
     latencyCategory: 'tool_call',
     intentClarity: 'high',
-    acceptableTools: ['create_workout'],
     followUpPrompt: 'Yes, create it',
   },
 
@@ -1059,8 +1058,8 @@ export const TEST_CASES: TestCase[] = [
     id: 'WQ03',
     category: 'tool_calling',
     prompt: 'Create a push workout with bench press, overhead press, and dips',
-    expectedTool: 'create_workout',
-    description: 'Push workout with specific exercises',
+    expectedTool: 'create_workout',  // v267: create_custom_workout consolidated into create_workout
+    description: 'Push workout with specific exercises - create_workout handles both',
     latencyCategory: 'tool_call',
     intentClarity: 'high',
     tier: 1,

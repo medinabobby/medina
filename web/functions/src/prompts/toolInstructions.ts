@@ -53,10 +53,8 @@ AFTER CREATING: Offer to adjust: "Created your 45-min [split] workout for tomorr
   User: "Create a GBC workout"
   AI: [EXECUTES create_workout with profile defaults] "Created your 45-min GBC workout for tomorrow! Want me to change anything?"`;
 
-export const CREATE_CUSTOM_WORKOUT = `**create_custom_workout**
-Only when user names SPECIFIC exercises: "bench press and squats"
-ID mapping: "chin ups"→chin_up, "bench press"→barbell_bench_press
-General requests ("chest workout") → use create_workout instead`;
+// v267: Removed CREATE_CUSTOM_WORKOUT - consolidated into create_workout
+// create_workout now handles both general requests AND specific exercise lists
 
 export const MODIFY_WORKOUT = `**modify_workout** (metadata only, not exercises)
 USE FOR: duration, split day, effort level, date, protocol
@@ -180,8 +178,6 @@ ${SKIP_WORKOUT}
 
 ### Workout Creation
 ${CREATE_WORKOUT}
-
-${CREATE_CUSTOM_WORKOUT}
 
 ${MODIFY_WORKOUT}
 

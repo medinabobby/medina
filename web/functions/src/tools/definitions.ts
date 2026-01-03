@@ -204,61 +204,10 @@ If NOT specified, protocols are auto-selected based on exercise type and user go
   },
 };
 
-/**
- * Create workout with explicit exercise selection (flexible path)
- */
-export const createCustomWorkout: ToolDefinition = {
-  type: 'function',
-  name: 'create_custom_workout',
-  description: `Create a workout with SPECIFIC exercises that the user explicitly names in text.
-
-DO NOT use for images - you cannot reliably map image exercises to exact library IDs.
-For images, use create_workout with exerciseCount and movementPatterns instead.
-
-Only use when user EXPLICITLY names exercises in their message:
-- "I want bench press and squats" → use create_custom_workout
-- "Create a push workout from this image" → use create_workout with intent`,
-  parameters: {
-    type: 'object',
-    properties: {
-      name: {
-        type: 'string',
-        description: 'Workout name',
-      },
-      splitDay: {
-        type: 'string',
-        enum: ['upper', 'lower', 'push', 'pull', 'legs', 'fullBody', 'chest', 'back', 'shoulders', 'arms'],
-        description: 'Split type for this workout',
-      },
-      scheduledDate: {
-        type: 'string',
-        description: 'ISO8601 date string (YYYY-MM-DD)',
-      },
-      duration: {
-        type: 'integer',
-        minimum: 15,
-        maximum: 120,
-        description: 'Target duration in minutes (15-120)',
-      },
-      effortLevel: {
-        type: 'string',
-        enum: ['recovery', 'standard', 'push'],
-        description: 'Effort level',
-      },
-      exerciseIds: {
-        type: 'array',
-        items: {type: 'string'},
-        description: "Array of exercise IDs from user's library. Must match the exercise count for duration.",
-      },
-      protocolVariantIds: {
-        type: 'array',
-        items: {type: 'string'},
-        description: 'Array of protocol variant IDs, ordered to match exerciseIds array.',
-      },
-    },
-    required: ['name', 'splitDay', 'scheduledDate', 'duration', 'effortLevel', 'exerciseIds', 'protocolVariantIds'],
-  },
-};
+// v267: Removed create_custom_workout - consolidated into create_workout
+// Both tools used the same handler. Now create_workout handles both:
+// - General requests (system picks exercises)
+// - Specific exercises (user passes exerciseIds)
 
 /**
  * Modify recently created workouts (delete + recreate)
@@ -1154,7 +1103,7 @@ export const allTools: ToolDefinition[] = [
   showSchedule,
   // Workout Creation
   createWorkout,
-  createCustomWorkout,
+  // v267: Removed createCustomWorkout - consolidated into createWorkout
   modifyWorkout,
   // Protocol
   changeProtocol,

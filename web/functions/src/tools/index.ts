@@ -118,7 +118,7 @@ const HANDLED_TOOLS = new Set([
   "start_workout",
   "end_workout",
   "create_workout",
-  "create_custom_workout", // v255: Alias to create_workout for vision import
+  // v267: Removed create_custom_workout - consolidated into create_workout
   "create_plan",
   // Phase 2: Library handlers
   "add_to_library",
@@ -165,7 +165,7 @@ async function loadHandler(toolName: string): Promise<ToolHandler | null> {
     "start_workout": "./startWorkout",
     "end_workout": "./endWorkout",
     "create_workout": "./createWorkout",
-    "create_custom_workout": "./createWorkout", // v255: Alias to create_workout
+    // v267: Removed create_custom_workout - consolidated into create_workout
     "create_plan": "./createPlan",
     "add_to_library": "./addToLibrary",
     "remove_from_library": "./removeFromLibrary",
@@ -180,10 +180,8 @@ async function loadHandler(toolName: string): Promise<ToolHandler | null> {
     "analyze_training_data": "./analyzeTrainingData",
   };
 
-  // v255: Some tools are aliases that use a different handler function name
-  const handlerNameOverrides: Record<string, string> = {
-    "create_custom_workout": "createWorkoutHandler",
-  };
+  // v267: Removed handlerNameOverrides - was only used for create_custom_workout alias
+  const handlerNameOverrides: Record<string, string> = {};
 
   const modulePath = moduleMap[toolName];
   if (!modulePath) {
