@@ -1,30 +1,25 @@
 # Vision Test Fixtures
 
-This directory contains test images for the v253 vision import tests.
+This directory contains test images for vision import tests.
 
-## Required Images
+## Available Fixtures (v266)
 
-Please provide the following images for the evaluation suite:
-
-| Filename | Description | Expected Content |
-|----------|-------------|------------------|
-| `spreadsheet-screenshot.jpg` | Excel/Google Sheets workout log | Should contain exercises with sets/reps/weights |
-| `strong-app-screenshot.jpg` | Screenshot from Strong app | Workout with exercise names visible |
-| `handwritten-log.jpg` | Handwritten workout notes | Readable exercise names and sets |
-| `instagram-post.jpg` | Fitness influencer workout post | Visible workout routine |
-| `pr-board.jpg` | Gym PR board or whiteboard | 1RM numbers for bench/squat/deadlift |
-| `blurry-image.jpg` | Intentionally low-quality photo | Any workout-related content (blurred) |
-| `non-workout.jpg` | Non-fitness image (e.g., cat) | Used to test graceful decline |
-| `machine-display.jpg` | Gym machine display screen | Weight and rep counts visible |
-| `truecoach-screenshot.jpg` | TrueCoach app program view | Full training program visible |
-| `multiple-exercises.jpg` | Image with multiple exercises | List of 5+ exercises |
+| Filename | Description | Test Usage |
+|----------|-------------|------------|
+| `bobby-1rm-max.png` | 1RM spreadsheet data | VIS01, TT06 - Extract and update exercise targets |
+| `bobby-neurotype.png` | Neurotype assessment | VIS02 - Create plan based on neurotype |
+| `mihir-history.csv` | Workout history CSV | VIS03 - Import workout history |
+| `push-day-plan.png` | Push day workout plan | VIS04 - Create workout plan |
+| `social-media-workout.png` | Social media workout post | VIS05 - Create workout |
+| `truecoach-workout.png` | TrueCoach workout screenshot | VIS06 - Import workout |
+| `truecoach-results.png` | TrueCoach results screenshot | VIS07 - Log completed workout |
 
 ## Image Guidelines
 
-- Format: JPEG preferred (smaller file size)
+- Format: PNG or JPEG
 - Resolution: 1000-2000px on longest side
 - File size: Under 2MB each
-- Content: Real or realistic fitness content
+- Content: Real fitness content from user's training
 
 ## Usage
 
@@ -32,4 +27,14 @@ These images are used by the evaluation runner when `testType: 'vision'` is set.
 The runner will:
 1. Load the image from this directory
 2. Send to `/api/vision` for extraction
-3. Validate extracted exercises against `expectedExtractions`
+3. Pass extracted content to `/api/chat` with context
+4. Validate tool execution and extracted exercises
+
+## Removed Tests (v266)
+
+IM01-IM10 tests were removed because they referenced placeholder fixtures that were never created:
+- `spreadsheet-screenshot.jpg`, `strong-app-screenshot.jpg`, `handwritten-log.jpg`
+- `instagram-post.jpg`, `pr-board.jpg`, `blurry-image.jpg`, `non-workout.jpg`
+- `machine-display.jpg`, `truecoach-screenshot.jpg`, `multiple-exercises.jpg`
+
+The VIS01-VIS07 tests use actual user-provided fixtures and are the primary vision tests.

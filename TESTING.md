@@ -1,6 +1,6 @@
 # Medina Testing Strategy
 
-**Last updated:** January 1, 2026 | **Version:** v247
+**Last updated:** January 3, 2026 | **Version:** v266
 
 Cross-platform testing strategy for iOS, Web, and Backend.
 
@@ -76,13 +76,44 @@ A test that expects `update_profile` for "I want to train 4 days" will fail - bu
 
 ---
 
-## AI Performance Evaluation (v251)
+## AI Performance Evaluation (v266)
 
 ### Overview
 
-The AI evaluation framework benchmarks model performance across **40 tests** in 4 categories.
+The AI evaluation framework benchmarks model performance across **91 tests** in 8 categories.
 
 **Location:** `web/functions/src/evaluation/`
+
+### v266 Framework Improvements
+
+| Feature | Description |
+|---------|-------------|
+| **Multi-turn credit** | 2-turn success (ask → execute) now passes |
+| **Output quality scoring** | Validates workout constraints (duration, split, equipment) |
+| **Cleaned fixtures** | Removed 10 broken IM tests, fixed TT06 |
+| **Temperature=0** | More reproducible eval runs |
+
+### Current Results (Jan 3, 2026)
+
+| Tier | Pass Rate | Description |
+|------|-----------|-------------|
+| **Tier 1 (Core)** | **95%** (40/42) | Must pass - actual bugs |
+| Tier 2 (Interpretation) | 73% (33/45) | Clarification OK |
+| Tier 3 (Ambiguous) | 50% (2/4) | Clarification preferred |
+
+### Test Categories
+
+| Category | Tests | Description |
+|----------|-------|-------------|
+| `tool_calling` | 28 | Core tool invocation accuracy |
+| `fitness_accuracy` | 10 | Fitness knowledge quality |
+| `tone` | 5 | Coaching tone and style |
+| `speed` | 5 | Response latency |
+| `onboarding` | 8 | New user flows |
+| `tier` | 6 | Subscription tier behavior |
+| `import` | 14 | CSV/URL/Vision import (7 vision tests) |
+| `protocol_accuracy` | 6 | Protocol parameter matching (GBC, 5x5, etc.) |
+| `workout_quality` | 10 | Output constraint validation (NEW in v266) |
 
 ### Running Evaluations
 
@@ -105,9 +136,9 @@ npm run eval:compare -- results-a.json results-b.json
 
 | Category | Tests | Expected Latency | Outlier Threshold |
 |----------|-------|------------------|-------------------|
-| **Basic Queries** | 25 | 1-2.5s | >3s |
-| **Tool Calls** | 15 | 3-8s | >10s |
-| **Vision** (future) | - | 5-15s | >20s |
+| **Basic Queries** | 36 | 1-2.5s | >3s |
+| **Tool Calls** | 33 | 3-8s | >10s |
+| **Vision** | 22 | 5-15s | >20s |
 
 ### Basic Query Tests (No Tools)
 
@@ -141,17 +172,20 @@ Tests where AI executes tools - includes Firestore read/write latency:
 
 | Metric | Target | Current |
 |--------|--------|---------|
-| Tool Calling Accuracy | ≥95% | 90% |
+| Tool Accuracy Rate | ≥95% | TBD |
+| Intent Detection Rate | ≥90% | TBD |
+| Protocol Accuracy Rate | ≥90% | TBD |
+| Exercise Accuracy Rate | ≥90% | TBD |
 | Basic Query Avg Latency | <2s | TBD |
 | Tool Call Avg Latency | <5s | TBD |
-| Speed Test Pass Rate | ≥80% | 60% |
+| Speed Test Pass Rate | ≥80% | TBD |
 
 ### Model Comparison Strategy
 
-1. **Baseline**: Run all 40 tests against current model (gpt-4o-mini)
+1. **Baseline**: Run all 91 tests against current model (gpt-4o-mini)
 2. **Compare**: Run same tests against alternative (gpt-4o)
-3. **Analyze**: Compare by category - tool accuracy, latency, cost
-4. **Guard**: No regression in tool calling accuracy (<90% = fail)
+3. **Analyze**: Compare by category - tool accuracy, intent detection, protocol accuracy, latency, cost
+4. **Guard**: No regression in tool accuracy (<90% = fail)
 
 ### Optimization Priority
 

@@ -390,7 +390,11 @@ export const changeProtocol: ToolDefinition = {
 export const createPlan: ToolDefinition = {
   type: 'function',
   name: 'create_plan',
-  description: 'Create a multi-week training plan with professional periodization. Plans are automatically structured into phases (Foundation→Development→Peak→Deload) based on goal and duration. ALWAYS explain the phase structure to the user after creating a plan. Use this when the user asks to create a training plan, program, or schedule spanning multiple weeks.',
+  description: `Create a multi-week training plan with professional periodization. Plans are automatically structured into phases (Foundation→Development→Peak→Deload) based on goal and duration.
+
+CRITICAL FOR VISION/IMAGE: If conversation contains [Extracted from attached image] with exercises, you MUST pass those exercise names in the exerciseIds parameter. Do NOT create a plan without exerciseIds when exercises were extracted from an image.
+
+ALWAYS explain the phase structure to the user after creating a plan.`,
   parameters: {
     type: 'object',
     properties: {
@@ -504,6 +508,30 @@ export const createPlan: ToolDefinition = {
       forMemberId: {
         type: 'string',
         description: "TRAINER ONLY: Member ID to create plan for. Use when trainer says 'create plan for Bobby'.",
+      },
+      exerciseIds: {
+        type: 'array',
+        items: {type: 'string'},
+        description: `CRITICAL: If conversation contains [Extracted from attached image] with exercise data, you MUST pass those exercise names here.
+
+Example: If vision extracted "Incline Dumbbell Bench Press, Lateral Raise, Tricep Extension" → exerciseIds: ["Incline Dumbbell Bench Press", "Lateral Raise", "Tricep Extension"]
+
+Also use for explicit requests: "plan with bench press" → exerciseIds: ["Bench Press"]
+
+System auto-matches names to catalog IDs. Do NOT omit this parameter when exercises were extracted from an image.`,
+      },
+      protocolId: {
+        type: 'string',
+        description: `v260: Protocol to apply to all workouts in the plan. Use when user specifies a training style.
+
+Common values:
+- 'gbc_relative_compound': GBC (German Body Composition) - 12 reps, 30s rest, 3010 tempo
+- 'strength_5x5_compound': Strength 5x5 - 5 reps, 120s rest
+- 'hypertrophy_3x10_compound': Hypertrophy 3x10 - 10 reps, 60s rest
+- 'drop_set': Drop sets
+- 'rest_pause': Rest-pause sets
+
+Examples: 'create plan with GBC protocol' → protocolId: 'gbc_relative_compound'`,
       },
     },
     required: ['name', 'goal'],

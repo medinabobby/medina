@@ -1,6 +1,6 @@
 # Medina Roadmap
 
-**Last Updated:** January 1, 2026
+**Last Updated:** January 3, 2026
 
 ---
 
@@ -8,9 +8,9 @@
 
 | Platform | Version | Status |
 |----------|---------|--------|
-| iOS | v251 | TestFlight (passthrough client) |
-| Web | v251 | Production |
-| Backend | v251 | **22/22 tools complete** |
+| iOS | v266 | TestFlight (passthrough client) |
+| Web | v266 | Production |
+| Backend | v266 | **22/22 tools complete** |
 
 ---
 
@@ -216,6 +216,8 @@ All iOS business logic migrated to Firebase Functions. iOS is pure passthrough c
 
 | Feature | Date | Notes |
 |---------|------|-------|
+| **Eval Framework v266: Multi-Turn & Output Quality** | Jan 3 | Multi-turn credit (ask → execute = PASS). Output quality scoring for workout constraints. Removed 10 broken IM tests. Fixed TT06 fixture. Tier 1 now 95% (40/42). Added 10 workout quality tests (WQ01-10). |
+| **Create Plan: ExerciseIds + ProtocolId Support (v260)** | Jan 2 | Added `exerciseIds` and `protocolId` parameters to `create_plan` tool. Vision import → plan now preserves extracted exercises. User can specify protocols (GBC, 5x5, drop sets). Added 6 protocol accuracy tests (PROT01-06). Total tests: 91. |
 | **Web Profile Modal Redesign (v251)** | Jan 1 | Redesigned ProfilePanel to match TrainingPreferences style. Added ACCOUNT section (Gym/Trainer/Plan). Row-based layout with auto-save. Removed giant blue Save button. Simplified settings dropdown. |
 | **iOS/Web Sidebar & Settings Parity (v250)** | Jan 1 | Added Schedule folder to iOS sidebar. Added dumbbell icon to Web Exercises. Added Gym/Trainer/Plan rows to Web settings dropdown. Plans folder always shows on iOS. Consistent UX across platforms. |
 | **iOS Settings & Profile Cleanup (v248-249)** | Jan 1 | Fixed iOS Settings: member NAME not email, always show Gym/Trainer/Member rows. Simplified iOS Profile header (smaller avatar in edit mode). Removed redundant Legal section. Fixed email truncation. Converted Web Profile to centered modal, removed avatar header. |

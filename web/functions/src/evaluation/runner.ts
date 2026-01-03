@@ -1,6 +1,7 @@
 /**
  * AI Model Evaluation Runner
  *
+ * v266: Temperature=0 for reproducible eval, multi-turn credit, output quality scoring
  * v259b: Fixed vision tests - now calls chat after vision (like production web flow)
  * v259: Multi-dimensional scoring for vision (extraction + intent + action)
  * v253: Multimodal support (vision + URL import tests)
@@ -24,7 +25,7 @@
 import OpenAI from 'openai';
 import * as fs from 'fs';
 import * as path from 'path';
-import { TEST_CASES, TestCase, calculateCost, TOKEN_PRICING } from './testSuite';
+import { TEST_CASES, TestCase, calculateCost, TOKEN_PRICING, assignTier } from './testSuite';
 
 // v253: Fixtures directory for test images
 const FIXTURES_DIR = path.join(__dirname, 'fixtures');
@@ -56,6 +57,7 @@ export interface LLMEvaluation {
  */
 export interface ParsedSSE {
   toolCalled: string | null;
+  toolArgs?: Record<string, unknown>;  // v260: Capture tool arguments for protocol/exercise accuracy
   responseText: string;
   inputTokens: number;
   outputTokens: number;
@@ -99,6 +101,22 @@ export interface EvalResult {
   imageFixtureUsed?: string;        // Which fixture image was used
   importUrlUsed?: string;           // Which URL was imported
 
+  // v260: Protocol and exercise accuracy
+  protocolPassed?: string | null;   // Protocol ID that was passed to tool
+  protocolCorrect?: boolean;        // Did protocolId match expectedProtocol?
+  exercisesPassed?: string[];       // Exercise IDs that were passed to tool
+  exercisesCorrect?: boolean;       // Did exerciseIds match expectedExerciseIds?
+
+  // v264: Edge case flag for human review
+  edgeCase?: boolean;               // Flag tests needing human attention in reports
+
+  // v265: Test tier classification
+  tier: 1 | 2 | 3;                  // 1=Core, 2=Interpretation, 3=Ambiguous
+
+  // v266: Output Quality - Validates tool OUTPUT not just tool call
+  outputQuality?: OutputQualityScore | null;
+  constraintAccuracy?: number;      // 0-1, shorthand for outputQuality.accuracy
+
   // Quality - LLM Evaluation
   llmEvaluation?: LLMEvaluation;
 
@@ -135,6 +153,17 @@ export interface EvalSummary {
   intentDetectionRate: number;      // 0-1: % where AI correctly read intent clarity
   confirmationAppropriateRate: number;  // 0-1: % with correct confirmation behavior
   combinedScore: number;            // (toolAccuracyRate + intentDetectionRate) / 2
+
+  // v260: Protocol and exercise accuracy
+  protocolAccuracyRate: number;     // 0-1: % where expected protocol was passed
+  exerciseAccuracyRate: number;     // 0-1: % where expected exercises were passed
+
+  // v265: Tier-based metrics (separated reporting)
+  tierMetrics: {
+    tier1: { total: number; passed: number; rate: number };  // Core tests
+    tier2: { total: number; passed: number; rate: number };  // Interpretation tests
+    tier3: { total: number; passed: number; rate: number };  // Ambiguous tests
+  };
 
   // Aggregate scores - LLM Evaluation (1-5 scale)
   llmToolScore: number;
@@ -236,11 +265,19 @@ export function detectsConfirmationQuestion(responseText: string): boolean {
  */
 export function gradeIntentScore(
   test: TestCase,
-  askedForConfirmation: boolean
+  askedForConfirmation: boolean,
+  finalToolCalled: string | null = null,  // v266: Check final outcome
+  turnCount: number = 1                    // v266: Track turns
 ): 0 | 1 {
   // Knowledge questions - no tool expected, always pass
   if (test.intentClarity === 'n/a') {
     return 1;
+  }
+
+  // v266: Multi-turn success = success
+  // If tool was eventually called after clarification, credit the intent
+  if (turnCount > 1 && finalToolCalled !== null) {
+    return 1;  // Clarification + execution = good behavior
   }
 
   // Risky actions MUST ask for confirmation
@@ -249,6 +286,7 @@ export function gradeIntentScore(
   }
 
   // High intent clarity, safe action → should execute immediately
+  // (unless multi-turn already handled above)
   if (test.intentClarity === 'high') {
     return askedForConfirmation ? 0 : 1;
   }
@@ -271,14 +309,47 @@ export function gradeIntentScore(
  * v252: Grade tool accuracy based on expected tool and actual tool called
  * For multi-turn tests, uses finalToolCalled (after confirmation)
  */
+/**
+ * v265: Grade tool accuracy with tier-aware logic
+ *
+ * Tier 1 (Core): Strict - must execute correct tool
+ * Tier 2 (Interpretation): Execute correct tool OR ask clarification both OK
+ * Tier 3 (Ambiguous): Clarification preferred, action without asking is a warning
+ */
 export function gradeToolAccuracy(
   test: TestCase,
   toolCalled: string | null,
-  finalToolCalled: string | null
+  finalToolCalled: string | null,
+  askedForConfirmation: boolean = false
 ): 'pass' | 'fail' {
   // Use final tool if available (multi-turn), else first tool
   const effectiveTool = finalToolCalled || toolCalled;
+  const tier = assignTier(test);
 
+  // Tier 3 (Ambiguous): Clarification is preferred
+  if (tier === 3) {
+    // Asking for clarification is always correct for ambiguous inputs
+    if (askedForConfirmation) return 'pass';
+    // Taking action without clarification - still pass if tool is acceptable
+    // but this could be flagged as "could be better"
+    if (test.expectedTool && effectiveTool === test.expectedTool) return 'pass';
+    if (test.acceptableTools?.includes(effectiveTool || '')) return 'pass';
+    return 'fail';
+  }
+
+  // Tier 2 (Interpretation): Execute OR clarify both OK
+  if (tier === 2) {
+    // Asking for clarification is acceptable
+    if (askedForConfirmation && !effectiveTool) return 'pass';
+    // Correct tool called is also acceptable
+    if (test.expectedTool && effectiveTool === test.expectedTool) return 'pass';
+    if (test.acceptableTools?.includes(effectiveTool || '')) return 'pass';
+    // No tool expected and none called
+    if (test.expectedTool === null && effectiveTool === null) return 'pass';
+    return 'fail';
+  }
+
+  // Tier 1 (Core): Strict logic - must execute correctly
   // If no tool expected
   if (test.expectedTool === null) {
     // Pass if no tool was called, or if an acceptable tool was called after confirmation
@@ -294,6 +365,260 @@ export function gradeToolAccuracy(
   if (test.acceptableTools?.includes(effectiveTool || '')) return 'pass';
 
   return 'fail';
+}
+
+/**
+ * v266: Output Quality Score
+ * Tracks how well the tool output matches expected constraints
+ */
+export interface OutputQualityScore {
+  fieldsExpected: string[];      // ['duration', 'splitType', 'protocol', 'equipment']
+  fieldsMatched: string[];       // ['duration', 'splitType']
+  accuracy: number;              // 0.5 (2/4 fields correct)
+  mismatches: {
+    field: string;
+    expected: any;
+    actual: any;
+  }[];
+}
+
+/**
+ * v266: Grade output quality by comparing tool output to expected constraints
+ *
+ * Validates that the AI not only called the right tool, but produced correct OUTPUT:
+ * - Duration within tolerance
+ * - Correct split type
+ * - Correct protocol
+ * - Correct equipment constraints
+ * - Required exercises included
+ * - Correct date
+ */
+export function gradeOutputQuality(
+  test: TestCase,
+  toolArgs: Record<string, any> | null
+): OutputQualityScore | null {
+  // Skip if no constraints defined or no tool output
+  if (!test.expectedConstraints || !toolArgs) {
+    return null;
+  }
+
+  const constraints = test.expectedConstraints;
+  const fieldsExpected: string[] = [];
+  const fieldsMatched: string[] = [];
+  const mismatches: { field: string; expected: any; actual: any }[] = [];
+
+  // Check duration (with tolerance)
+  if (constraints.duration !== undefined) {
+    fieldsExpected.push('duration');
+    const tolerance = constraints.durationTolerance ?? 15;
+    const actualDuration = toolArgs.duration || toolArgs.durationMinutes;
+    if (actualDuration !== undefined) {
+      const diff = Math.abs(actualDuration - constraints.duration);
+      if (diff <= tolerance) {
+        fieldsMatched.push('duration');
+      } else {
+        mismatches.push({
+          field: 'duration',
+          expected: `${constraints.duration} ±${tolerance}min`,
+          actual: actualDuration,
+        });
+      }
+    } else {
+      mismatches.push({
+        field: 'duration',
+        expected: constraints.duration,
+        actual: 'not specified',
+      });
+    }
+  }
+
+  // Check split type
+  if (constraints.splitType !== undefined) {
+    fieldsExpected.push('splitType');
+    const actualSplit = toolArgs.splitType || toolArgs.splitDay || toolArgs.split;
+    if (actualSplit) {
+      // Flexible matching: 'upper' matches 'upperBody', 'upper_body', etc.
+      const normalizedExpected = constraints.splitType.toLowerCase().replace(/[_\s]/g, '');
+      const normalizedActual = actualSplit.toLowerCase().replace(/[_\s]/g, '');
+      if (normalizedActual.includes(normalizedExpected) || normalizedExpected.includes(normalizedActual)) {
+        fieldsMatched.push('splitType');
+      } else {
+        mismatches.push({
+          field: 'splitType',
+          expected: constraints.splitType,
+          actual: actualSplit,
+        });
+      }
+    } else {
+      mismatches.push({
+        field: 'splitType',
+        expected: constraints.splitType,
+        actual: 'not specified',
+      });
+    }
+  }
+
+  // Check protocol
+  if (constraints.protocol !== undefined) {
+    fieldsExpected.push('protocol');
+    const actualProtocol = toolArgs.protocolId || toolArgs.protocol;
+    if (actualProtocol) {
+      const normalizedExpected = constraints.protocol.toLowerCase().replace(/[_\s]/g, '');
+      const normalizedActual = actualProtocol.toLowerCase().replace(/[_\s]/g, '');
+      if (normalizedActual.includes(normalizedExpected) || normalizedExpected.includes(normalizedActual)) {
+        fieldsMatched.push('protocol');
+      } else {
+        mismatches.push({
+          field: 'protocol',
+          expected: constraints.protocol,
+          actual: actualProtocol,
+        });
+      }
+    } else {
+      mismatches.push({
+        field: 'protocol',
+        expected: constraints.protocol,
+        actual: 'not specified',
+      });
+    }
+  }
+
+  // Check equipment constraints
+  if (constraints.equipment !== undefined && constraints.equipment.length > 0) {
+    fieldsExpected.push('equipment');
+    const actualEquipment = toolArgs.equipment || toolArgs.equipmentTypes || [];
+    const actualEquipmentArray = Array.isArray(actualEquipment) ? actualEquipment : [actualEquipment];
+
+    // Check if actual equipment is within allowed constraints
+    const normalizedExpected = constraints.equipment.map(e => e.toLowerCase());
+    const normalizedActual = actualEquipmentArray.map((e: string) => e.toLowerCase());
+
+    // For "bodyweight only", actual should not have gym equipment
+    // For equipment list, actual should be subset of expected
+    const allAllowed = normalizedActual.every((eq: string) =>
+      normalizedExpected.some(expected => eq.includes(expected) || expected.includes(eq))
+    );
+
+    if (allAllowed || normalizedActual.length === 0) {
+      fieldsMatched.push('equipment');
+    } else {
+      mismatches.push({
+        field: 'equipment',
+        expected: constraints.equipment,
+        actual: actualEquipmentArray,
+      });
+    }
+  }
+
+  // Check required exercises
+  if (constraints.exercises !== undefined && constraints.exercises.length > 0) {
+    fieldsExpected.push('exercises');
+    const actualExercises = toolArgs.exerciseIds || toolArgs.exercises || [];
+    const actualExerciseArray = Array.isArray(actualExercises) ? actualExercises : [actualExercises];
+
+    // Check if all required exercises are present
+    const normalizedExpected = constraints.exercises.map(e => e.toLowerCase().replace(/[_\s]/g, ''));
+    const normalizedActual = actualExerciseArray.map((e: string) => e.toLowerCase().replace(/[_\s]/g, ''));
+
+    const allPresent = normalizedExpected.every(expected =>
+      normalizedActual.some((actual: string) => actual.includes(expected) || expected.includes(actual))
+    );
+
+    if (allPresent) {
+      fieldsMatched.push('exercises');
+    } else {
+      mismatches.push({
+        field: 'exercises',
+        expected: constraints.exercises,
+        actual: actualExerciseArray,
+      });
+    }
+  }
+
+  // Check date
+  if (constraints.date !== undefined) {
+    fieldsExpected.push('date');
+    const actualDate = toolArgs.date || toolArgs.scheduledDate || toolArgs.targetDate;
+    if (actualDate) {
+      // Flexible date matching: 'tomorrow' matches date string for tomorrow, etc.
+      const normalizedExpected = constraints.date.toLowerCase();
+      const normalizedActual = actualDate.toLowerCase();
+      if (
+        normalizedActual.includes(normalizedExpected) ||
+        normalizedExpected.includes(normalizedActual) ||
+        isDateMatch(constraints.date, actualDate)
+      ) {
+        fieldsMatched.push('date');
+      } else {
+        mismatches.push({
+          field: 'date',
+          expected: constraints.date,
+          actual: actualDate,
+        });
+      }
+    } else {
+      mismatches.push({
+        field: 'date',
+        expected: constraints.date,
+        actual: 'not specified',
+      });
+    }
+  }
+
+  // Check exercise count
+  if (constraints.exerciseCount !== undefined) {
+    fieldsExpected.push('exerciseCount');
+    const actualExercises = toolArgs.exerciseIds || toolArgs.exercises || [];
+    const actualCount = Array.isArray(actualExercises) ? actualExercises.length : 0;
+    // Allow ±2 tolerance for exercise count
+    if (Math.abs(actualCount - constraints.exerciseCount) <= 2) {
+      fieldsMatched.push('exerciseCount');
+    } else {
+      mismatches.push({
+        field: 'exerciseCount',
+        expected: constraints.exerciseCount,
+        actual: actualCount,
+      });
+    }
+  }
+
+  const accuracy = fieldsExpected.length > 0 ? fieldsMatched.length / fieldsExpected.length : 1;
+
+  return {
+    fieldsExpected,
+    fieldsMatched,
+    accuracy,
+    mismatches,
+  };
+}
+
+/**
+ * v266: Helper to check if date strings match (handles 'tomorrow', 'today', etc.)
+ */
+function isDateMatch(expected: string, actual: string): boolean {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const normalizedExpected = expected.toLowerCase();
+
+  // Handle relative dates
+  if (normalizedExpected === 'today') {
+    return actual.includes(today.toISOString().split('T')[0]);
+  }
+  if (normalizedExpected === 'tomorrow') {
+    return actual.includes(tomorrow.toISOString().split('T')[0]);
+  }
+
+  // For day names (monday, tuesday, etc.), check if actual date falls on that day
+  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const expectedDayIndex = dayNames.indexOf(normalizedExpected);
+  if (expectedDayIndex >= 0) {
+    const actualDate = new Date(actual);
+    return actualDate.getDay() === expectedDayIndex;
+  }
+
+  return false;
 }
 
 /**
@@ -362,6 +687,7 @@ function checkTopicsCovered(response: string, expectedTopics: string[]): {
  */
 function parseSSEStream(fullResponse: string): ParsedSSE {
   let toolCalled: string | null = null;
+  let toolArgs: Record<string, unknown> | undefined = undefined;  // v260
   let responseText = '';
   let inputTokens = 0;
   let outputTokens = 0;
@@ -380,6 +706,12 @@ function parseSSEStream(fullResponse: string): ParsedSSE {
       // This is the most reliable indicator as it comes after actual execution
       if (data.type === 'tool_executed' && data.name) {
         toolCalled = data.name;
+        // v260: Capture tool arguments if present
+        if (data.arguments) {
+          toolArgs = typeof data.arguments === 'string'
+            ? JSON.parse(data.arguments)
+            : data.arguments;
+        }
       }
 
       // Check for function_call in output_item.added event
@@ -389,6 +721,12 @@ function parseSSEStream(fullResponse: string): ParsedSSE {
           data.item?.type === 'function_call' &&
           data.item?.name) {
         toolCalled = data.item.name;
+        // v260: Capture tool arguments from function_call item
+        if (data.item.arguments) {
+          toolArgs = typeof data.item.arguments === 'string'
+            ? JSON.parse(data.item.arguments)
+            : data.item.arguments;
+        }
       }
 
       // Collect text deltas to build response text
@@ -419,7 +757,7 @@ function parseSSEStream(fullResponse: string): ParsedSSE {
     toolCalled = detectToolFromResponseText(responseText);
   }
 
-  return { toolCalled, responseText, inputTokens, outputTokens };
+  return { toolCalled, toolArgs, responseText, inputTokens, outputTokens };
 }
 
 /**
@@ -739,7 +1077,7 @@ function extractContentFromText(text: string): string[] {
     content.push('multi_workout');
   }
 
-  return [...new Set(content)]; // Dedupe
+  return Array.from(new Set(content)); // Dedupe
 }
 
 // Alias for backward compatibility
@@ -781,7 +1119,7 @@ async function runVisionTest(
   chatEndpoint: string,
   visionEndpoint: string,
   authToken: string
-): Promise<Partial<EvalResult> & { toolCalled?: string | null; totalResponseTime?: number }> {
+): Promise<Partial<EvalResult> & { toolCalled?: string | null; toolArgs?: Record<string, unknown>; totalResponseTime?: number }> {
   const startTime = Date.now();
 
   // Check for fixture
@@ -845,6 +1183,7 @@ async function runVisionTest(
   const chatPrompt = `${test.prompt}\n\nExtracted from image:\n${visionResult.content}`;
 
   let toolCalled: string | null = null;
+  let toolArgs: Record<string, unknown> | undefined = undefined;  // v260
   let chatResponseText = '';
 
   try {
@@ -857,6 +1196,7 @@ async function runVisionTest(
       },
       body: JSON.stringify({
         messages: [{ role: 'user', content: chatPrompt }],
+        temperature: 0,  // v266: Deterministic for reproducible eval
       }),
     });
 
@@ -882,6 +1222,7 @@ async function runVisionTest(
       // Parse SSE stream - look for tool_executed event (like web does)
       const parsed = parseSSEStream(fullResponse);
       toolCalled = parsed.toolCalled;
+      toolArgs = parsed.toolArgs;  // v260: Capture tool arguments
       chatResponseText = parsed.responseText;
 
       if (toolCalled) {
@@ -905,6 +1246,7 @@ async function runVisionTest(
     visionConfidence: visionResult.confidence,
     responseText: chatResponseText || visionResult.content,
     toolCalled, // Now comes from chat API, not vision
+    toolArgs,   // v260: Return tool arguments for protocol/exercise accuracy
     totalResponseTime,
   };
 }
@@ -992,6 +1334,7 @@ export async function runTestCase(
         response: '',
         responseText: visionResult.responseText || '',
         error: visionResult.error,
+        tier: assignTier(test),
       };
     }
 
@@ -1004,11 +1347,20 @@ export async function runTestCase(
     // v259b: Get actual tool from chat API (not heuristic detection)
     const toolCalled = visionResult.toolCalled || null;
 
-    // v259b: Tool accuracy based on actual tool called by chat API
-    const toolCalledCorrectly = test.expectedTool === null
-      ? toolCalled === null
-      : toolCalled === test.expectedTool ||
+    // v264: Flexible pass logic with acceptableTools/unacceptableTools
+    let toolCalledCorrectly: boolean;
+    if (test.unacceptableTools?.includes(toolCalled || '')) {
+      // If tool is explicitly unacceptable, fail
+      toolCalledCorrectly = false;
+    } else if (test.expectedTool === null) {
+      // No tool expected - pass if no tool OR if tool is in acceptableTools
+      toolCalledCorrectly = toolCalled === null ||
         (test.acceptableTools?.includes(toolCalled || '') ?? false);
+    } else {
+      // Specific tool expected - exact match OR in acceptableTools
+      toolCalledCorrectly = toolCalled === test.expectedTool ||
+        (test.acceptableTools?.includes(toolCalled || '') ?? false);
+    }
 
     const toolAccuracy = toolCalledCorrectly ? 'pass' : 'fail';
 
@@ -1041,6 +1393,26 @@ export async function runTestCase(
       extractedContent,
       extractionScore,
       visionConfidence: visionResult.visionConfidence,
+      // v260: Protocol/exercise accuracy - extracted from tool args if present
+      protocolPassed: (visionResult.toolArgs?.protocolId as string) || null,
+      protocolCorrect: test.expectedProtocol
+        ? ((visionResult.toolArgs?.protocolId as string) === test.expectedProtocol ||
+           (visionResult.toolArgs?.protocolId as string)?.includes(test.expectedProtocol) ||
+           test.expectedProtocol.includes((visionResult.toolArgs?.protocolId as string) || ''))
+        : undefined,
+      exercisesPassed: visionResult.toolArgs?.exerciseIds as string[] | undefined,
+      exercisesCorrect: test.expectedExerciseIds
+        ? test.expectedExerciseIds.every(id =>
+            (visionResult.toolArgs?.exerciseIds as string[])?.some(passed =>
+              passed.toLowerCase().includes(id.toLowerCase()) ||
+              id.toLowerCase().includes(passed.toLowerCase())
+            )
+          )
+        : undefined,
+      // v264: Edge case flag for human review
+      edgeCase: test.edgeCase,
+      // v265: Test tier
+      tier: assignTier(test),
       response: responseText,
       responseText,
     };
@@ -1056,6 +1428,7 @@ export async function runTestCase(
       },
       body: JSON.stringify({
         messages: [{ role: 'user', content: test.prompt }],
+        temperature: 0,  // v266: Deterministic for reproducible eval
       }),
     });
 
@@ -1108,6 +1481,7 @@ export async function runTestCase(
     // Parse SSE stream to get tool call and response text
     const parsed = parseSSEStream(fullResponse);
     const toolCalled = parsed.toolCalled;
+    const toolArgs = parsed.toolArgs;  // v260: Extract tool arguments
     const responseText = parsed.responseText;
 
     // Use parsed tokens or estimate
@@ -1118,10 +1492,20 @@ export async function runTestCase(
       outputTokens = parsed.outputTokens;
     }
 
-    const toolCalledCorrectly =
-      test.expectedTool === null
-        ? toolCalled === null
-        : toolCalled === test.expectedTool;
+    // v264: Flexible pass logic with acceptableTools/unacceptableTools
+    let toolCalledCorrectly: boolean;
+    if (test.unacceptableTools?.includes(toolCalled || '')) {
+      // If tool is explicitly unacceptable, fail
+      toolCalledCorrectly = false;
+    } else if (test.expectedTool === null) {
+      // No tool expected - pass if no tool OR if tool is in acceptableTools
+      toolCalledCorrectly = toolCalled === null ||
+        (test.acceptableTools?.includes(toolCalled || '') ?? false);
+    } else {
+      // Specific tool expected - exact match OR in acceptableTools
+      toolCalledCorrectly = toolCalled === test.expectedTool ||
+        (test.acceptableTools?.includes(toolCalled || '') ?? false);
+    }
 
     const topicAnalysis = test.expectedTopics
       ? checkTopicsCovered(responseText || fullResponse, test.expectedTopics)
@@ -1148,9 +1532,6 @@ export async function runTestCase(
     // v252: Detect if AI asked for confirmation
     const askedForConfirmation = detectsConfirmationQuestion(responseText);
 
-    // v252: Grade intent score
-    const intentScore = gradeIntentScore(test, askedForConfirmation);
-
     // v252: For single-turn, finalToolCalled is same as toolCalled
     // Multi-turn will update this after sending confirmation
     let finalToolCalled: string | null = toolCalled;
@@ -1172,6 +1553,7 @@ export async function runTestCase(
               { role: 'assistant', content: responseText },
               { role: 'user', content: test.followUpPrompt },
             ],
+            temperature: 0,  // v266: Deterministic for reproducible eval
           }),
         });
 
@@ -1200,11 +1582,17 @@ export async function runTestCase(
       }
     }
 
-    // v252: Grade tool accuracy using final tool
-    const toolAccuracy = gradeToolAccuracy(test, toolCalled, finalToolCalled);
+    // v266: Grade intent score AFTER multi-turn logic so we have final values
+    const intentScore = gradeIntentScore(test, askedForConfirmation, finalToolCalled, turnCount);
+
+    // v265: Grade tool accuracy with tier-aware logic
+    const toolAccuracy = gradeToolAccuracy(test, toolCalled, finalToolCalled, askedForConfirmation);
 
     // Run LLM evaluation (optional - requires OPENAI_API_KEY)
     const llmEvaluation = await evaluateWithLLM(test, responseText, toolCalled);
+
+    // v266: Grade output quality (validates tool output, not just tool call)
+    const outputQuality = gradeOutputQuality(test, toolArgs ?? null);
 
     // v253: Add URL import metadata if applicable
     const urlImportMetadata = testType === 'url_import' && test.importUrl
@@ -1236,6 +1624,29 @@ export async function runTestCase(
       // v253: Multimodal fields
       testType,
       ...urlImportMetadata,
+      // v260: Protocol and exercise accuracy
+      protocolPassed: (toolArgs?.protocolId as string) || null,
+      protocolCorrect: test.expectedProtocol
+        ? ((toolArgs?.protocolId as string) === test.expectedProtocol ||
+           (toolArgs?.protocolId as string)?.includes(test.expectedProtocol) ||
+           test.expectedProtocol.includes((toolArgs?.protocolId as string) || ''))
+        : undefined,
+      exercisesPassed: toolArgs?.exerciseIds as string[] | undefined,
+      exercisesCorrect: test.expectedExerciseIds
+        ? test.expectedExerciseIds.every(id =>
+            (toolArgs?.exerciseIds as string[])?.some(passed =>
+              passed.toLowerCase().includes(id.toLowerCase()) ||
+              id.toLowerCase().includes(passed.toLowerCase())
+            )
+          )
+        : undefined,
+      // v264: Edge case flag for human review
+      edgeCase: test.edgeCase,
+      // v265: Test tier
+      tier: assignTier(test),
+      // v266: Output quality
+      outputQuality,
+      constraintAccuracy: outputQuality?.accuracy,
       ...(llmEvaluation && { llmEvaluation }),
       response: fullResponse.slice(0, 5000), // Truncate for storage
       responseText: responseText.slice(0, 2000), // Clean text for display
@@ -1265,6 +1676,8 @@ export async function runTestCase(
       toolAccuracy: 'fail',
       // v253: Multimodal fields
       testType,
+      // v265: Test tier
+      tier: assignTier(test),
       response: '',
       responseText: '',
       error: error instanceof Error ? error.message : String(error),
@@ -1281,16 +1694,20 @@ export async function runEvaluation(
   authToken: string,
   options?: {
     categories?: TestCase['category'][];
+    excludeCategories?: TestCase['category'][];  // v264: Exclude specific categories
     testIds?: string[];
     delayBetweenTests?: number;
   }
 ): Promise<EvalSummary> {
-  const { categories, testIds, delayBetweenTests = 1000 } = options || {};
+  const { categories, excludeCategories, testIds, delayBetweenTests = 1000 } = options || {};
 
   // Filter tests
   let tests = TEST_CASES;
   if (categories) {
     tests = tests.filter(t => categories.includes(t.category));
+  }
+  if (excludeCategories) {
+    tests = tests.filter(t => !excludeCategories.includes(t.category));
   }
   if (testIds) {
     tests = tests.filter(t => testIds.includes(t.id));
@@ -1414,6 +1831,46 @@ export async function runEvaluation(
 
   const combinedScore = (toolAccuracyRate + intentDetectionRate) / 2;
 
+  // v260: Protocol and exercise accuracy
+  const protocolTests = results.filter(r => r.protocolCorrect !== undefined);
+  const protocolAccuracyRate = protocolTests.length > 0
+    ? protocolTests.filter(r => r.protocolCorrect === true).length / protocolTests.length
+    : 1.0; // Default to 1.0 if no protocol tests
+
+  const exerciseTests = results.filter(r => r.exercisesCorrect !== undefined);
+  const exerciseAccuracyRate = exerciseTests.length > 0
+    ? exerciseTests.filter(r => r.exercisesCorrect === true).length / exerciseTests.length
+    : 1.0; // Default to 1.0 if no exercise tests
+
+  // v265: Calculate tier-based metrics
+  const tier1Results = results.filter(r => r.tier === 1);
+  const tier2Results = results.filter(r => r.tier === 2);
+  const tier3Results = results.filter(r => r.tier === 3);
+
+  const tierMetrics = {
+    tier1: {
+      total: tier1Results.length,
+      passed: tier1Results.filter(r => r.toolAccuracy === 'pass').length,
+      rate: tier1Results.length > 0
+        ? tier1Results.filter(r => r.toolAccuracy === 'pass').length / tier1Results.length
+        : 1.0,
+    },
+    tier2: {
+      total: tier2Results.length,
+      passed: tier2Results.filter(r => r.toolAccuracy === 'pass').length,
+      rate: tier2Results.length > 0
+        ? tier2Results.filter(r => r.toolAccuracy === 'pass').length / tier2Results.length
+        : 1.0,
+    },
+    tier3: {
+      total: tier3Results.length,
+      passed: tier3Results.filter(r => r.toolAccuracy === 'pass').length,
+      rate: tier3Results.length > 0
+        ? tier3Results.filter(r => r.toolAccuracy === 'pass').length / tier3Results.length
+        : 1.0,
+    },
+  };
+
   return {
     model,
     timestamp: new Date().toISOString(),
@@ -1427,6 +1884,11 @@ export async function runEvaluation(
     intentDetectionRate,
     confirmationAppropriateRate,
     combinedScore,
+    // v260: Protocol and exercise accuracy
+    protocolAccuracyRate,
+    exerciseAccuracyRate,
+    // v265: Tier-based metrics
+    tierMetrics,
     llmToolScore,
     llmAccuracyScore,
     llmToneScore,

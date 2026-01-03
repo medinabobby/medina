@@ -18,7 +18,8 @@
 import * as fs from 'fs';
 import { runEvaluation, compareEvaluations, EvalSummary } from './runner';
 import { generateExecutiveMemo, generateSingleModelSummary } from './memo';
-import { getTestSuiteSummary } from './testSuite';
+import { getTestSuiteSummary, TestCase, getTierSummary, getTestsByTier } from './testSuite';
+import { runRegressionCheck, formatRegressionReportMarkdown } from './regression';
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -30,6 +31,17 @@ function getArg(name: string): string | undefined {
   return args[index + 1];
 }
 
+// v264: Get all values for repeatable arguments (--category, --exclude, --test)
+function getAllArgs(name: string): string[] {
+  const values: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === `--${name}` && i + 1 < args.length) {
+      values.push(args[i + 1]);
+    }
+  }
+  return values;
+}
+
 function printUsage() {
   console.log(`
 AI Model Evaluation CLI
@@ -39,6 +51,7 @@ Commands:
   run                          Run evaluation against a model
   compare                      Compare two saved results
   memo                         Generate executive memo
+  regression                   Check for regressions against baseline
 
 Options for 'run':
   --model <name>               Model to test (gpt-4o-mini, gpt-4o, etc.)
@@ -46,16 +59,26 @@ Options for 'run':
   --token <token>              Auth token (or set EVAL_AUTH_TOKEN env var)
   --output <file>              Output JSON file (default: results-{model}.json)
   --delay <ms>                 Delay between tests (default: 1000)
+  --category <name>            Run only tests in category (can repeat)
+  --exclude <name>             Exclude category from run (can repeat)
+  --test <id>                  Run only specific test IDs (can repeat)
+  --tier <1|2|3>               v265: Run only tests in tier (1=Core, 2=Interpret, 3=Ambiguous)
 
 Options for 'compare' and 'memo':
   --baseline <file>            Baseline results JSON file
   --comparison <file>          Comparison results JSON file
   --output <file>              Output file (default: stdout for memo)
 
+Options for 'regression':
+  --current <file>             Current results JSON file
+  --baseline <file>            Baseline results (default: v252)
+  --previous <file>            Previous version results (optional)
+
 Examples:
   npx ts-node src/evaluation/cli.ts info
   npx ts-node src/evaluation/cli.ts run --model gpt-4o-mini --endpoint https://us-central1-medina-ai.cloudfunctions.net/chat
   npx ts-node src/evaluation/cli.ts memo --baseline results-gpt-4o-mini.json --comparison results-gpt-4o.json > memo.md
+  npx ts-node src/evaluation/cli.ts regression --current results-v264.json --baseline results-v252.json
 `);
 }
 
@@ -68,6 +91,7 @@ async function main() {
   switch (command) {
     case 'info': {
       const summary = getTestSuiteSummary();
+      const tierSummary = getTierSummary();
       console.log('\n📋 Test Suite Summary\n');
       console.log(`Total tests: ${summary.total}`);
       console.log('\nBy category:');
@@ -78,6 +102,11 @@ async function main() {
       for (const [category, count] of Object.entries(summary.byLatencyCategory)) {
         console.log(`  ${category}: ${count}`);
       }
+      // v265: Show tier breakdown
+      console.log('\nBy tier (v265):');
+      console.log(`  Tier 1 (Core):          ${tierSummary.tier1} tests - Medina terminology, must pass`);
+      console.log(`  Tier 2 (Interpretation): ${tierSummary.tier2} tests - Varied language, clarify OK`);
+      console.log(`  Tier 3 (Ambiguous):      ${tierSummary.tier3} tests - Clarification preferred`);
       console.log('');
       break;
     }
@@ -88,6 +117,31 @@ async function main() {
       const token = getArg('token') || process.env.EVAL_AUTH_TOKEN;
       const output = getArg('output') || `results-${model}.json`;
       const delay = parseInt(getArg('delay') || '1000', 10);
+
+      // v264: Category filtering
+      const includeCategories = getAllArgs('category') as TestCase['category'][];
+      const excludeCategories = getAllArgs('exclude') as TestCase['category'][];
+      let testIds = getAllArgs('test');
+
+      // v265: Tier filtering
+      const tierArg = getArg('tier');
+      if (tierArg) {
+        const tier = parseInt(tierArg, 10) as 1 | 2 | 3;
+        if (![1, 2, 3].includes(tier)) {
+          console.error('Error: --tier must be 1, 2, or 3');
+          process.exit(1);
+        }
+        // Get test IDs for this tier
+        const tierTests = getTestsByTier(tier);
+        const tierTestIds = tierTests.map(t => t.id);
+        // If testIds already specified, intersect with tier tests
+        if (testIds.length > 0) {
+          testIds = testIds.filter(id => tierTestIds.includes(id));
+        } else {
+          testIds = tierTestIds;
+        }
+        console.log(`   Tier ${tier} filter: ${tierTestIds.length} tests`);
+      }
 
       if (!model) {
         console.error('Error: --model is required');
@@ -106,10 +160,23 @@ async function main() {
       console.log(`   Model: ${model}`);
       console.log(`   Endpoint: ${endpoint}`);
       console.log(`   Output: ${output}`);
-      console.log(`   Delay: ${delay}ms\n`);
+      console.log(`   Delay: ${delay}ms`);
+      if (includeCategories.length > 0) {
+        console.log(`   Categories: ${includeCategories.join(', ')}`);
+      }
+      if (excludeCategories.length > 0) {
+        console.log(`   Excluding: ${excludeCategories.join(', ')}`);
+      }
+      if (testIds.length > 0) {
+        console.log(`   Tests: ${testIds.join(', ')}`);
+      }
+      console.log('');
 
       const results = await runEvaluation(model, endpoint, token, {
         delayBetweenTests: delay,
+        categories: includeCategories.length > 0 ? includeCategories : undefined,
+        excludeCategories: excludeCategories.length > 0 ? excludeCategories : undefined,
+        testIds: testIds.length > 0 ? testIds : undefined,
       });
 
       // Save results
@@ -119,10 +186,14 @@ async function main() {
       // Print summary
       console.log('\n📊 Summary:');
       console.log('   ----------------------------------------');
-      console.log('   v252 MULTI-DIMENSIONAL SCORES:');
+      console.log('   v260 MULTI-DIMENSIONAL SCORES:');
       console.log(`   Tool Accuracy Rate:    ${(results.toolAccuracyRate * 100).toFixed(0)}%`);
       console.log(`   Intent Detection Rate: ${(results.intentDetectionRate * 100).toFixed(0)}%`);
       console.log(`   Combined Score:        ${(results.combinedScore * 100).toFixed(0)}%`);
+      console.log('   ----------------------------------------');
+      console.log('   v260 PROTOCOL/EXERCISE ACCURACY:');
+      console.log(`   Protocol Accuracy:     ${(results.protocolAccuracyRate * 100).toFixed(0)}%`);
+      console.log(`   Exercise Accuracy:     ${(results.exerciseAccuracyRate * 100).toFixed(0)}%`);
       console.log('   ----------------------------------------');
       console.log(`   Legacy Tool Calling Accuracy: ${(results.toolCallingAccuracy * 100).toFixed(0)}%`);
       console.log(`   Fitness Accuracy: ${(results.fitnessAccuracyScore * 100).toFixed(0)}%`);
@@ -130,6 +201,22 @@ async function main() {
       console.log(`   Speed Pass Rate: ${(results.speedPassRate * 100).toFixed(0)}%`);
       console.log(`   Avg Response Time: ${results.avgTotalResponseTime.toFixed(0)}ms`);
       console.log(`   Total Cost: $${results.totalCost.toFixed(4)}`);
+
+      // v265: Show tier metrics (PRIMARY QUALITY INDICATOR)
+      if (results.tierMetrics) {
+        console.log('   ----------------------------------------');
+        console.log('   v265 TIER METRICS (Primary Quality):');
+        const tm = results.tierMetrics;
+        console.log(`   Tier 1 (Core):     ${tm.tier1.passed}/${tm.tier1.total} (${(tm.tier1.rate * 100).toFixed(0)}%) ← MUST PASS`);
+        console.log(`   Tier 2 (Interpret): ${tm.tier2.passed}/${tm.tier2.total} (${(tm.tier2.rate * 100).toFixed(0)}%)`);
+        console.log(`   Tier 3 (Ambiguous): ${tm.tier3.passed}/${tm.tier3.total} (${(tm.tier3.rate * 100).toFixed(0)}%)`);
+
+        // List Tier 1 failures
+        const tier1Failures = results.results.filter(r => r.tier === 1 && r.toolAccuracy === 'fail');
+        if (tier1Failures.length > 0) {
+          console.log(`\n   ⚠️  Tier 1 FAILURES (Bugs): ${tier1Failures.map(r => r.testId).join(', ')}`);
+        }
+      }
 
       // v251: Show latency by category
       console.log('\n⏱️  Latency by Category:');
@@ -231,6 +318,44 @@ async function main() {
 
       const summary: EvalSummary = JSON.parse(fs.readFileSync(inputFile, 'utf-8'));
       console.log(generateSingleModelSummary(summary));
+      break;
+    }
+
+    case 'regression': {
+      const currentFile = getArg('current');
+      const baselineFile = getArg('baseline');
+      const previousFile = getArg('previous');
+      const outputFile = getArg('output');
+
+      if (!currentFile || !baselineFile) {
+        console.error('Error: --current and --baseline are required');
+        process.exit(1);
+      }
+
+      console.log(`\n📊 Running regression check...`);
+      console.log(`   Current: ${currentFile}`);
+      console.log(`   Baseline: ${baselineFile}`);
+      if (previousFile) {
+        console.log(`   Previous: ${previousFile}`);
+      }
+      console.log('');
+
+      const report = runRegressionCheck(currentFile, baselineFile, previousFile);
+      const markdown = formatRegressionReportMarkdown(report);
+
+      if (outputFile) {
+        fs.writeFileSync(outputFile, markdown);
+        console.log(`✅ Report saved to ${outputFile}`);
+      } else {
+        console.log(markdown);
+      }
+
+      // Exit with error code if there are critical alerts
+      const criticalAlerts = report.alerts.filter(a => a.severity === 'critical');
+      if (criticalAlerts.length > 0) {
+        console.log(`\n🔴 ${criticalAlerts.length} critical regression(s) detected!`);
+        process.exit(1);
+      }
       break;
     }
 

@@ -58,7 +58,15 @@ EXPERIENCE: Check profile first. Only ask if NOT SET.
 TARGET DATE: User deadline → send targetDate, system calculates weeks
 CONFIRM BEFORE: Duration, experience, days/week, session duration, goal
 MUSCLE FOCUS: "bigger arms"→emphasizedMuscles: ["biceps", "triceps"]
-CARDIO: Include workoutDayAssignments when cardioDays > 0`;
+CARDIO: Include workoutDayAssignments when cardioDays > 0
+⚠️ CRITICAL - EXERCISES FROM VISION/IMAGE:
+  - If user uploaded an image with exercises, you MUST pass those exercises as exerciseIds parameter
+  - Extract EVERY exercise name you described in your response
+  - Pass as: exerciseIds: ["Incline Dumbbell Bench Press", "Incline Dumbbell Flys", "Lateral Raise", ...]
+  - ❌ WRONG: Describe exercises in text but call create_plan without exerciseIds
+  - ✅ RIGHT: Call create_plan WITH exerciseIds containing ALL exercises from the image
+  - System auto-matches names to catalog IDs
+PROTOCOL: If user mentions GBC/5x5/drop sets/tempo, pass as protocolId`;
 
 export const RESCHEDULE_PLAN = `**reschedule_plan**: Change training days without losing progress`;
 

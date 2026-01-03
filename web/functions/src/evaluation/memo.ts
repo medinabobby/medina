@@ -174,6 +174,48 @@ Model complexity routing recommendations.
 `;
   }
 
+  // v265: Test Tier Classification (Core/Interpretation/Ambiguous)
+  if (baseline.tierMetrics && comparison.tierMetrics) {
+    const bt = baseline.tierMetrics;
+    const ct = comparison.tierMetrics;
+
+    sections += `
+### Test Tier Results (v265)
+
+Results separated by test clarity tier. **Tier 1 (Core)** is the primary quality metric.
+
+| Tier | Description | ${baseline.model} | ${comparison.model} | Notes |
+|------|-------------|-------------------|---------------------|-------|
+| **Tier 1 (Core)** | Medina terminology, clear intent | ${bt.tier1.passed}/${bt.tier1.total} (${(bt.tier1.rate * 100).toFixed(0)}%) | ${ct.tier1.passed}/${ct.tier1.total} (${(ct.tier1.rate * 100).toFixed(0)}%) | Must pass - failures = bugs |
+| Tier 2 (Interpretation) | Clear intent, varied language | ${bt.tier2.passed}/${bt.tier2.total} (${(bt.tier2.rate * 100).toFixed(0)}%) | ${ct.tier2.passed}/${ct.tier2.total} (${(ct.tier2.rate * 100).toFixed(0)}%) | Informational |
+| Tier 3 (Ambiguous) | Unclear intent | ${bt.tier3.passed}/${bt.tier3.total} (${(bt.tier3.rate * 100).toFixed(0)}%) | ${ct.tier3.passed}/${ct.tier3.total} (${(ct.tier3.rate * 100).toFixed(0)}%) | Clarification preferred |
+
+> **Tier 1 failures indicate real bugs** that need fixing.
+> Tier 2/3 failures are informational - asking for clarification is acceptable behavior.
+
+`;
+
+    // List Tier 1 failures if any
+    const baseTier1Failures = baseline.results.filter(r => r.tier === 1 && r.toolAccuracy === 'fail');
+    const compTier1Failures = comparison.results.filter(r => r.tier === 1 && r.toolAccuracy === 'fail');
+
+    if (baseTier1Failures.length > 0 || compTier1Failures.length > 0) {
+      sections += `#### Tier 1 Failures (Requires Investigation)
+
+`;
+      if (baseTier1Failures.length > 0) {
+        sections += `**${baseline.model}:** ${baseTier1Failures.map(r => r.testId).join(', ')}
+
+`;
+      }
+      if (compTier1Failures.length > 0) {
+        sections += `**${comparison.model}:** ${compTier1Failures.map(r => r.testId).join(', ')}
+
+`;
+      }
+    }
+  }
+
   return sections;
 }
 
@@ -381,6 +423,20 @@ export function generateSingleModelSummary(summary: EvalSummary): string {
 | Fitness Accuracy | ${(summary.fitnessAccuracyScore * 100).toFixed(0)}% |
 | Tone Score | ${(summary.toneScore * 100).toFixed(0)}% |
 | Speed Pass Rate | ${(summary.speedPassRate * 100).toFixed(0)}% |
+
+## Test Tier Results (v265)
+
+**Tier 1 (Core)** is the primary quality metric - failures indicate real bugs.
+
+| Tier | Passed/Total | Rate | Notes |
+|------|--------------|------|-------|
+| **Tier 1 (Core)** | ${summary.tierMetrics?.tier1.passed || 0}/${summary.tierMetrics?.tier1.total || 0} | ${((summary.tierMetrics?.tier1.rate || 0) * 100).toFixed(0)}% | Must pass |
+| Tier 2 (Interpretation) | ${summary.tierMetrics?.tier2.passed || 0}/${summary.tierMetrics?.tier2.total || 0} | ${((summary.tierMetrics?.tier2.rate || 0) * 100).toFixed(0)}% | Informational |
+| Tier 3 (Ambiguous) | ${summary.tierMetrics?.tier3.passed || 0}/${summary.tierMetrics?.tier3.total || 0} | ${((summary.tierMetrics?.tier3.rate || 0) * 100).toFixed(0)}% | Clarification OK |
+
+${summary.results.filter(r => r.tier === 1 && r.toolAccuracy === 'fail').length > 0
+  ? `**Tier 1 Failures (Bugs):** ${summary.results.filter(r => r.tier === 1 && r.toolAccuracy === 'fail').map(r => r.testId).join(', ')}\n`
+  : ''}
 
 ## LLM-as-Judge Scores (1-5 scale)
 

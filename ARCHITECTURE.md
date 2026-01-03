@@ -1,6 +1,6 @@
 # Medina Architecture
 
-**Last updated:** January 1, 2026 | **Version:** v250
+**Last updated:** January 3, 2026 | **Version:** v266
 
 Medina is an AI fitness coach with iOS and web clients sharing a Firebase backend.
 

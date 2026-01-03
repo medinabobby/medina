@@ -122,9 +122,54 @@ User terms are silently mapped to Medina concepts (no correction needed):
 | "schedule" | show_schedule | "Here's your schedule..." |
 | "proposal" | plan | "Let me build a plan..." |
 
+## Running Evaluations
+
+The eval framework tests AI behavior across 100+ test cases. To run:
+
+```bash
+cd web/functions
+
+# Get FRESH auth token from browser (via Claude Chrome plugin)
+# Token expires in ~1 hour, so must capture fresh from network request
+# 1. Open https://medinaintelligence.web.app/app in browser
+# 2. Install fetch interceptor in DevTools console:
+#    const origFetch = window.fetch;
+#    window._freshToken = null;
+#    window.fetch = async function(url, opts) {
+#      if (opts?.headers?.Authorization) {
+#        window._freshToken = opts.headers.Authorization.replace('Bearer ', '');
+#      }
+#      return origFetch.apply(this, arguments);
+#    };
+# 3. Send any message in the chat to trigger an API call
+# 4. Download the fresh token:
+#    const blob = new Blob([window._freshToken], { type: 'text/plain' });
+#    const a = document.createElement('a');
+#    a.href = URL.createObjectURL(blob);
+#    a.download = 'fresh_token.txt';
+#    a.click();
+
+# Run eval (use fresh token immediately - expires in ~1 hour)
+export EVAL_AUTH_TOKEN=$(cat ~/Downloads/fresh_token.txt)
+npm run eval -- run --model gpt-4o-mini \
+  --endpoint https://us-central1-medinaintelligence.cloudfunctions.net/chat \
+  --output docs/benchmarking/results-v266.json
+
+# Generate memo
+npm run eval -- memo --input results.json > EVAL_MEMO.md
+```
+
+Key eval files:
+| Purpose | Path |
+|---------|------|
+| Test cases | `web/functions/src/evaluation/testSuite.ts` |
+| Runner | `web/functions/src/evaluation/runner.ts` |
+| CLI | `web/functions/src/evaluation/cli.ts` |
+| Results | `docs/benchmarking/results-*.json` |
+
 ## Current Version
 
-v250
+v266
 
 ## Recent Changes (v248-250)
 

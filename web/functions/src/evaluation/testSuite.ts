@@ -19,7 +19,7 @@
 
 export interface TestCase {
   id: string;
-  category: 'tool_calling' | 'fitness_accuracy' | 'tone' | 'speed' | 'onboarding' | 'import' | 'tier';
+  category: 'tool_calling' | 'fitness_accuracy' | 'tone' | 'speed' | 'onboarding' | 'import' | 'tier' | 'protocol_accuracy';
   prompt: string;
   expectedTool?: string | null;  // Which tool should be called (null = no tool)
   expectedTopics?: string[];     // Keywords that should appear in response
@@ -35,6 +35,8 @@ export interface TestCase {
   isRiskyAction?: boolean;                 // Destructive actions (delete, etc.) - MUST ask confirmation
   followUpPrompt?: string;                 // What to send if AI asks for confirmation
   acceptableTools?: string[];              // Alternative correct tools (partial credit)
+  unacceptableTools?: string[];            // v264: Tools that would be WRONG for this test
+  edgeCase?: boolean;                      // v264: Flag for human review attention
 
   // v253: Multimodal support
   testType?: 'text' | 'vision' | 'url_import';  // Default: 'text'
@@ -42,6 +44,31 @@ export interface TestCase {
   importUrl?: string;                      // URL to fetch and import (for url_import tests)
   expectedExtractions?: string[];          // Expected exercise names from vision/url extraction
   tierRecommendation?: 'fast' | 'standard' | 'smart' | 'vision';  // For tier tests
+
+  // v260: Protocol accuracy tests
+  expectedProtocol?: string;               // Expected protocolId for protocol_accuracy tests
+  expectedExerciseIds?: string[];          // Expected exercise IDs for exercise accuracy tests
+
+  // v263: Split type accuracy tests
+  expectedSplitType?: string;              // Expected splitType for vision import tests (e.g., 'pushLegs', 'pushPullLegs')
+
+  // v265: Test tier classification
+  // Tier 1 (Core): Uses Medina terminology, must execute correctly
+  // Tier 2 (Interpretation): Clear intent but varied language, execute OR clarify OK
+  // Tier 3 (Ambiguous): Unclear intent, clarification preferred
+  tier?: 1 | 2 | 3;
+
+  // v266: Output quality constraints - validate the OUTPUT is correct, not just tool called
+  expectedConstraints?: {
+    duration?: number;           // Expected workout duration in minutes
+    durationTolerance?: number;  // ±N min tolerance (default: 15)
+    splitType?: string;          // 'upper', 'lower', 'push', 'pull', 'full', 'legs'
+    protocol?: string;           // 'GBC', '5x5', 'rest_pause'
+    equipment?: string[];        // ['barbell', 'dumbbells', 'bodyweight']
+    exerciseCount?: number;      // Expected number of exercises
+    exercises?: string[];        // Specific exercises that must be included
+    date?: string;               // 'tomorrow', 'today', 'monday'
+  };
 }
 
 export const TEST_CASES: TestCase[] = [
@@ -118,6 +145,7 @@ export const TEST_CASES: TestCase[] = [
     intentClarity: 'low',  // User stating info, not explicit command
     followUpPrompt: 'Yes, update my profile',
     acceptableTools: ['update_profile'],  // Acceptable if user confirms
+    edgeCase: true,  // v264: Ask first vs execute - both defensible
   },
   {
     id: 'TC08',
@@ -148,6 +176,7 @@ export const TEST_CASES: TestCase[] = [
     intentClarity: 'low',  // Preference statement, not command
     followUpPrompt: 'Yes, save that preference',
     acceptableTools: ['update_profile'],  // Acceptable if user confirms
+    edgeCase: true,  // v264: Preference vs command - ask or execute both defensible
   },
 
   // =========================================================================
@@ -339,9 +368,10 @@ export const TEST_CASES: TestCase[] = [
     id: 'SP03',
     category: 'speed',
     prompt: 'What day is leg day?',
-    expectedTool: null,  // General question, no tool needed
+    expectedTool: null,  // No strong expectation - multiple valid approaches
+    acceptableTools: ['show_schedule', 'get_summary'],  // v264: Showing schedule is helpful, not wrong
     maxResponseTime: 2500,
-    description: 'Simple question about schedule',
+    description: 'Simple question about schedule - text answer OR show_schedule both valid',
     latencyCategory: 'basic',
     intentClarity: 'n/a',  // Question, not command
   },
@@ -406,7 +436,9 @@ export const TEST_CASES: TestCase[] = [
     intentClarity: 'high',
     isRiskyAction: true,  // Destructive - MUST ask confirmation
     followUpPrompt: 'Yes, delete it',
-    acceptableTools: ['delete_plan'],  // Acceptable after confirmation
+    acceptableTools: ['delete_plan', 'abandon_plan'],  // v264: Either tool valid for "delete" intent
+    unacceptableTools: ['create_plan', 'activate_plan'],  // v264: Wrong direction
+    edgeCase: true,  // v264: Business rule - which delete tool is "right"?
   },
   {
     id: 'PL02',
@@ -462,10 +494,11 @@ export const TEST_CASES: TestCase[] = [
     category: 'tool_calling',
     prompt: 'Create a workout',
     expectedTool: 'create_workout',
-    description: 'Minimal command - should create workout using profile defaults',
+    description: 'Vague command - AI should ask for details, then create workout',
     latencyCategory: 'tool_call',
-    intentClarity: 'high',  // Clear command, can use defaults
-    followUpPrompt: 'Yes, create it',
+    intentClarity: 'low',  // v266: Vague command, asking for clarification is appropriate
+    tier: 2,  // v266: Clarification acceptable, not a Tier 1 "must pass immediately"
+    followUpPrompt: 'Upper body, 45 minutes',  // v266: Meaningful follow-up with actual details
   },
   {
     id: 'ED03',
@@ -576,6 +609,7 @@ export const TEST_CASES: TestCase[] = [
     intentClarity: 'medium',
     acceptableTools: ['create_workout', 'suggest_options'],
     followUpPrompt: 'Create a leg workout',
+    edgeCase: true,  // v264: Genuinely ambiguous - requires human judgment
   },
 
   // =========================================================================
@@ -730,14 +764,14 @@ export const TEST_CASES: TestCase[] = [
     id: 'TT06',
     category: 'tier',
     prompt: 'Import this workout from the screenshot',
-    expectedTool: null,
-    description: 'Vision task placeholder - vision tier needed',
+    expectedTool: 'update_exercise_target',
+    description: 'Vision task - 1RM spreadsheet should update targets',
     latencyCategory: 'vision',
     intentClarity: 'high',
     tierRecommendation: 'vision',
     testType: 'vision',
-    imageFixture: 'spreadsheet-screenshot.jpg',
-    expectedExtractions: ['bench press', 'squat', 'deadlift'],
+    imageFixture: 'bobby-1rm-max.png',
+    expectedExtractions: ['squat', 'deadlift', 'bench'],
   },
 
   // =========================================================================
@@ -818,131 +852,6 @@ export const TEST_CASES: TestCase[] = [
   },
 
   // =========================================================================
-  // VISION IMPORT TESTS (v253)
-  // Test screenshot/photo import workflows - requires user-provided fixtures
-  // =========================================================================
-  {
-    id: 'IM01',
-    category: 'import',
-    prompt: 'Import this workout log',
-    expectedTool: null,
-    description: 'Spreadsheet screenshot - should extract exercises and sets',
-    latencyCategory: 'vision',
-    intentClarity: 'high',
-    testType: 'vision',
-    imageFixture: 'spreadsheet-screenshot.jpg',
-    expectedExtractions: ['bench press', 'squat'],
-  },
-  {
-    id: 'IM02',
-    category: 'import',
-    prompt: 'Add these exercises to my history',
-    expectedTool: null,
-    description: 'Strong app screenshot - should extract and import workout',
-    latencyCategory: 'vision',
-    intentClarity: 'high',
-    testType: 'vision',
-    imageFixture: 'strong-app-screenshot.jpg',
-    expectedExtractions: ['exercise'],
-  },
-  {
-    id: 'IM03',
-    category: 'import',
-    prompt: 'Can you read my workout notes?',
-    expectedTool: null,
-    description: 'Handwritten log - should OCR and extract exercises',
-    latencyCategory: 'vision',
-    intentClarity: 'high',
-    testType: 'vision',
-    imageFixture: 'handwritten-log.jpg',
-    expectedExtractions: ['exercise'],
-  },
-  {
-    id: 'IM04',
-    category: 'import',
-    prompt: 'I want to try this workout',
-    expectedTool: null,
-    description: 'Instagram workout post - should extract program',
-    latencyCategory: 'vision',
-    intentClarity: 'high',
-    testType: 'vision',
-    imageFixture: 'instagram-post.jpg',
-    expectedExtractions: ['exercise'],
-  },
-  {
-    id: 'IM05',
-    category: 'import',
-    prompt: 'Save these PRs',
-    expectedTool: null,
-    description: 'Gym PR board photo - should extract 1RMs',
-    latencyCategory: 'vision',
-    intentClarity: 'high',
-    testType: 'vision',
-    imageFixture: 'pr-board.jpg',
-    expectedExtractions: ['bench', 'squat', 'deadlift'],
-  },
-  {
-    id: 'IM06',
-    category: 'import',
-    prompt: 'Import this',
-    expectedTool: null,
-    description: 'Blurry/low-quality photo - should handle gracefully with low confidence',
-    latencyCategory: 'vision',
-    intentClarity: 'high',
-    testType: 'vision',
-    imageFixture: 'blurry-image.jpg',
-    expectedTopics: ['unclear', 'blurry', 'quality', 'try again'],
-  },
-  {
-    id: 'IM07',
-    category: 'import',
-    prompt: 'Import this',
-    expectedTool: null,
-    description: 'Non-workout image (cat photo) - should politely decline',
-    latencyCategory: 'vision',
-    intentClarity: 'n/a',
-    testType: 'vision',
-    imageFixture: 'non-workout.jpg',
-    expectedTopics: ['workout', 'exercise', 'fitness', 'image'],
-  },
-  {
-    id: 'IM08',
-    category: 'import',
-    prompt: 'Log this set',
-    expectedTool: null,
-    description: 'Machine display photo - should extract weight/reps',
-    latencyCategory: 'vision',
-    intentClarity: 'high',
-    testType: 'vision',
-    imageFixture: 'machine-display.jpg',
-    expectedExtractions: ['weight', 'reps'],
-  },
-  {
-    id: 'IM09',
-    category: 'import',
-    prompt: 'Import my old program',
-    expectedTool: null,
-    description: 'TrueCoach screenshot - should extract full program',
-    latencyCategory: 'vision',
-    intentClarity: 'high',
-    testType: 'vision',
-    imageFixture: 'truecoach-screenshot.jpg',
-    expectedExtractions: ['exercise', 'sets', 'reps'],
-  },
-  {
-    id: 'IM10',
-    category: 'import',
-    prompt: 'Add all of these',
-    expectedTool: null,
-    description: 'Multiple exercises in one image - should batch extract',
-    latencyCategory: 'vision',
-    intentClarity: 'high',
-    testType: 'vision',
-    imageFixture: 'multiple-exercises.jpg',
-    expectedExtractions: ['exercise'],
-  },
-
-  // =========================================================================
   // VISION IMPORT INTENT CLASSIFICATION TESTS (v259)
   // Test correct action detection: workout vs plan vs profile vs history
   // =========================================================================
@@ -993,6 +902,8 @@ export const TEST_CASES: TestCase[] = [
     testType: 'vision',
     imageFixture: 'push-day-plan.png',
     expectedExtractions: ['push day', 'leg day', 'incline', 'squat', 'leg press'],
+    // v263: Split type accuracy - DEFERRED (system only supports 5 hardcoded splits)
+    // expectedSplitType: 'pushLegs',  // Would need custom split support to pass
   },
   {
     id: 'VIS05',
@@ -1029,6 +940,243 @@ export const TEST_CASES: TestCase[] = [
     testType: 'vision',
     imageFixture: 'truecoach-results.png',
     expectedExtractions: ['105', '95', '12', '9', '11', '10'],
+  },
+
+  // =========================================================================
+  // PROTOCOL ACCURACY TESTS (v260)
+  // Test that AI passes correct protocol when user specifies training style
+  // =========================================================================
+  {
+    id: 'PROT01',
+    category: 'protocol_accuracy',
+    prompt: 'Create a plan using GBC protocol',
+    expectedTool: 'create_plan',
+    expectedProtocol: 'gbc_relative_compound',
+    description: 'GBC request should pass gbc_relative_compound protocolId',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    followUpPrompt: 'Yes, create it',
+    expectedTopics: ['GBC', 'German Body', '12', '30'],
+  },
+  {
+    id: 'PROT02',
+    category: 'protocol_accuracy',
+    prompt: 'Make me an 8 week hypertrophy program with drop sets',
+    expectedTool: 'create_plan',
+    expectedProtocol: 'drop_set',
+    description: 'Drop set request should pass drop_set protocolId',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    followUpPrompt: 'Yes, create it',
+  },
+  {
+    id: 'PROT03',
+    category: 'protocol_accuracy',
+    prompt: 'Create a strength plan with 5x5',
+    expectedTool: 'create_plan',
+    expectedProtocol: 'strength_5x5_compound',
+    description: '5x5 request should pass strength_5x5_compound protocolId',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    followUpPrompt: 'Yes, create it',
+    expectedTopics: ['5x5', '5', 'sets', 'strength'],
+  },
+  {
+    id: 'PROT04',
+    category: 'protocol_accuracy',
+    prompt: 'Create a workout with German Body Comp training',
+    expectedTool: 'create_workout',
+    expectedProtocol: 'gbc_relative_compound',
+    description: 'GBC workout should pass gbc_relative_compound protocolId',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    followUpPrompt: 'Yes, create it',
+  },
+  {
+    id: 'PROT05',
+    category: 'protocol_accuracy',
+    prompt: 'Build me a plan with rest-pause training',
+    expectedTool: 'create_plan',
+    expectedProtocol: 'rest_pause',
+    description: 'Rest-pause request should pass rest_pause protocolId',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    followUpPrompt: 'Yes, create it',
+    expectedTopics: ['rest', 'pause'],
+  },
+  {
+    id: 'PROT06',
+    category: 'protocol_accuracy',
+    prompt: 'Create a plan with bench press, squats, and deadlifts',
+    expectedTool: 'create_plan',
+    expectedExerciseIds: ['barbell_bench_press', 'barbell_back_squat', 'barbell_deadlift'],
+    description: 'Explicit exercises should be passed via exerciseIds',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    followUpPrompt: 'Yes, create it',
+  },
+
+  // =========================================================================
+  // WORKOUT QUALITY TESTS (v266)
+  // Test that AI creates workouts with CORRECT constraints, not just calls tool
+  // These validate OUTPUT quality, not just tool invocation
+  // =========================================================================
+  {
+    id: 'WQ01',
+    category: 'tool_calling',
+    prompt: 'Create a 45-minute upper body workout for tomorrow using GBC protocol',
+    expectedTool: 'create_workout',
+    description: 'Full constraint workout - duration, split, protocol, date',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    tier: 1,
+    followUpPrompt: 'Yes, create it',
+    expectedConstraints: {
+      duration: 45,
+      durationTolerance: 10,
+      splitType: 'upper',
+      protocol: 'gbc',
+      date: 'tomorrow',
+    },
+  },
+  {
+    id: 'WQ02',
+    category: 'tool_calling',
+    prompt: 'Create a 60-minute home workout with only bodyweight exercises',
+    expectedTool: 'create_workout',
+    description: 'Home workout with equipment constraints',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    tier: 1,
+    followUpPrompt: 'Yes, create it',
+    expectedConstraints: {
+      duration: 60,
+      durationTolerance: 15,
+      equipment: ['bodyweight'],
+    },
+  },
+  {
+    id: 'WQ03',
+    category: 'tool_calling',
+    prompt: 'Create a push workout with bench press, overhead press, and dips',
+    expectedTool: 'create_workout',
+    description: 'Push workout with specific exercises',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    tier: 1,
+    followUpPrompt: 'Yes, create it',
+    expectedConstraints: {
+      splitType: 'push',
+      exercises: ['bench_press', 'overhead_press', 'dips'],
+    },
+  },
+  {
+    id: 'WQ04',
+    category: 'tool_calling',
+    prompt: 'Create a 30-minute lower body workout',
+    expectedTool: 'create_workout',
+    description: 'Lower body workout with duration',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    tier: 1,
+    followUpPrompt: 'Yes, create it',
+    expectedConstraints: {
+      duration: 30,
+      durationTolerance: 10,
+      splitType: 'lower',
+    },
+  },
+  {
+    id: 'WQ05',
+    category: 'tool_calling',
+    prompt: 'Create a leg workout for today',
+    expectedTool: 'create_workout',
+    description: 'Leg workout with date',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    tier: 1,
+    followUpPrompt: 'Yes, create it',
+    expectedConstraints: {
+      splitType: 'legs',
+      date: 'today',
+    },
+  },
+  {
+    id: 'WQ06',
+    category: 'tool_calling',
+    prompt: 'Create a quick 20-minute full body workout',
+    expectedTool: 'create_workout',
+    description: 'Short full body workout',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    tier: 1,
+    followUpPrompt: 'Yes, create it',
+    expectedConstraints: {
+      duration: 20,
+      durationTolerance: 5,
+      splitType: 'full',
+    },
+  },
+  {
+    id: 'WQ07',
+    category: 'tool_calling',
+    prompt: 'Create a full body workout with dumbbells only',
+    expectedTool: 'create_workout',
+    description: 'Full body with dumbbell constraints',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    tier: 1,
+    followUpPrompt: 'Yes, create it',
+    expectedConstraints: {
+      splitType: 'full',
+      equipment: ['dumbbells', 'dumbbell'],
+    },
+  },
+  {
+    id: 'WQ08',
+    category: 'tool_calling',
+    prompt: 'Create a pull workout with heavy barbell rows',
+    expectedTool: 'create_workout',
+    description: 'Pull workout with specific exercise',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    tier: 1,
+    followUpPrompt: 'Yes, create it',
+    expectedConstraints: {
+      splitType: 'pull',
+      exercises: ['barbell_row', 'row'],
+    },
+  },
+  {
+    id: 'WQ09',
+    category: 'tool_calling',
+    prompt: 'Create a 45-minute workout from home with light dumbbells',
+    expectedTool: 'create_workout',
+    description: 'Home workout with duration and equipment',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    tier: 1,
+    followUpPrompt: 'Yes, create it',
+    expectedConstraints: {
+      duration: 45,
+      durationTolerance: 15,
+      equipment: ['dumbbells', 'dumbbell', 'bodyweight'],
+    },
+  },
+  {
+    id: 'WQ10',
+    category: 'tool_calling',
+    prompt: 'Create an upper body workout with 5x5 strength focus',
+    expectedTool: 'create_workout',
+    description: 'Upper body with 5x5 protocol',
+    latencyCategory: 'tool_call',
+    intentClarity: 'high',
+    tier: 1,
+    followUpPrompt: 'Yes, create it',
+    expectedConstraints: {
+      splitType: 'upper',
+      protocol: '5x5',
+    },
   },
 ];
 
@@ -1093,4 +1241,82 @@ export function getTestSuiteSummary(): {
     byCategory,
     byLatencyCategory,
   };
+}
+
+/**
+ * v265: Assign tier to a test based on prompt heuristics
+ *
+ * Tier 1 (Core): Uses Medina terminology explicitly
+ * Tier 2 (Interpretation): Clear intent but varied/colloquial language
+ * Tier 3 (Ambiguous): Genuinely unclear intent
+ */
+export function assignTier(test: TestCase): 1 | 2 | 3 {
+  // If tier is explicitly set, use it
+  if (test.tier) return test.tier;
+
+  const prompt = test.prompt.toLowerCase();
+
+  // Tier 1 patterns: Medina terminology with clear action verbs
+  const tier1Patterns = [
+    /create\s+(a\s+)?(push|pull|leg|upper|lower|full.body)?\s*workout/,
+    /create\s+(a\s+)?\d+.week\s+plan/,
+    /show\s+(my\s+)?schedule/,
+    /add\s+.+\s+to\s+(my\s+)?library/,
+    /update\s+(my\s+)?profile/,
+    /skip\s+(today.s\s+)?workout/,
+    /delete\s+(my\s+)?plan/,
+    /activate\s+(this\s+)?plan/,
+    /analyze\s+(my\s+)?(progress|training)/,
+  ];
+
+  // Tier 3 patterns: Genuinely ambiguous (single words, statements, vague)
+  const tier3Patterns = [
+    /^(legs?|push|pull|chest|back|arms?|shoulders?|core)$/i,  // Single body part
+    /^(5x5|gbc|ppl|bro.split)$/i,  // Protocol abbreviations alone
+    /^i('m|.am)\s+\d+\s+(years?\s+old|lbs?|kg)/,  // Age/weight statements
+    /^i\s+want\s+to\s+(train|workout|lift)/,  // Preference statements
+    /^(give|get)\s+me\s+(a\s+)?(something|workout)/,  // Vague requests
+    /^help\s+me\s+(start|begin)/,  // Onboarding vague
+  ];
+
+  // Check Tier 1 first (most specific)
+  for (const pattern of tier1Patterns) {
+    if (pattern.test(prompt)) return 1;
+  }
+
+  // Check Tier 3 (ambiguous)
+  for (const pattern of tier3Patterns) {
+    if (pattern.test(prompt)) return 3;
+  }
+
+  // Check for knowledge questions (Tier 1 - no tool expected)
+  if (test.intentClarity === 'n/a') return 1;
+
+  // Check for fitness accuracy tests (Tier 1 - knowledge validation)
+  if (test.category === 'fitness_accuracy' || test.category === 'tone') return 1;
+
+  // Tier 2: Everything else (clear intent but varied language)
+  // Includes: "program", "routine", protocol names without explicit plan/workout
+  return 2;
+}
+
+/**
+ * v265: Get test cases by tier
+ */
+export function getTestsByTier(tier: 1 | 2 | 3): TestCase[] {
+  return TEST_CASES.filter(t => assignTier(t) === tier);
+}
+
+/**
+ * v265: Get tier summary
+ */
+export function getTierSummary(): { tier1: number; tier2: number; tier3: number } {
+  let tier1 = 0, tier2 = 0, tier3 = 0;
+  for (const test of TEST_CASES) {
+    const tier = assignTier(test);
+    if (tier === 1) tier1++;
+    else if (tier === 2) tier2++;
+    else tier3++;
+  }
+  return { tier1, tier2, tier3 };
 }

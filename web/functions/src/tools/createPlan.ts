@@ -54,6 +54,8 @@ interface CreatePlanArgs {
   intensityEnd?: number;
   goalWeightChange?: number;
   forMemberId?: string;
+  exerciseIds?: string[];  // v260: Exercise names/IDs from vision import or explicit request
+  protocolId?: string;     // v260: Protocol to apply (e.g., 'gbc_relative_compound', 'drop_set')
 }
 
 /**
@@ -356,13 +358,16 @@ export async function createPlanHandler(
     console.log(`[create_plan] Created ${workouts.length} workouts`);
 
     // Step 8: Populate exercises for near-term workouts (within 7 days)
+    // v260: Pass exerciseIds and protocolId for vision import and explicit requests
     await populateNearTermExercises(
       db,
       uid,
       workouts,
       params.sessionDuration,
       params.trainingLocation,
-      params.startDate
+      params.startDate,
+      typedArgs.exerciseIds,
+      typedArgs.protocolId
     );
 
     // Step 9: Format success response
@@ -1458,6 +1463,9 @@ function generateShortId(): string {
  * Phase 6 integration: Near-term workouts get exercises selected immediately
  * so users can see their upcoming exercises. Workouts beyond 7 days remain
  * as stubs - exercises will be selected at runtime.
+ *
+ * v260: Added requestedExerciseIds and protocolId parameters to support
+ * vision import and explicit exercise/protocol requests.
  */
 async function populateNearTermExercises(
   db: admin.firestore.Firestore,
@@ -1465,7 +1473,9 @@ async function populateNearTermExercises(
   workouts: WorkoutDoc[],
   sessionDuration: number,
   trainingLocation: string,
-  planStartDate: Date
+  planStartDate: Date,
+  requestedExerciseIds?: string[],
+  protocolId?: string
 ): Promise<void> {
   // Calculate 7-day cutoff from plan start
   const cutoffDate = new Date(planStartDate);
@@ -1484,6 +1494,14 @@ async function populateNearTermExercises(
 
   console.log(`[create_plan] Populating exercises for ${nearTermWorkouts.length} near-term workouts`);
 
+  // v260: Log if user specified exercises or protocol
+  if (requestedExerciseIds?.length) {
+    console.log(`[create_plan] v260: Using requested exercises: ${requestedExerciseIds.join(", ")}`);
+  }
+  if (protocolId) {
+    console.log(`[create_plan] v260: Using requested protocol: ${protocolId}`);
+  }
+
   // Convert training location to Equipment array and TrainingLocation type
   const location = trainingLocation as TrainingLocation;
   const equipment = determineEquipmentFromLocation(location);
@@ -1498,12 +1516,14 @@ async function populateNearTermExercises(
       const serviceSplitDay = workout.splitDay as ServiceSplitDay;
 
       // Select exercises using ExerciseSelector
+      // v260: Pass requestedExerciseIds to enable name matching for vision import
       const selectionResult = await selectExercises(db, {
         splitDay: serviceSplitDay,
         sessionType: "strength",
         targetCount: exerciseCount,
         availableEquipment: equipment,
         trainingLocation: location,
+        requestedExerciseIds,
       });
 
       const exercises = selectionResult.exercises;
@@ -1516,15 +1536,17 @@ async function populateNearTermExercises(
       const exerciseIds = exercises.map((e) => e.id);
 
       // Assign protocols to get protocol variant IDs
+      // v260: Pass protocolOverride if user specified a protocol
       const protocolResult = assignProtocols({
         exercises,
         effortLevel: "standard",
+        protocolOverride: protocolId,
       });
       const protocolVariantIds: Record<string, string> = {};
       exercises.forEach((_, index) => {
-        const protocolId = protocolResult.protocolIds[index];
-        if (protocolId) {
-          protocolVariantIds[index.toString()] = protocolId;
+        const assignedProtocolId = protocolResult.protocolIds[index];
+        if (assignedProtocolId) {
+          protocolVariantIds[index.toString()] = assignedProtocolId;
         }
       });
 
