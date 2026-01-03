@@ -77,132 +77,67 @@ Files to check for parity:
 
 ## AI Behavior Rules (v267)
 
-The AI assistant follows a **stakes-based UX framework** for when to act vs ask.
+The AI follows a **stakes-based UX framework** for when to act vs ask.
 
-### Stakes-Based Action Pattern
+**See [INTENT.md](./INTENT.md) for the complete design philosophy and extension guide.**
 
-| Action Type | Stakes | Pattern | Example |
-|-------------|--------|---------|---------|
-| **create_workout** | LOW | Execute → Confirm | Create immediately, offer changes after |
-| **create_plan** | HIGH | Confirm → Execute | Propose params, wait for OK, then create |
-| **update_profile** | MEDIUM | Explicit = Act, Statement = Ask | "Update to 4 days" = act; "I want 4 days" = ask |
-| **destructive** | HIGH | Always confirm | "Delete my plan" = must confirm |
+### Quick Reference
 
-### LOW Stakes: Execute Then Confirm (v267)
+| Stakes | Pattern | Example |
+|--------|---------|---------|
+| **LOW** | Execute → Offer adjustments | Single workout: create immediately |
+| **MEDIUM** | Command = Act, Statement = Ask | "Update to 4 days" vs "I want 4 days" |
+| **HIGH** | Confirm → Execute | Plans, deletions: confirm first |
 
-For single workout creation, **execute immediately** with smart defaults:
-- Duration: Use profile.preferredSessionDuration OR 45 min
-- Location: Use profile.trainingLocation OR "gym"
-- Date: Tomorrow (or next available day)
+### Key Behaviors
 
-**After creating:** Offer to adjust: "Created your 45-min workout! Want me to change duration, location, or exercises?"
-
-```
-User: "Create a GBC workout"
-AI: [EXECUTES immediately] "Created your 45-min GBC workout for tomorrow! Want me to change anything?"
-```
-
-### HIGH Stakes: Confirm Then Execute
-
-For multi-week plans, **confirm key params first**:
-- Duration (weeks), days/week, session duration, goal
-
-```
-User: "Create a strength plan"
-AI: "I'll create a 12-week strength plan, 4 days/week. Sound good?"
-User: "Make it 8 weeks"
-AI: [EXECUTES with 8 weeks]
-```
-
-### When to ACT Immediately
-
-| User Says | Tool | Why |
-|-----------|------|-----|
-| "Create a push workout" | `create_workout` | Low stakes, use defaults |
-| "Create a GBC workout" | `create_workout` | Low stakes, use defaults |
-| "Update my profile to 4 days" | `update_profile` | Explicit command |
-| "Skip today's workout" | `skip_workout` | Explicit, reversible |
-| "Add bench press to my library" | `add_to_library` | Explicit, reversible |
-| "My bench 1RM is 225" | `update_exercise_target` | User providing data |
-| "Show my schedule" | `show_schedule` | Read-only |
-
-### When to ASK/CONFIRM First
-
-| User Says | Why Confirm |
-|-----------|-------------|
-| "Create a 12-week plan" | High stakes, multi-week commitment |
-| "I want to train 4 days" | Preference statement, not command |
-| "I'm 5'11 and 180 lbs" | User stating info, not requesting save |
-| "Delete my plan" | Destructive action |
-| "Activate this plan" | Multi-week commitment |
-
-### When to ADVISE First
-
-| User Says | Why Advise |
-|-----------|------------|
-| Going from 2→7 days/week | Major change, overtraining risk |
-| "Gain 50lbs muscle in 3 months" | Unrealistic expectation |
-| Training through injury | Safety concern |
-
-### Synonym Handling
-
-User terms are silently mapped to Medina concepts (no correction needed):
-
-| User Says | Maps To | Example Response |
-|-----------|---------|------------------|
-| "program" | plan | "I'll create a training plan..." |
-| "routine" | workout/plan | Context determines which |
-| "schedule" | show_schedule | "Here's your schedule..." |
-| "proposal" | plan | "Let me build a plan..." |
+- **create_workout**: LOW stakes - execute immediately with smart defaults
+- **create_plan**: HIGH stakes - confirm params before executing
+- **destructive actions**: Always confirm
+- **user statements**: Ask before saving to profile
 
 ## Running Evaluations
 
-The eval framework tests AI behavior across 100+ test cases. To run:
+**See [docs/benchmarking/README.md](./docs/benchmarking/README.md) for full evaluation guide.**
 
+Quick start:
 ```bash
 cd web/functions
 
-# Get FRESH auth token from browser (via Claude Chrome plugin)
-# Token expires in ~1 hour, so must capture fresh from network request
-# 1. Open https://medinaintelligence.web.app/app in browser
-# 2. Install fetch interceptor in DevTools console:
-#    const origFetch = window.fetch;
-#    window._freshToken = null;
-#    window.fetch = async function(url, opts) {
-#      if (opts?.headers?.Authorization) {
-#        window._freshToken = opts.headers.Authorization.replace('Bearer ', '');
-#      }
-#      return origFetch.apply(this, arguments);
-#    };
-# 3. Send any message in the chat to trigger an API call
-# 4. Download the fresh token:
-#    const blob = new Blob([window._freshToken], { type: 'text/plain' });
-#    const a = document.createElement('a');
-#    a.href = URL.createObjectURL(blob);
-#    a.download = 'fresh_token.txt';
-#    a.click();
-
-# Run eval (use fresh token immediately - expires in ~1 hour)
-export EVAL_AUTH_TOKEN=$(cat ~/Downloads/fresh_token.txt)
-npm run eval -- run --model gpt-4o-mini \
+# Get fresh auth token from browser DevTools (Network tab → /chat request → Authorization header)
+npm run eval -- run \
+  --model gpt-4o-mini \
   --endpoint https://us-central1-medinaintelligence.cloudfunctions.net/chat \
-  --output docs/benchmarking/results-v266.json
-
-# Generate memo
-npm run eval -- memo --input results.json > EVAL_MEMO.md
+  --token "YOUR_TOKEN" \
+  --concurrency 5 \
+  --output docs/benchmarking/results/vXXX/results.json
 ```
 
-Key eval files:
+Key files:
 | Purpose | Path |
 |---------|------|
 | Test cases | `web/functions/src/evaluation/testSuite.ts` |
-| Runner | `web/functions/src/evaluation/runner.ts` |
-| CLI | `web/functions/src/evaluation/cli.ts` |
-| Results | `docs/benchmarking/results-*.json` |
+| Framework docs | `docs/benchmarking/README.md` |
+| Results | `docs/benchmarking/results/` |
 
 ## Current Version
 
-v267
+v268
+
+## Recent Changes (v268)
+
+### Prompt Optimization
+- Response time: 6,174ms → 5,050ms (-18%)
+- Cost: $0.20 → $0.189 (-5.5%)
+- Tier 1 pass rate: 100% (no regression)
+
+Key changes:
+- Consolidated tool instruction triggers
+- Extracted shared enum constants in definitions.ts
+- Added INTENT.md for design philosophy documentation
+
+### Key Learning
+WRONG EXAMPLES section in `coreRules.ts` is critical - removing it caused Tier 1 regression.
 
 ## Recent Changes (v267)
 
