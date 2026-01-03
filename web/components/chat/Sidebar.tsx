@@ -7,6 +7,7 @@ import type { Plan } from '@/lib/types';
 import PlansFolder from './folders/PlansFolder';
 import ScheduleFolder from './folders/ScheduleFolder';
 import LibraryFolder from './folders/LibraryFolder';
+import MessagesFolder from './folders/MessagesFolder';
 import TrainingPreferencesModal from '@/components/TrainingPreferencesModal';
 import ProfilePanel from '@/components/profile/ProfilePanel';
 
@@ -136,20 +137,8 @@ export default function Sidebar({ isOpen, onClose, isMobile, refreshKey = 0 }: S
             </div>
           ) : (
             <div className="space-y-1">
-              {/* Messages Folder */}
-              <FolderSection
-                icon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                  </svg>
-                }
-                title="Messages"
-                count={0}
-              >
-                <div className="pl-7 py-2 text-sm text-gray-400">
-                  No messages yet
-                </div>
-              </FolderSection>
+              {/* v269: Messages Folder - shows message threads */}
+              <MessagesFolder refreshKey={refreshKey} />
 
               {/* v248: Schedule Folder - shows this week's workouts */}
               <ScheduleFolder refreshKey={refreshKey} />

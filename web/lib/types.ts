@@ -125,12 +125,15 @@ export interface ProtocolConfig {
 }
 
 // ============================================
-// Messages & Threads
+// Messages & Threads (v269: Expanded for web parity)
 // ============================================
+
+export type MessageType = 'general' | 'planUpdate' | 'checkIn' | 'encouragement' | 'reminder';
 
 export interface Thread {
   id: string;
   participantIds: string[];
+  subject: string;
   lastMessageAt: Date;
   lastMessagePreview?: string;
   unreadCount?: number;
@@ -141,8 +144,10 @@ export interface ThreadMessage {
   threadId: string;
   senderId: string;
   content: string;
+  messageType: MessageType;
   createdAt: Date;
   readAt?: Date;
+  replyToId?: string;
 }
 
 // ============================================

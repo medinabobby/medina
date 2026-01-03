@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
-type EntityType = 'plan' | 'program' | 'workout' | 'exercise' | 'schedule';
+type EntityType = 'plan' | 'program' | 'workout' | 'exercise' | 'schedule' | 'thread';
 
 interface NavigationItem {
   type: EntityType;
@@ -33,6 +33,8 @@ interface DetailModalContextType {
   openExercise: (exerciseId: string, exerciseName: string, workoutId?: string, workoutName?: string) => void;
   // v248: Schedule navigation
   openSchedule: (weekStart?: string, weekEnd?: string) => void;
+  // v269: Thread navigation
+  openThread: (threadId: string, threadSubject: string) => void;
   goBack: () => void;
   close: () => void;
   refresh: () => void;
@@ -139,6 +141,13 @@ export function DetailModalProvider({ children }: { children: ReactNode }) {
     ]);
   }, []);
 
+  // v269: Open thread view
+  const openThread = useCallback((threadId: string, threadSubject: string) => {
+    setNavigationStack([
+      { type: 'thread', id: threadId, label: threadSubject }
+    ]);
+  }, []);
+
   const goBack = useCallback(() => {
     setNavigationStack(prev => {
       if (prev.length <= 1) return [];
@@ -165,6 +174,7 @@ export function DetailModalProvider({ children }: { children: ReactNode }) {
         openWorkout,
         openExercise,
         openSchedule,
+        openThread,
         goBack,
         close,
         refresh,

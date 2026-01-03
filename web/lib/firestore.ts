@@ -722,3 +722,107 @@ export async function removeFromLibrary(uid: string, exerciseId: string): Promis
     lastModified: new Date()
   }, { merge: true });
 }
+
+// ============================================
+// Messages & Threads (v269: Web parity)
+// ============================================
+
+import type { Thread, ThreadMessage, MessageType } from './types';
+
+/**
+ * Get all threads for a user, ordered by most recent first
+ */
+export async function getThreads(uid: string): Promise<Thread[]> {
+  const db = getFirebaseDb();
+  const threadsRef = collection(db, 'threads');
+
+  // Query threads where user is a participant
+  const q = query(
+    threadsRef,
+    where('participantIds', 'array-contains', uid),
+    orderBy('lastMessageAt', 'desc')
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      participantIds: data.participantIds || [],
+      subject: data.subject || 'No subject',
+      lastMessageAt: toDate(data.lastMessageAt) || new Date(),
+      lastMessagePreview: data.lastMessageContent,
+      // unreadCount calculated client-side if needed
+    } as Thread;
+  });
+}
+
+/**
+ * Get a single thread with all its messages
+ */
+export async function getThreadWithMessages(
+  uid: string,
+  threadId: string
+): Promise<{ thread: Thread; messages: ThreadMessage[] } | null> {
+  const db = getFirebaseDb();
+
+  // Get thread
+  const threadRef = doc(db, 'threads', threadId);
+  const threadSnap = await getDoc(threadRef);
+
+  if (!threadSnap.exists()) return null;
+
+  const threadData = threadSnap.data();
+
+  // Verify user is participant
+  if (!threadData.participantIds?.includes(uid)) {
+    return null;
+  }
+
+  // Get messages for this thread
+  const messagesRef = collection(db, 'messages');
+  const messagesQuery = query(
+    messagesRef,
+    where('threadId', '==', threadId),
+    orderBy('createdAt', 'asc')
+  );
+  const messagesSnap = await getDocs(messagesQuery);
+
+  const messages: ThreadMessage[] = messagesSnap.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      threadId: data.threadId,
+      senderId: data.senderId,
+      content: data.content,
+      messageType: (data.messageType || 'general') as MessageType,
+      createdAt: toDate(data.createdAt) || new Date(),
+      readAt: toDate(data.readAt),
+      replyToId: data.replyToId,
+    };
+  });
+
+  const thread: Thread = {
+    id: threadSnap.id,
+    participantIds: threadData.participantIds || [],
+    subject: threadData.subject || 'No subject',
+    lastMessageAt: toDate(threadData.lastMessageAt) || new Date(),
+    lastMessagePreview: threadData.lastMessageContent,
+  };
+
+  return { thread, messages };
+}
+
+/**
+ * Get user display name by ID (for showing sender names in threads)
+ */
+export async function getUserDisplayName(userId: string): Promise<string> {
+  const db = getFirebaseDb();
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) return 'Unknown';
+
+  const data = userSnap.data();
+  return data.displayName || data.email?.split('@')[0] || 'Unknown';
+}
