@@ -31,10 +31,27 @@ Returns next scheduled workout automatically`;
 // ============================================================================
 
 export const CREATE_WORKOUT = `**create_workout** (ONLY when user explicitly asks to CREATE/MAKE/BUILD a workout)
-TRIGGERS: "create a workout", "make me a push day", "build a leg workout", "give me a chest routine"
+TRIGGERS: "create a workout", "make me a push day", "build a leg workout", "give me a chest routine", "create a GBC workout", "create a workout with [protocol name]"
 NOT FOR: questions, greetings, schedule requests, profile updates, fitness advice
 SPLIT MAPPING: legs/lower→"legs", upper→"upper", arms→"arms", back+biceps→"pull", chest+triceps→"push"
-DON'T PRE-DESCRIBE: Wait for result, then describe ACTUAL created exercises`;
+DON'T PRE-DESCRIBE: Wait for result, then describe ACTUAL created exercises
+
+⚠️ LOW STAKES - EXECUTE THEN CONFIRM:
+Single workout = low stakes. DO NOT ask questions before creating. EXECUTE immediately with smart defaults:
+- Duration: Use user's profile.preferredSessionDuration OR 45 minutes
+- Location: Use user's profile.trainingLocation OR "gym"
+- Date: Tomorrow (or next available day)
+- Protocol: Use specified protocol OR default progression
+
+AFTER CREATING: Offer to adjust: "Created your 45-min [split] workout for tomorrow! Want me to change the duration, location, or exercises?"
+
+❌ WRONG (3 turns):
+  User: "Create a GBC workout"
+  AI: "What duration?" → User: "45 min" → AI: "What day?" → User: "Tomorrow" → AI creates workout
+
+✅ RIGHT (1 turn):
+  User: "Create a GBC workout"
+  AI: [EXECUTES create_workout with profile defaults] "Created your 45-min GBC workout for tomorrow! Want me to change anything?"`;
 
 export const CREATE_CUSTOM_WORKOUT = `**create_custom_workout**
 Only when user names SPECIFIC exercises: "bench press and squats"
@@ -56,7 +73,6 @@ export const CREATE_PLAN = `**create_plan**: MUST CALL when user wants a multi-w
 TRIGGERS: "create a plan", "create a program", "X-week program", "training plan", "strength program"
 EXPERIENCE: Check profile first. Only ask if NOT SET.
 TARGET DATE: User deadline → send targetDate, system calculates weeks
-CONFIRM BEFORE: Duration, experience, days/week, session duration, goal
 MUSCLE FOCUS: "bigger arms"→emphasizedMuscles: ["biceps", "triceps"]
 CARDIO: Include workoutDayAssignments when cardioDays > 0
 ⚠️ CRITICAL - EXERCISES FROM VISION/IMAGE:
@@ -66,7 +82,17 @@ CARDIO: Include workoutDayAssignments when cardioDays > 0
   - ❌ WRONG: Describe exercises in text but call create_plan without exerciseIds
   - ✅ RIGHT: Call create_plan WITH exerciseIds containing ALL exercises from the image
   - System auto-matches names to catalog IDs
-PROTOCOL: If user mentions GBC/5x5/drop sets/tempo, pass as protocolId`;
+PROTOCOL: If user mentions GBC/5x5/drop sets/tempo, pass as protocolId
+
+⚠️ HIGH STAKES - CONFIRM THEN EXECUTE:
+Multi-week plan = high stakes (creates 12+ workouts). CONFIRM key parameters before executing:
+- Duration (weeks), days/week, session duration, goal
+
+✅ RIGHT (2-3 turns):
+  User: "Create a strength plan"
+  AI: "I'll create a 12-week strength plan, training 4 days/week for 45 minutes. Does that work?"
+  User: "Make it 8 weeks"
+  AI: [EXECUTES create_plan with 8 weeks]`;
 
 export const RESCHEDULE_PLAN = `**reschedule_plan**: Change training days without losing progress`;
 

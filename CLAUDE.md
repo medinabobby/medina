@@ -75,31 +75,64 @@ Files to check for parity:
 | Sidebar refresh | `ChatViewModel.swift` | `Sidebar.tsx`, `ChatLayout.tsx` |
 | API auth | `FirebaseAPIClient.swift` | Uses `getIdToken()` directly |
 
-## AI Behavior Rules (v247)
+## AI Behavior Rules (v267)
 
-The AI assistant follows specific rules for when to act immediately vs ask for confirmation.
+The AI assistant follows a **stakes-based UX framework** for when to act vs ask.
+
+### Stakes-Based Action Pattern
+
+| Action Type | Stakes | Pattern | Example |
+|-------------|--------|---------|---------|
+| **create_workout** | LOW | Execute → Confirm | Create immediately, offer changes after |
+| **create_plan** | HIGH | Confirm → Execute | Propose params, wait for OK, then create |
+| **update_profile** | MEDIUM | Explicit = Act, Statement = Ask | "Update to 4 days" = act; "I want 4 days" = ask |
+| **destructive** | HIGH | Always confirm | "Delete my plan" = must confirm |
+
+### LOW Stakes: Execute Then Confirm (v267)
+
+For single workout creation, **execute immediately** with smart defaults:
+- Duration: Use profile.preferredSessionDuration OR 45 min
+- Location: Use profile.trainingLocation OR "gym"
+- Date: Tomorrow (or next available day)
+
+**After creating:** Offer to adjust: "Created your 45-min workout! Want me to change duration, location, or exercises?"
+
+```
+User: "Create a GBC workout"
+AI: [EXECUTES immediately] "Created your 45-min GBC workout for tomorrow! Want me to change anything?"
+```
+
+### HIGH Stakes: Confirm Then Execute
+
+For multi-week plans, **confirm key params first**:
+- Duration (weeks), days/week, session duration, goal
+
+```
+User: "Create a strength plan"
+AI: "I'll create a 12-week strength plan, 4 days/week. Sound good?"
+User: "Make it 8 weeks"
+AI: [EXECUTES with 8 weeks]
+```
 
 ### When to ACT Immediately
 
 | User Says | Tool | Why |
 |-----------|------|-----|
+| "Create a push workout" | `create_workout` | Low stakes, use defaults |
+| "Create a GBC workout" | `create_workout` | Low stakes, use defaults |
 | "Update my profile to 4 days" | `update_profile` | Explicit command |
-| "Save 4 days to my profile" | `update_profile` | Explicit command |
-| "Create a push workout" | `create_workout` | Single-param, low stakes |
 | "Skip today's workout" | `skip_workout` | Explicit, reversible |
 | "Add bench press to my library" | `add_to_library` | Explicit, reversible |
 | "My bench 1RM is 225" | `update_exercise_target` | User providing data |
 | "Show my schedule" | `show_schedule` | Read-only |
 
-**After acting:** Confirm what was done + remind user they can change in settings.
-
-### When to ASK First
+### When to ASK/CONFIRM First
 
 | User Says | Why Confirm |
 |-----------|-------------|
+| "Create a 12-week plan" | High stakes, multi-week commitment |
 | "I want to train 4 days" | Preference statement, not command |
 | "I'm 5'11 and 180 lbs" | User stating info, not requesting save |
-| "Create a 12-week plan" | Multi-param tool, needs details first |
 | "Delete my plan" | Destructive action |
 | "Activate this plan" | Multi-week commitment |
 
@@ -169,7 +202,18 @@ Key eval files:
 
 ## Current Version
 
-v266
+v267
+
+## Recent Changes (v267)
+
+### Stakes-Based UX Framework
+- **Execute Then Confirm** for low-stakes actions (single workout)
+- **Confirm Then Execute** for high-stakes actions (plans, destructive)
+- AI now creates workouts immediately with smart defaults instead of asking 3 questions
+- After creating, offers to adjust: "Want me to change duration, location, or exercises?"
+
+### Key Files Changed
+- `web/functions/src/prompts/toolInstructions.ts` - Added LOW/HIGH stakes patterns
 
 ## Recent Changes (v248-250)
 

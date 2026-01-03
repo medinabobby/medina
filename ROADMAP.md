@@ -8,9 +8,9 @@
 
 | Platform | Version | Status |
 |----------|---------|--------|
-| iOS | v266 | TestFlight (passthrough client) |
-| Web | v266 | Production |
-| Backend | v266 | **22/22 tools complete** |
+| iOS | v267 | TestFlight (passthrough client) |
+| Web | v267 | Production |
+| Backend | v267 | **22/22 tools complete** |
 
 ---
 
@@ -216,6 +216,7 @@ All iOS business logic migrated to Firebase Functions. iOS is pure passthrough c
 
 | Feature | Date | Notes |
 |---------|------|-------|
+| **Stakes-Based UX Framework (v267)** | Jan 3 | Execute-Then-Confirm for low-stakes (workouts). Confirm-Then-Execute for high-stakes (plans). AI now creates workouts in 1 turn instead of 3. PROT04 "Create GBC workout" now passes. |
 | **Eval Framework v266: Multi-Turn & Output Quality** | Jan 3 | Multi-turn credit (ask → execute = PASS). Output quality scoring for workout constraints. Removed 10 broken IM tests. Fixed TT06 fixture. Tier 1 now 95% (40/42). Added 10 workout quality tests (WQ01-10). |
 | **Create Plan: ExerciseIds + ProtocolId Support (v260)** | Jan 2 | Added `exerciseIds` and `protocolId` parameters to `create_plan` tool. Vision import → plan now preserves extracted exercises. User can specify protocols (GBC, 5x5, drop sets). Added 6 protocol accuracy tests (PROT01-06). Total tests: 91. |
 | **Web Profile Modal Redesign (v251)** | Jan 1 | Redesigned ProfilePanel to match TrainingPreferences style. Added ACCOUNT section (Gym/Trainer/Plan). Row-based layout with auto-save. Removed giant blue Save button. Simplified settings dropdown. |
