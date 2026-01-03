@@ -1697,9 +1697,10 @@ export async function runEvaluation(
     excludeCategories?: TestCase['category'][];  // v264: Exclude specific categories
     testIds?: string[];
     delayBetweenTests?: number;
+    concurrency?: number;  // v267: Number of parallel tests (default: 5)
   }
 ): Promise<EvalSummary> {
-  const { categories, excludeCategories, testIds, delayBetweenTests = 1000 } = options || {};
+  const { categories, excludeCategories, testIds, delayBetweenTests = 1000, concurrency = 5 } = options || {};
 
   // Filter tests
   let tests = TEST_CASES;
@@ -1720,29 +1721,43 @@ export async function runEvaluation(
 
   const results: EvalResult[] = [];
 
-  for (let i = 0; i < tests.length; i++) {
-    const test = tests[i];
-    console.log(`[${i + 1}/${tests.length}] ${test.id}: ${test.prompt.slice(0, 50)}...`);
+  // v267: Run tests in parallel batches for faster execution
+  console.log(`Running with concurrency: ${concurrency}`);
 
-    const result = await runTestCase(test, model, apiEndpoint, authToken);
-    results.push(result);
+  for (let i = 0; i < tests.length; i += concurrency) {
+    const batch = tests.slice(i, i + concurrency);
+    const batchNum = Math.floor(i / concurrency) + 1;
+    const totalBatches = Math.ceil(tests.length / concurrency);
 
-    if (result.error) {
-      console.log(`  ERROR: ${result.error}`);
-    } else {
-      const toolStatus = result.toolAccuracy === 'pass' ? 'PASS' : 'FAIL';
-      const intentStatus = result.intentScore === 1 ? '✓' : '✗';
-      const confirmStatus = result.askedForConfirmation ? 'asked' : 'exec';
-      const turns = result.turnCount > 1 ? ` (${result.turnCount} turns)` : '';
-      console.log(`  Tool: ${result.finalToolCalled || result.toolCalled || 'none'} [${toolStatus}] | Intent: ${intentStatus} (${confirmStatus})${turns}`);
-      console.log(`  Time: ${result.totalResponseTime}ms, Cost: $${result.estimatedCost.toFixed(6)}`);
-      if (result.llmEvaluation) {
-        console.log(`  LLM Score: ${result.llmEvaluation.overallScore}/5 - ${result.llmEvaluation.summary}`);
+    // Log batch start
+    console.log(`\n--- Batch ${batchNum}/${totalBatches} (${batch.length} tests) ---`);
+    batch.forEach((test, idx) => {
+      console.log(`[${i + idx + 1}/${tests.length}] ${test.id}: ${test.prompt.slice(0, 50)}...`);
+    });
+
+    // Run batch in parallel
+    const batchResults = await Promise.all(
+      batch.map(test => runTestCase(test, model, apiEndpoint, authToken))
+    );
+
+    // Log results after batch completes
+    batchResults.forEach((result, idx) => {
+      const test = batch[idx];
+      if (result.error) {
+        console.log(`  ${test.id}: ERROR: ${result.error}`);
+      } else {
+        const toolStatus = result.toolAccuracy === 'pass' ? 'PASS' : 'FAIL';
+        const intentStatus = result.intentScore === 1 ? '✓' : '✗';
+        const confirmStatus = result.askedForConfirmation ? 'asked' : 'exec';
+        const turns = result.turnCount > 1 ? ` (${result.turnCount} turns)` : '';
+        console.log(`  ${test.id}: Tool: ${result.finalToolCalled || result.toolCalled || 'none'} [${toolStatus}] | Intent: ${intentStatus} (${confirmStatus})${turns} | ${result.totalResponseTime}ms`);
       }
-    }
+    });
 
-    // Delay between tests to avoid rate limiting
-    if (i < tests.length - 1 && delayBetweenTests > 0) {
+    results.push(...batchResults);
+
+    // Delay between batches (not individual tests)
+    if (i + concurrency < tests.length && delayBetweenTests > 0) {
       await new Promise(resolve => setTimeout(resolve, delayBetweenTests));
     }
   }

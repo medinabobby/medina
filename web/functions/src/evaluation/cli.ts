@@ -59,6 +59,7 @@ Options for 'run':
   --token <token>              Auth token (or set EVAL_AUTH_TOKEN env var)
   --output <file>              Output JSON file (default: results-{model}.json)
   --delay <ms>                 Delay between tests (default: 1000)
+  --concurrency <n>            Number of parallel tests (default: 5)
   --category <name>            Run only tests in category (can repeat)
   --exclude <name>             Exclude category from run (can repeat)
   --test <id>                  Run only specific test IDs (can repeat)
@@ -117,6 +118,7 @@ async function main() {
       const token = getArg('token') || process.env.EVAL_AUTH_TOKEN;
       const output = getArg('output') || `results-${model}.json`;
       const delay = parseInt(getArg('delay') || '1000', 10);
+      const concurrency = parseInt(getArg('concurrency') || '5', 10);
 
       // v264: Category filtering
       const includeCategories = getAllArgs('category') as TestCase['category'][];
@@ -161,6 +163,7 @@ async function main() {
       console.log(`   Endpoint: ${endpoint}`);
       console.log(`   Output: ${output}`);
       console.log(`   Delay: ${delay}ms`);
+      console.log(`   Concurrency: ${concurrency}`);
       if (includeCategories.length > 0) {
         console.log(`   Categories: ${includeCategories.join(', ')}`);
       }
@@ -174,6 +177,7 @@ async function main() {
 
       const results = await runEvaluation(model, endpoint, token, {
         delayBetweenTests: delay,
+        concurrency,
         categories: includeCategories.length > 0 ? includeCategories : undefined,
         excludeCategories: excludeCategories.length > 0 ? excludeCategories : undefined,
         testIds: testIds.length > 0 ? testIds : undefined,
