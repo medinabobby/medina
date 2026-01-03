@@ -2,10 +2,45 @@
  * Tool Definitions for OpenAI Responses API
  *
  * v197: Ported from iOS AIToolDefinitions.swift
+ * v268: Extracted shared constants to reduce token usage
  * All 22 tools for passthrough mode (server streams tool calls → iOS executes)
  */
 
 import {ToolDefinition} from '../types/chat';
+
+// ============================================================================
+// Shared Constants (v268: Reduce duplication)
+// ============================================================================
+
+/** Shared splitDay enum for workout tools */
+const SPLIT_DAY_ENUM = ['upper', 'lower', 'push', 'pull', 'legs', 'fullBody', 'chest', 'back', 'shoulders', 'arms', 'notApplicable'] as const;
+
+/** Shared effort level enum */
+const EFFORT_LEVEL_ENUM = ['recovery', 'standard', 'push'] as const;
+
+/** Shared training location enum */
+const TRAINING_LOCATION_ENUM = ['gym', 'home', 'outdoor'] as const;
+
+/** Shared protocol ID description */
+const PROTOCOL_ID_DESC = `Protocol ID. Common: 'gbc_relative_compound' (GBC - 12 reps, 30s rest, 3010 tempo), 'strength_5x5_compound' (5x5), 'hypertrophy_3x10_compound' (3x10).`;
+
+/** Shared protocolCustomizations schema */
+const PROTOCOL_CUSTOMIZATION_SCHEMA = {
+  type: 'array' as const,
+  items: {
+    type: 'object' as const,
+    properties: {
+      exercisePosition: {type: 'integer' as const, description: 'Position in exercise array (0-indexed)'},
+      setsAdjustment: {type: 'integer' as const, minimum: -2, maximum: 2, description: 'Adjust sets: -2 to +2'},
+      repsAdjustment: {type: 'integer' as const, minimum: -10, maximum: 10, description: 'Adjust reps: -10 to +10. GBC needs +7'},
+      restAdjustment: {type: 'integer' as const, minimum: -60, maximum: 60, description: 'Adjust rest seconds: -60 to +60. GBC needs -60'},
+      tempoOverride: {type: 'string' as const, description: "Tempo: '3010' (GBC), '2010', '4020'"},
+      rpeOverride: {type: 'number' as const, minimum: 6, maximum: 10, description: 'RPE 6-10. GBC uses 8.0'},
+      rationale: {type: 'string' as const, description: 'Why customizing'},
+    },
+  },
+  description: "Customize protocols. For GBC: repsAdjustment=+7, restAdjustment=-60, tempoOverride='3010', rpeOverride=8.0",
+};
 
 // ============================================================================
 // Schedule & Calendar
@@ -60,25 +95,9 @@ Use query_type to control response format. Always shows FUTURE dates (today forw
 export const createWorkout: ToolDefinition = {
   type: 'function',
   name: 'create_workout',
-  description: `⚠️ STRICT REQUIREMENT: Only call if user message contains one of these EXACT verbs: "create", "make", "build", "generate" PLUS the word "workout".
-
-❌ DO NOT CALL FOR:
-- "Hi" or greetings → respond with text
-- "Show schedule" → use show_schedule instead
-- "My 1RM is..." → use update_exercise_target instead
-- "Skip workout" → use skip_workout instead
-- Questions like "what muscles..." → respond with text
-- Anything without "create/make/build workout"
-
-✅ ONLY CALL WHEN user literally says things like:
-- "Create a push workout"
-- "Make me a leg day"
-- "Build a 45 minute workout"
-
-If the user's message does NOT contain create/make/build + workout, respond conversationally instead.
-
----
-Exercise selection: Use IDs from EXERCISE OPTIONS context. Count: 30min→3, 45min→4, 60min→5 exercises.`,
+  description: `Create a workout. ONLY call when user says "create/make/build workout" or split day like "push day", "legs".
+❌ NOT FOR: greetings, questions, "show schedule", "my 1RM is", "skip workout"
+Exercise count: 30min→3, 45min→4, 60min→5. Use IDs from EXERCISE OPTIONS context.`,
   parameters: {
     type: 'object',
     properties: {
@@ -88,8 +107,8 @@ Exercise selection: Use IDs from EXERCISE OPTIONS context. Count: 30min→3, 45m
       },
       splitDay: {
         type: 'string',
-        enum: ['upper', 'lower', 'push', 'pull', 'legs', 'fullBody', 'chest', 'back', 'shoulders', 'arms', 'notApplicable'],
-        description: "Split type for this workout. Use 'notApplicable' for cardio sessions.",
+        enum: [...SPLIT_DAY_ENUM],
+        description: "Split type. Use 'notApplicable' for cardio.",
       },
       scheduledDate: {
         type: 'string',
@@ -103,8 +122,8 @@ Exercise selection: Use IDs from EXERCISE OPTIONS context. Count: 30min→3, 45m
       },
       effortLevel: {
         type: 'string',
-        enum: ['recovery', 'standard', 'push'],
-        description: "Effort level: recovery=light, standard=balanced, push=high intensity. Default to 'standard' if not specified.",
+        enum: [...EFFORT_LEVEL_ENUM],
+        description: "Effort: recovery=light, standard=balanced (default), push=high.",
       },
       sessionType: {
         type: 'string',
@@ -128,33 +147,15 @@ When sessionType='cardio': Use cardio exerciseIds, set splitDay to 'notApplicabl
       },
       trainingLocation: {
         type: 'string',
-        enum: ['gym', 'home', 'outdoor'],
-        description: `Where user will train. DEFAULT: 'gym' if user doesn't mention location.
-
-Pass 'home' when user says: "home workout", "at home", "work from home", "no gym", etc.
-When passing trainingLocation='home': Check profile for home equipment, or ASK user what equipment they have.`,
+        enum: [...TRAINING_LOCATION_ENUM],
+        description: "Where training. Default 'gym'. Use 'home' if user mentions home/no gym.",
       },
       availableEquipment: {
         type: 'array',
         items: {type: 'string'},
         description: "For home workouts: Check user profile first. If 'Home Equipment: Not configured', ASK user before calling. Values: 'bodyweight', 'dumbbells', 'barbell', 'kettlebell', 'resistance_band', 'pullup_bar', 'bench', 'cable_machine'.",
       },
-      protocolCustomizations: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            exercisePosition: {type: 'integer', description: 'Position in exerciseIds array (0-indexed)'},
-            setsAdjustment: {type: 'integer', minimum: -2, maximum: 2, description: 'Adjust sets: -2 to +2'},
-            repsAdjustment: {type: 'integer', minimum: -10, maximum: 10, description: 'Adjust reps per set: -10 to +10. GBC protocol needs +7 (5→12 reps)'},
-            restAdjustment: {type: 'integer', minimum: -60, maximum: 60, description: 'Adjust rest in seconds: -60 to +60. GBC needs -60 (90→30s)'},
-            tempoOverride: {type: 'string', description: "Tempo override like '3010', '2010', '4020'. GBC uses '3010'"},
-            rpeOverride: {type: 'number', minimum: 6, maximum: 10, description: 'Override RPE for all sets (6-10). GBC uses 8.0'},
-            rationale: {type: 'string', description: "Why you're customizing this exercise's protocol"},
-          },
-        },
-        description: "Customize protocols for specific exercises. For GBC: repsAdjustment=+7, restAdjustment=-60, tempoOverride='3010', rpeOverride=8.0",
-      },
+      protocolCustomizations: PROTOCOL_CUSTOMIZATION_SCHEMA,
       movementPatterns: {
         type: 'array',
         items: {type: 'string'},
@@ -166,14 +167,7 @@ Examples: 'squat pull workout' → ["squat", "pull"], 'hinge day' → ["hinge"]`
       },
       protocolId: {
         type: 'string',
-        description: `Apply a specific protocol to ALL exercises in this workout. Use when user explicitly requests a protocol.
-
-Common values:
-- 'gbc_relative_compound': GBC (German Body Composition) - 12 reps, 30s rest, 3010 tempo
-- 'strength_5x5_compound': Strength 5x5 - 5 reps, 120s rest
-- 'hypertrophy_3x10_compound': Hypertrophy 3x10 - 10 reps, 60s rest
-
-If NOT specified, protocols are auto-selected based on exercise type and user goals.`,
+        description: PROTOCOL_ID_DESC,
       },
       supersetStyle: {
         type: 'string',
@@ -215,7 +209,7 @@ If NOT specified, protocols are auto-selected based on exercise type and user go
 export const modifyWorkout: ToolDefinition = {
   type: 'function',
   name: 'modify_workout',
-  description: "Modify a workout that was created in this conversation. Two modes: (1) STRUCTURAL changes (duration, split, sessionType): pass newDuration/newSplitDay/newSessionType, exercises may be replaced. (2) PROTOCOL-ONLY changes (reps, tempo, RPE, 'use GBC protocol'): pass ONLY protocolCustomizations, do NOT pass newDuration/newSplitDay - this preserves the exact exercises. CRITICAL: For protocol changes like 'change to GBC' or 'update RPE to 9', use ONLY protocolCustomizations without other params.",
+  description: "Modify a workout. STRUCTURAL (duration/split): may replace exercises. PROTOCOL-ONLY (reps/tempo/RPE): pass ONLY protocolCustomizations to preserve exercises.",
   parameters: {
     type: 'object',
     properties: {
@@ -231,12 +225,12 @@ export const modifyWorkout: ToolDefinition = {
       },
       newSplitDay: {
         type: 'string',
-        enum: ['upper', 'lower', 'push', 'pull', 'legs', 'fullBody', 'chest', 'back', 'shoulders', 'arms', 'notApplicable'],
-        description: "New split type (optional). Use 'notApplicable' for cardio.",
+        enum: [...SPLIT_DAY_ENUM],
+        description: "New split type (optional).",
       },
       newEffortLevel: {
         type: 'string',
-        enum: ['recovery', 'standard', 'push'],
+        enum: [...EFFORT_LEVEL_ENUM],
         description: 'New effort level (optional)',
       },
       newSessionType: {
@@ -250,25 +244,10 @@ export const modifyWorkout: ToolDefinition = {
       },
       newTrainingLocation: {
         type: 'string',
-        enum: ['gym', 'home', 'outdoor'],
-        description: "Change training location. Use 'home' when user says 'make it a home workout'. This REPLACES exercises with equipment-appropriate alternatives.",
+        enum: [...TRAINING_LOCATION_ENUM],
+        description: "Change location. Replaces exercises with equipment-appropriate alternatives.",
       },
-      protocolCustomizations: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            exercisePosition: {type: 'integer', description: 'Position in workout (0-indexed). Apply to ALL positions: 0, 1, 2, 3, etc.'},
-            setsAdjustment: {type: 'integer', minimum: -2, maximum: 2, description: 'Adjust sets: -2 to +2'},
-            repsAdjustment: {type: 'integer', minimum: -10, maximum: 10, description: 'Adjust reps: -10 to +10. GBC needs +7 (5→12 reps)'},
-            restAdjustment: {type: 'integer', minimum: -60, maximum: 60, description: 'Adjust rest: -60 to +60 seconds. GBC needs -60 (90→30s)'},
-            tempoOverride: {type: 'string', description: "Tempo override: '3010' (GBC), '2010', '4020'"},
-            rpeOverride: {type: 'number', minimum: 6, maximum: 10, description: 'RPE 6-10. GBC uses 8.0'},
-            rationale: {type: 'string', description: "Why you're customizing"},
-          },
-        },
-        description: "PROTOCOL-ONLY mode: Pass this WITHOUT newDuration/newSplitDay to preserve exercises. For GBC: repsAdjustment=+7, restAdjustment=-60, tempoOverride='3010', rpeOverride=8.0. Apply to ALL exercise positions.",
-      },
+      protocolCustomizations: PROTOCOL_CUSTOMIZATION_SCHEMA,
     },
     required: ['workoutId'],
   },
@@ -284,7 +263,7 @@ export const modifyWorkout: ToolDefinition = {
 export const changeProtocol: ToolDefinition = {
   type: 'function',
   name: 'change_protocol',
-  description: "Change a workout's training protocol. ALWAYS use this instead of modify_workout for protocol changes. Supports: (1) Named protocols - system resolves all values. (2) Custom values only. (3) Named protocol WITH overrides (e.g., 'GBC but with RPE 9'). Never loses exercises.",
+  description: "Change workout protocol. Use INSTEAD of modify_workout for protocol changes. Never loses exercises.",
   parameters: {
     type: 'object',
     properties: {
@@ -294,7 +273,7 @@ export const changeProtocol: ToolDefinition = {
       },
       namedProtocol: {
         type: 'string',
-        description: "Protocol name or ID. Common aliases: 'gbc' (12 reps, 30s rest, 3010 tempo), 'hypertrophy' (10 reps, 60s rest), 'strength' (5 reps, 180s rest), 'drop set'/'drop sets', 'waves', 'pyramid', 'myo'/'myo reps', 'rest pause', '5x5', 'wendler'/'531'. Can also use exact protocol IDs.",
+        description: "Protocol name: 'gbc', 'hypertrophy', 'strength', '5x5', 'drop set', 'rest pause', 'waves', 'pyramid', 'myo', 'wendler'.",
       },
       targetReps: {
         type: 'integer',
@@ -339,11 +318,8 @@ export const changeProtocol: ToolDefinition = {
 export const createPlan: ToolDefinition = {
   type: 'function',
   name: 'create_plan',
-  description: `Create a multi-week training plan with professional periodization. Plans are automatically structured into phases (Foundation→Development→Peak→Deload) based on goal and duration.
-
-CRITICAL FOR VISION/IMAGE: If conversation contains [Extracted from attached image] with exercises, you MUST pass those exercise names in the exerciseIds parameter. Do NOT create a plan without exerciseIds when exercises were extracted from an image.
-
-ALWAYS explain the phase structure to the user after creating a plan.`,
+  description: `Create multi-week training plan. Auto-structured into phases (Foundation→Development→Peak→Deload).
+VISION: If [Extracted from attached image] has exercises, MUST pass as exerciseIds.`,
   parameters: {
     type: 'object',
     properties: {
@@ -398,8 +374,8 @@ ALWAYS explain the phase structure to the user after creating a plan.`,
       },
       trainingLocation: {
         type: 'string',
-        enum: ['gym', 'home', 'outdoor'],
-        description: "Where user will train. Use when user mentions location (e.g., 'I'm working out at home' → 'home').",
+        enum: [...TRAINING_LOCATION_ENUM],
+        description: "Where training. Use when user mentions location.",
       },
       experienceLevel: {
         type: 'string',
@@ -461,26 +437,11 @@ ALWAYS explain the phase structure to the user after creating a plan.`,
       exerciseIds: {
         type: 'array',
         items: {type: 'string'},
-        description: `CRITICAL: If conversation contains [Extracted from attached image] with exercise data, you MUST pass those exercise names here.
-
-Example: If vision extracted "Incline Dumbbell Bench Press, Lateral Raise, Tricep Extension" → exerciseIds: ["Incline Dumbbell Bench Press", "Lateral Raise", "Tricep Extension"]
-
-Also use for explicit requests: "plan with bench press" → exerciseIds: ["Bench Press"]
-
-System auto-matches names to catalog IDs. Do NOT omit this parameter when exercises were extracted from an image.`,
+        description: "REQUIRED if vision extracted exercises. Pass exercise names - system auto-matches to IDs.",
       },
       protocolId: {
         type: 'string',
-        description: `v260: Protocol to apply to all workouts in the plan. Use when user specifies a training style.
-
-Common values:
-- 'gbc_relative_compound': GBC (German Body Composition) - 12 reps, 30s rest, 3010 tempo
-- 'strength_5x5_compound': Strength 5x5 - 5 reps, 120s rest
-- 'hypertrophy_3x10_compound': Hypertrophy 3x10 - 10 reps, 60s rest
-- 'drop_set': Drop sets
-- 'rest_pause': Rest-pause sets
-
-Examples: 'create plan with GBC protocol' → protocolId: 'gbc_relative_compound'`,
+        description: PROTOCOL_ID_DESC + " Also: 'drop_set', 'rest_pause'.",
       },
     },
     required: ['name', 'goal'],
